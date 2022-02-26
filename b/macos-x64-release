@@ -1,0 +1,8 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/macos-x64-release --args="is_debug=false skia_use_metal=true is_official_build=false" --ide=xcode
+
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/macos-x64-release"
+

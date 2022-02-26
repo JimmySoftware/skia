@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/macos-m1-debug --args='target_cpu="arm64" skia_use_metal=true' --ide=xcode
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/macos-m1-debug"
+echo ""
+echo "Run Test:"
+echo "out/macos-m1-debug/HelloWorld"
+echo ""

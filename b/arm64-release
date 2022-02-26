@@ -1,0 +1,18 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/arm64-release --args='is_debug=false 
+    is_official_build=true
+    target_os="linux" 
+    target_cpu="arm64" 
+    extra_cflags = [ "-DSDL_ATOMIC_DISABLED" ]
+    cc="clang" cxx="clang++"'
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/arm64-release"
+echo ""
+echo "Upload:"
+echo "./tools/upload-libs-linux"
+echo ""
+echo "Sync:"
+echo "python2 tools/sync-libs.py arm"
+echo ""

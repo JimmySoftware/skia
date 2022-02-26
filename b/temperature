@@ -1,0 +1,2 @@
+#!/bin/bash
+echo Temperature: $(vcgencmd measure_temp | tail -c +6)

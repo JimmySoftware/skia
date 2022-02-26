@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ninja -C out/linux-debug 
+
+echo ""
+echo "Run Test:"
+echo "out/linux-debug/HelloWorldApp"
+echo "out/linux-debug/TemplateApp"
+echo "out/linux-debug/ImageTest"
+echo "out/linux-debug/TouchApp"
+echo ""
+
+

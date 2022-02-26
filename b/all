@@ -1,0 +1,37 @@
+#!/bin/bash
+
+b/ios-release
+ninja -C out/ios-release 
+
+b/ios-sim-release
+ninja -C out/ios-sim-release 
+
+b/android-arm64-release
+ninja -C out/android-arm64-release 
+
+b/android-arm-release
+ninja -C out/android-arm-release 
+
+b/android-x86-release
+ninja -C out/android-x86-release 
+
+b/android-x64-release
+ninja -C out/android-x64-release 
+
+b/macos-x64-release
+ninja -C out/macos-x64-release 
+
+echo ""
+echo 'Press any key to upload.'
+read -s 
+echo ""
+
+tools/upload-libs-macos
+dirsync tools/_liblist ../cstack/tools/_liblist -c -p -s -v 
+
+echo ""
+echo 'Press any key to sync.'
+read -s 
+echo ""
+
+python2 tools/sync-libs.py macos

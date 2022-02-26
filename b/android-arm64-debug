@@ -1,0 +1,13 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/android-arm64-debug --args='ndk="'${ANDROID_NDK_ROOT}'" target_cpu="arm64"'
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/android-arm64-debug"
+echo ""
+echo "Create App:"
+echo "b/android-arm64-debug-app HelloWorld"
+echo ""
+echo "Deploy to device:"
+echo "adb install out/android-arm64-debug/HelloWorld.apk"
+echo ""

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+bin/gn gen 'out/armv6-release' --args='
+   is_official_build=true
+   cc = "'$(realpath ~)'/portable/clang/bin/clang"
+   cxx = "'$(realpath ~)'/portable/clang/bin/clang++"
+   cc_wrapper="ccache"
+   target_os="linux" 
+   target_cpu="armv6"
+   skia_use_egl=true
+   skia_use_system_freetype2=false
+   is_debug=false
+ extra_asmflags = [
+   "--target=arm-linux-gnueabihf",
+ ]
+ extra_cflags = [
+   "--target=arm-linux-gnueabihf",
+   "--sysroot='$(realpath ~)'/portable/buster-armhf-sysroot",
+   "-march=armv6",
+   "-mfpu=vfp",
+   "-mfloat-abi=hard",
+   "-DEGL_NO_X11_HEADERS"
+ ]
+ extra_cflags_cc = [
+   "--target=arm-linux-gnueabihf",
+   "-D__builtin_smulll_overflow(x,y,p)=(*(p)=(x)*(y), false)",
+    "-Wall",
+    "-std=c++17",
+    "-fvisibility-inlines-hidden",
+ ]
+ extra_ldflags = [
+   "--target=arm-linux-gnueabihf",
+   "-B'$(realpath ~)'/portable/cross-pi-gcc-8.3.0-0/lib/gcc/arm-linux-gnueabihf/8.3.0",
+   "-L'$(realpath ~)'/portable/cross-pi-gcc-8.3.0-0/lib/gcc/arm-linux-gnueabihf/8.3.0",
+   "-B'$(realpath ~)'/portable/cross-pi-gcc-8.3.0-0/arm-linux-gnueabihf/bin",
+   "-L'$(realpath ~)'/portable/cross-pi-gcc-8.3.0-0/arm-linux-gnueabihf/lib",
+   "-Wl,-rpath-link,'$(realpath ~)'/portable/buster-armhf-sysroot/lib",
+   "-L'$(realpath ~)'/portable/buster-armhf-sysroot/lib",
+   "--sysroot='$(realpath ~)'/portable/cross-pi-gcc-8.3.0-0/arm-linux-gnueabihf/libc",
+   
+ ]' "$@"
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/armv6-release"
+echo ""
+echo "Run Test:"
+echo "out/armv6-release/HelloWorld"
+echo ""

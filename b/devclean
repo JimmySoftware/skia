@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo ""
+echo "MacOS Debug:"
+bin/gn gen out/macos-x64-debug --args="skia_use_metal=true" --ide=xcode
+
+echo ""
+echo "Clean projects:"
+ninja -C out/macos-x64-debug  -t clean
+
+echo ""

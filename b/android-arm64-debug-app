@@ -1,0 +1,7 @@
+#!/bin/bash
+echo ""
+#ln -s ../../../../../../../resources platform_tools/android/apps/$1/src/main/assets/
+mkdir -p platform_tools/android/apps/$1/src/main/libs/arm64-v8a
+rm platform_tools/android/apps/$1/src/main/libs/arm64-v8a/*.*
+cp out/android-arm64-debug/lib$1.so platform_tools/android/apps/$1/src/main/libs/arm64-v8a
+platform_tools/android/bin/android_build_app -C out/android-arm64-debug $1

@@ -1,0 +1,13 @@
+#!/bin/bash
+b/macos-m1-debug
+ninja -C out/macos-m1-debug
+
+echo ""
+echo "Run Test:"
+echo "out/macos-m1-debug/HelloWorldApp"
+echo "out/macos-m1-debug/TemplateApp"
+echo "out/macos-m1-debug/ImageTest"
+echo "out/macos-m1-debug/TouchApp"
+echo ""
+
+

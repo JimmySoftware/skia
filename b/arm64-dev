@@ -1,0 +1,37 @@
+#!/bin/bash
+
+b/arm64-debug
+ninja -C out/arm64-debug HelloWorldApp
+ninja -C out/arm64-debug TemplateApp
+ninja -C out/arm64-debug EdisonApp
+
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/arm64-debug"
+echo ""
+echo "Run Test:"
+echo "out/arm64-debug/HelloWorldApp"
+echo "out/arm64-debug/TemplateApp"
+echo "out/arm64-debug/EdisonApp"
+echo ""
+
+PS3='Please enter your choice: '
+options=("HelloWorldApp" "TemplateApp" "EdisonApp" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "HelloWorldApp")
+            out/arm64-debug/HelloWorldApp
+            ;;
+        "TemplateApp")
+            out/arm64-debug/TemplateApp
+            ;;
+        "EdisonApp")
+            out/arm64-debug/EdisonApp
+            ;;       
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done

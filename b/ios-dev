@@ -1,0 +1,54 @@
+#!/bin/bash
+b/ios-debug
+
+rm -rf out/ios-debug/HelloWorldApp.app
+ninja -C out/ios-debug HelloWorldApp
+
+echo "Build cmd:"
+echo "ninja -C out/ios-debug"
+echo ""
+echo "Deploy to device:"
+echo "b/ios-debug-deploy HelloWorldApp.app"
+echo "b/ios-debug-deploy TemplateApp.app"
+echo "b/ios-debug-deploy ImageTest.app"
+echo "b/ios-debug-deploy TouchApp.app"
+echo "b/ios-debug-deploy EdisonApp.app"
+echo ""
+
+echo ""
+echo 'Press any key to deploy EdisonApp.'
+read -s 
+echo ""
+
+
+
+PS3='Please enter your choice: '
+options=("HelloWorldApp" "TemplateApp" "EdisonApp" "JukPukApp" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "HelloWorldApp")
+            b/ios-debug-deploy HelloWorldApp.app
+            ;;
+        "TemplateApp")
+            b/ios-debug-deploy TemplateApp.app
+            ;;
+        "ImageTestApp")
+            b/ios-debug-deploy ImageTestApp.app
+            ;;
+        "TouchApp")
+            b/ios-debug-deploy TouchApp.app
+            ;;            
+        "EdisonApp")
+            b/ios-debug-deploy EdisonApp.app
+            ;;
+        "JukPukApp")
+            out/macos-x64-debug/JukPukApp
+            b/ios-debug-deploy JukPukApp.app
+            ;;            
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done

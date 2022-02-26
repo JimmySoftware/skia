@@ -1,0 +1,19 @@
+#!/bin/bash
+b/macos-x64-debug
+ninja -C out/macos-x64-debug 
+
+echo ""
+echo "Run Test:"
+echo "out/macos-x64-debug/HelloWorldApp"
+echo "out/macos-x64-debug/TemplateApp"
+echo "out/macos-x64-debug/ImageTest"
+echo "out/macos-x64-debug/TouchApp"
+echo "out/macos-x64-debug/EdisonApp"
+echo ""
+
+echo ""
+echo 'Press any key to run EdisonApp.'
+read -s 
+echo ""
+
+out/macos-x64-debug/EdisonApp

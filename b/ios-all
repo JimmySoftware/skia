@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#b/macos-x64-debug
+#ninja -C out/macos-x64-debug 
+#b/macos-x64-release
+#ninja -C out/macos-x64-release 
+
+#b/ios-debug
+#yninja -C out/ios-debug 
+b/ios-release
+ninja -C out/ios-release 
+
+#b/ios-sim-debug
+#ninja -C out/ios-sim-debug viewer
+b/ios-sim-release
+ninja -C out/ios-sim-release 
+
+echo ""
+echo 'Press any key to upload.'
+read -s 
+tools/upload-libs-macos
+
+echo ""
+echo 'Press any key to sync.'
+read -s 
+tools/sync-libs ios
+
+
+

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: b/ios-debug-deploy HelloWorld.app"
+    exit
+fi
+
+ios-deploy -b out/ios-debug/$1

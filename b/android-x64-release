@@ -1,0 +1,13 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/android-x64-release --args='is_debug=false ndk="'${ANDROID_NDK_ROOT}'" target_cpu="x64" is_official_build=true'
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/android-x64-release"
+echo ""
+echo "Create App:"
+echo "b/android-x64-release-app HelloWorld"
+echo ""
+echo "Deploy to device:"
+echo "adb install out/android-x64-release/HelloWorld.apk"
+echo ""

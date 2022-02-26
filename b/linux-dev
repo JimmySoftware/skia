@@ -1,0 +1,19 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/linux-debug --args='target_os="linux"'
+
+ninja -C out/linux-debug  EdisonApp
+ninja -C out/linux-debug  HelloWorldApp
+
+echo ""
+echo "Run Test:"
+echo "out/linux-debug/HelloWorldApp"
+echo "out/linux-debug/TemplateApp"
+echo "out/linux-debug/ImageTest"
+echo "out/linux-debug/TouchApp"
+echo "out/linux-debug/EdisonApp"
+echo ""
+
+out/linux-debug/HelloWorldApp
+#out/linux-debug/EdisonApp
+

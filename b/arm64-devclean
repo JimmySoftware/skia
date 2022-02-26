@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo ""
+echo "ARM64 Debug:"
+bin/gn gen out/arm64-debug --args='target_os="linux" 
+    target_cpu="arm64" 
+    extra_cflags = [ "-DSDL_ATOMIC_DISABLED" ]
+    cc="clang" cxx="clang++"'
+
+echo ""
+echo "Clean projects:"
+ninja -C out/arm64-debug  -t clean
+
+echo ""

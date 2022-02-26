@@ -1,0 +1,5 @@
+#!/bin/bash
+#open -a Simulator
+#xcrun simctl list
+xcrun simctl install booted out/ios-sim-debug/HelloWorld.app
+#xcrun simctl launch booted com.skia.HelloWorld

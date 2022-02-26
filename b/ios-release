@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/ios-release --args='is_debug=false is_official_build=true target_os="ios" target_cpu="arm64" ios_min_target = "13.0" skia_ios_identity=".*Bussaya Tejasen.*" skia_ios_profile="/Users/jimmy/keys/JimmyDev2021.mobileprovision"' --ide=xcode
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/ios-release"
+echo ""
+echo "Deploy to device:"
+echo "b/ios-release-deploy HelloWorld.app"
+echo ""

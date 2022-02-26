@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/ios-sim-debug --args='target_os="ios" target_cpu="x64" ios_min_target = "13.0"' --ide=xcode
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/ios-sim-debug"
+echo ""
+echo "Deploy to device:"
+echo "ios-deploy -b out/ios-sim-debug/HelloWorld.app"
+echo ""

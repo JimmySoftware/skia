@@ -1,0 +1,14 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/macos-x64-debug --args="skia_use_metal=true" --ide=xcode
+
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/macos-x64-debug"
+echo ""
+echo "Run Test:"
+echo "out/macos-x64-debug/HelloWorldApp"
+echo "out/macos-x64-debug/TemplateApp"
+echo "out/macos-x64-debug/ImageTest"
+echo "out/macos-x64-debug/TouchApp"
+echo ""

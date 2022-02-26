@@ -1,0 +1,9 @@
+#!/bin/bash
+echo Temperature: $(vcgencmd measure_temp | tail -c +6)
+START_TIME=$SECONDS
+sleep 1
+$1
+ELAPSED_TIME=$(($SECONDS - $START_TIME))
+
+echo "$(($ELAPSED_TIME/60)) min $(($ELAPSED_TIME%60)) sec" 
+echo Temperature: $(vcgencmd measure_temp | tail -c +6)

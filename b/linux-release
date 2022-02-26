@@ -1,0 +1,10 @@
+#!/bin/bash
+echo ""
+bin/gn gen out/linux-release --args='is_debug=false is_official_build=true target_os="linux"'
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/linux-release HelloWroldApp"
+echo ""
+echo "Run Test:"
+echo "out/linux-release/HelloWroldApp"
+echo ""

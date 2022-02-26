@@ -1,0 +1,35 @@
+#!/bin/bash
+b/linux-release
+ninja -C out/linux-release 
+
+echo ""
+echo 'Press any key to arm6.'
+#read -s 
+
+b/armv6-release
+ninja -C out/armv6-release 
+
+echo ""
+echo 'Press any key to arm7.'
+#read -s 
+
+b/armv7-release
+ninja -C out/armv7-release 
+
+echo ""
+echo 'Press any key to arm8.'
+#read -s 
+
+b/armv8-release
+ninja -C out/armv8-release 
+
+echo ""
+echo 'Press any key to upload.'
+read -s 
+tools/upload-libs-linux
+
+echo ""
+echo 'Press any key to sync.'
+read -s 
+tools/sync-libs linux
+

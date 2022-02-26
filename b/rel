@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#tools/update_sk_ui
+b/macos-x64-release
+ninja -C out/macos-x64-release 

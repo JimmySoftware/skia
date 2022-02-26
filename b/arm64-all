@@ -1,0 +1,19 @@
+#!/bin/bash
+#b/arm64-debug
+#ninja -C out/arm64-debug viewer
+b/arm64-release
+ninja -C out/arm64-release 
+
+echo ""
+echo 'Press any key to upload.'
+read -s 
+echo ""
+
+tools/upload-libs-linux
+
+echo ""
+echo 'Press any key to sync.'
+read -s 
+echo ""
+
+tools/sync-libs linux

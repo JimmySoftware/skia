@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#tools/update_sk_ui
+b/macos-x64-debug
+ninja -C out/macos-x64-debug 
+
+echo ""
+echo "Run Test:"
+echo "out/macos-x64-debug/HelloWorld"
+echo "out/macos-x64-debug/viewer"
+echo ""
+
+PS3='Please enter your choice: '
+options=("HelloWorld" "viewer" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "HelloWorld")
+            out/macos-x64-debug/HelloWorld
+            ;;
+        "viewer")
+            out/macos-x64-debug/viewer
+            ;;
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done

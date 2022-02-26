@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+b/macos-m1-release
+ninja -C out/macos-m1-release 
+
+b/android-arm-release
+ninja -C out/android-arm-release 
+
+b/android-arm64-release
+ninja -C out/android-arm64-release 
+
+b/android-x64-release
+ninja -C out/android-x64-release 
+
+b/android-x86-release
+ninja -C out/android-x86-release 
+
+echo ""
+echo 'Press any key to upload.'
+read -s 
+echo ""
+
+tools/upload-libs
+
+echo ""
+echo 'Press any key to sync.'
+read -s 
+echo ""
+
+python2 tools/sync-libs.py macos
+

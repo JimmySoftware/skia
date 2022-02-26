@@ -1,0 +1,27 @@
+#!/bin/bash
+b/android-arm64-debug
+ninja -C out/android-arm64-debug libHelloWorldApp
+
+echo ""
+echo "Build cmd:"
+echo "ninja -C out/android-arm64-debug libEdisonApp"
+echo ""
+echo "Create App:"
+echo "b/android-arm64-debug-app EdisonApp"
+echo ""
+echo "Deploy to device:"
+echo "adb install out/android-arm64-debug/EdisonApp.apk"
+echo ""
+
+echo ""
+echo 'Press any key to create app.'
+read -s 
+echo ""
+b/android-arm64-debug-app HelloWorldApp
+
+echo ""
+echo 'Press any key to deploy app.'
+read -s 
+echo ""
+
+adb install out/android-arm64-debug/HelloWorldApp.apk
