@@ -1548,6 +1548,8 @@ group("modules") {
     "modules/skparagraph",
     "modules/skshaper",
     "modules/svg",
+    "apps/SkiaApp",
+    "apps/GigaApp",
   ]
 
   if (is_wasm) {
@@ -2859,6 +2861,26 @@ if (skia_enable_tools) {
         ":sk_app",
         ":skia",
         ":tool_utils",
+      ]
+    }
+  }
+
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+    test_app("HelloWorldApp") {
+      sources = [ 
+        "apps/0010_hello_world/HelloWorld.cpp",
+        "apps/0010_hello_world/lib/HelloWorldApp.cpp",
+      ]
+      libs = []
+
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        "apps/SkiaApp",
+        "apps/GigaApp"
       ]
     }
   }
