@@ -11,7 +11,7 @@ echo "out/macos-x64-debug/viewer"
 echo ""
 
 PS3='Please enter your choice: '
-options=("HelloWorld" "HelloWorldApp" "viewer" "Quit")
+options=("HelloWorld" "HelloWorldApp" "SkottieViewer" "viewer" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -20,6 +20,9 @@ do
             ;;
         "HelloWorldApp")
             out/macos-x64-debug/HelloWorldApp
+            ;;
+        "SkottieViewer")
+            out/macos-x64-debug/SkottieViewerApp
             ;;
         "viewer")
             out/macos-x64-debug/viewer

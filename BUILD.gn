@@ -2885,6 +2885,27 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+    test_app("SkottieViewerApp") {
+      sources = [ 
+        "apps/0020_skottie_viewer/SkottieViewer.cpp",
+        "apps/0020_skottie_viewer/app/SkottieViewerApp.cpp",
+      ]
+      libs = []
+
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        "modules/skottie:skottie",
+        "apps/SkiaApp",
+        "apps/GigaApp"
+      ]
+    }
+  }  
+
   if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
     action_foreach("generate_mocs") {
       script = "gn/call.py"
