@@ -193,7 +193,14 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        if (auto stream = GetResourceAsStream("skottie/skottie_sample_multiframe.json")) {
+        const char *skottie_filename = 
+            //"skottie/skottie_sample_1.json";
+            //"skottie/skottie_sample_2.json";
+            //"skottie/skottie-glow-spread.json";
+            "skottie/skottie-outerglow-style.json";
+            //"skottie/skottie_sample_multiframe.json";
+
+        if (auto stream = GetResourceAsStream(skottie_filename)) {
             fAnimation = skottie::Animation::Builder()
                             .setResourceProvider(sk_make_sp<MultiFrameResourceProvider>())
                             .make(stream.get());

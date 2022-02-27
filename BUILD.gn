@@ -2869,7 +2869,7 @@ if (skia_enable_tools) {
     test_app("HelloWorldApp") {
       sources = [ 
         "apps/0010_hello_world/HelloWorld.cpp",
-        "apps/0010_hello_world/lib/HelloWorldApp.cpp",
+        "apps/0010_hello_world/app/HelloWorldApp.cpp",
       ]
       libs = []
 

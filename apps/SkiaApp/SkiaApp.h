@@ -15,6 +15,8 @@ public:
     SkiaApp(int argc, char** argv, void* platformData, GigaApp *app);
     ~SkiaApp() override;
 
+    void pushLayer(  sk_app::Window::Layer *layer );
+
     void onIdle() override;
 
     void onBackendCreated() override;
@@ -24,12 +26,10 @@ public:
 private:
     void updateTitle();
 
-    GigaApp *gigaApp;
-
     sk_app::Window* fWindow;
     sk_app::Window::BackendType fBackendType;
 
-
+    GigaApp *gigaApp;
 };
 
 #endif //SKIA_APP_DEFINED

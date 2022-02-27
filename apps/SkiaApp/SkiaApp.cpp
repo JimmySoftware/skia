@@ -27,12 +27,15 @@ SkiaApp::SkiaApp(int argc, char** argv, void* platformData, GigaApp *app)
     fWindow->pushLayer(this);
 
     fWindow->attach(fBackendType);
-
 }
 
 SkiaApp::~SkiaApp() {
     fWindow->detach();
     delete fWindow;
+}
+
+void SkiaApp::pushLayer(  sk_app::Window::Layer *layer ) {
+    fWindow->pushLayer(layer);
 }
 
 void SkiaApp::updateTitle() {
@@ -47,6 +50,9 @@ void SkiaApp::updateTitle() {
 
 void SkiaApp::onBackendCreated() {
     this->updateTitle();
+
+    gigaApp->setup();
+
     fWindow->show();
     fWindow->inval();
 }
