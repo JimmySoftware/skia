@@ -9,12 +9,14 @@
 
 #include "SkottieViewerApp.h"
 
-class MultiFrameResourceProvider final : public skresources::ResourceProvider {
+class ResourceProvider final : public skresources::ResourceProvider {
 public:
-    sk_sp<skresources::ImageAsset> loadImageAsset(const char[], const char[],
-                                                    const char[]) const override {
-        return skresources::MultiFrameImageAsset::Make(
-                    GetResourceAsData("images/flightAnim.gif"));
+    sk_sp<skresources::ImageAsset> loadImageAsset(const char *resource_path, const char *resource_name,
+                                                    const char *resource_id ) const override {
+        //printf( "resource: %s %s %s\n", resource_path, resource_name, resource_id );
+        char sz[128];
+        sprintf( sz, "skottie/%s%s", resource_path, resource_name );
+        return skresources::MultiFrameImageAsset::Make(GetResourceAsData(sz));
     }
 };
 
@@ -32,11 +34,20 @@ void SkottieViewerApp::setup() {
         //"skottie/skottie_sample_1.json";
         //"skottie/skottie_sample_2.json";
         //"skottie/skottie-glow-spread.json";
-        "skottie/skottie-outerglow-style.json";
+        //"skottie/skottie-outerglow-style.json";
         //"skottie/skottie_sample_multiframe.json";
+        
+        "skottie/Start.json";
+        //"skottie/Shutdown.json";
+        //"skottie/Menu.json";
+        //"skottie/Charging.json";
+        //"skottie/ChargingFast.json";
+        //"skottie/ChargingFull.json";
+        //"skottie/BatteryEmpty.json";
 
     if (auto stream = GetResourceAsStream(skottie_filename)) {
         fAnimation = skottie::Animation::Builder()
+                        .setResourceProvider(sk_make_sp<ResourceProvider>())
                         .make(stream.get());
         fAnimation->seek(0);
         printf( "Animation OK\n" );
@@ -45,7 +56,7 @@ void SkottieViewerApp::setup() {
 }
 
 void SkottieViewerApp::draw( SkCanvas *canvas ) {
-    canvas->clear(SK_ColorWHITE);
+    canvas->clear(SK_ColorBLACK);
     if ( fAnimation == nullptr ) {
         return;
     }
@@ -56,6 +67,6 @@ void SkottieViewerApp::draw( SkCanvas *canvas ) {
     const auto duration = fAnimation->duration();
     fAnimation->seek(std::fmod(1e-9 * nanos, duration) / duration);  
 
-    auto dest = SkRect::MakeWH(800, 800);
+    auto dest = SkRect::MakeWH(1024, 600);
     fAnimation->render(canvas, &dest);  
 }
