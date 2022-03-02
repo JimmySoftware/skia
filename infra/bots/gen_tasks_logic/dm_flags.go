@@ -989,6 +989,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLLoopInt_GPU")
 	}
 
+	if b.extraConfig("Metal") && b.matchOs("Mac12") {
+		// The macOS 12 Metal shader compiler can crash while compiling LoopInt. (skia:13005)
+		skip(ALL, "tests", ALL, "SkSLLoopInt_GPU")
+	}
+
 	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") {
 		if !b.extraConfig("Vulkan") {
 			// Various Nvidia GPUs crash or generate errors when assembling weird matrices
@@ -1145,6 +1150,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchOs("Mac") && b.gpu("IntelHD615") {
+		// skia:7603
+		match = append(match, "~^GrMeshTest$")
+	}
+
+	if b.matchOs("Mac") && b.gpu("IntelIrisPlus") {
 		// skia:7603
 		match = append(match, "~^GrMeshTest$")
 	}
