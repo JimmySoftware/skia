@@ -27,6 +27,7 @@
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
@@ -68,6 +69,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/gl/GrGLDefines.h"
 
 #include <webgl/webgl1.h>
@@ -781,7 +783,7 @@ protected:
 
         uint32_t webGLCtx = emscripten_webgl_get_current_context();
         auto releaseCtx = new TextureReleaseContext{webGLCtx, glInfo.fID};
-        auto cleanupCallback = GrRefCntedCallback::Make(deleteJSTexture, releaseCtx);
+        auto cleanupCallback = skgpu::RefCntedCallback::Make(deleteJSTexture, releaseCtx);
 
         sk_sp<GrSurfaceProxy> proxy = ctx->priv().proxyProvider()->wrapBackendTexture(
                 backendTexture,

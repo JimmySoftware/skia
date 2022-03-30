@@ -56,10 +56,15 @@
 #include "include/private/chromium/GrSlug.h"
 #include "src/gpu/BaseDevice.h"
 #include "src/gpu/SkGr.h"
+#include "src/utils/SkTestCanvas.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 #   include "src/gpu/GrRenderTarget.h"
 #   include "src/gpu/GrRenderTargetProxy.h"
 #endif
+#endif
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/src/Device.h"
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
@@ -1706,13 +1711,24 @@ GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
 
 GrRecordingContext* SkCanvas::recordingContext() {
 #if SK_SUPPORT_GPU
-    if (auto gpuDevice = this->topDevice()->asGpuDevice()) {
+    if (auto gpuDevice = this->topDevice()->asGaneshDevice()) {
         return gpuDevice->recordingContext();
     }
 #endif
 
     return nullptr;
 }
+
+skgpu::Recorder* SkCanvas::recorder() {
+#ifdef SK_GRAPHITE_ENABLED
+    if (auto graphiteDevice = this->topDevice()->asGraphiteDevice()) {
+        return graphiteDevice->recorder();
+    }
+#endif
+
+    return nullptr;
+}
+
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
@@ -2317,13 +2333,12 @@ void SkCanvas::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPa
 sk_sp<GrSlug> SkCanvas::convertBlobToSlug(
         const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-
-    return this->doConvertBlobToSlug(blob, origin, paint);
+    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(blob, origin);
+    return this->onConvertGlyphRunListToSlug(glyphRunList, paint);
 }
 
 sk_sp<GrSlug>
-SkCanvas::doConvertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPaint& paint) {
-    auto glyphRunList = fScratchGlyphRunBuilder->blobToGlyphRunList(blob, origin);
+SkCanvas::onConvertGlyphRunListToSlug(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBounds();
     if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
         return nullptr;
@@ -2335,14 +2350,14 @@ SkCanvas::doConvertBlobToSlug(const SkTextBlob& blob, SkPoint origin, const SkPa
     return nullptr;
 }
 
-void SkCanvas::drawSlug(GrSlug* slug) {
+void SkCanvas::drawSlug(const GrSlug* slug) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (slug) {
-        this->doDrawSlug(slug);
+        this->onDrawSlug(slug);
     }
 }
 
-void SkCanvas::doDrawSlug(GrSlug* slug) {
+void SkCanvas::onDrawSlug(const GrSlug* slug) {
     SkRect bounds = slug->sourceBounds();
     if (this->internalQuickReject(bounds, slug->paint())) {
         return;
@@ -2431,6 +2446,10 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform x
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
+#if SK_SUPPORT_GPU && GR_TEST_UTILS
+bool gSkBlobAsSlugTesting = false;
+#endif
+
 void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2449,7 +2468,23 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
         RETURN_ON_FALSE(r.fGlyphCount <= glyphsLeft);
         totalGlyphCount += r.fGlyphCount;
     }
-    this->onDrawTextBlob(blob, x, y, paint);
+
+#if SK_SUPPORT_GPU && GR_TEST_UTILS
+    // Draw using text blob normally or if the blob has RSX form because slugs can't convert that
+    // form.
+    if (!gSkBlobAsSlugTesting ||
+        this->topDevice()->asGaneshDevice() == nullptr ||
+        SkTextBlobPriv::HasRSXForm(*blob))
+#endif
+    {
+        this->onDrawTextBlob(blob, x, y, paint);
+    }
+#if SK_SUPPORT_GPU && GR_TEST_UTILS
+    else {
+        auto slug = GrSlug::ConvertBlob(this, *blob, {x, y}, paint);
+        slug->draw(this);
+    }
+#endif
 }
 
 void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode bmode,
@@ -2840,4 +2875,27 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
     return hndl ? std::unique_ptr<SkCanvas>(new SkCanvas(bm, std::move(alloc), hndl)) : nullptr;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU && GR_TEST_UTILS
+SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+        : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
+
+void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
+        const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkRect bounds = glyphRunList.sourceBounds();
+    if (this->internalQuickReject(bounds, paint)) {
+        return;
+    }
+    auto layer = this->aboutToDraw(this, paint, &bounds);
+    if (layer) {
+        if (glyphRunList.hasRSXForm()) {
+            this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
+        } else {
+            auto slug = this->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
+            this->drawSlug(slug.get());
+        }
+    }
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,8 @@ namespace SkSL {
 
 class Context;
 class Expression;
+class Position;
+class Type;
 
 /**
  * Performs constant folding on IR expressions. This simplifies expressions containing
@@ -51,7 +53,7 @@ public:
 
     /** Simplifies the binary expression `left OP right`. Returns null if it can't be simplified. */
     static std::unique_ptr<Expression> Simplify(const Context& context,
-                                                int line,
+                                                Position pos,
                                                 const Expression& left,
                                                 Operator op,
                                                 const Expression& right,

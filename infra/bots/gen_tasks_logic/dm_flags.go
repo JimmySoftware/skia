@@ -302,6 +302,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// TODO: re-enable - currently fails with "Failed to make lazy image"
 			skip(ALL, "gm", ALL, "image_subset")
 
+			// TODO: re-enable - currently fails readback from surface
+			skip(ALL, "gm", ALL, "blurrect_compare")
+			skip(ALL, "gm", ALL, "lattice_alpha")
+			skip(ALL, "gm", ALL, "localmatriximageshader")
+			skip(ALL, "gm", ALL, "savelayer_f16")
+
 			if b.extraConfig("ASAN") {
 				// skbug.com/12507 (Neon UB during JPEG compression on M1 ASAN Graphite bot)
 				skip(ALL, "gm", ALL, "yuv420_odd_dim") // Oddly enough yuv420_odd_dim_repeat doesn't crash
@@ -920,6 +926,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(glMsaaConfig, "gm", ALL, "imageblurtiled")
 			skip(glMsaaConfig, "gm", ALL, "imagefiltersbase")
 		}
+
+		skip(ALL, "tests", ALL, "SkSLUnaryPositiveNegative_GPU")
 	}
 
 	if b.matchGpu("Adreno[3456]") { // disable broken tests on Adreno 3/4/5/6xx
@@ -989,19 +997,32 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "SkSLLoopInt_GPU")
 	}
 
-	if b.extraConfig("Metal") && b.matchOs("Mac12") {
-		// The macOS 12 Metal shader compiler can crash while compiling LoopInt. (skia:13005)
-		skip(ALL, "tests", ALL, "SkSLLoopInt_GPU")
-	}
-
-	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") {
+	if b.gpu("QuadroP400") || b.gpu("GTX660") || b.gpu("GTX960") || b.gpu("Tegra3") || b.gpu("RTX3060") {
 		if !b.extraConfig("Vulkan") {
 			// Various Nvidia GPUs crash or generate errors when assembling weird matrices
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES2_GPU") // skia:12443
 			skip(ALL, "tests", ALL, "SkSLMatrixConstructorsES3_GPU") // skia:12443
+
+			// Nvidia drivers erroneously constant-fold expressions with side-effects in matrix and
+			// vector constructors when compiling GLSL.
+			skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
 		}
+	}
+
+	if b.gpu("Tegra3") && !b.extraConfig("Vulkan") {
+		// Fails on Tegra3 w/ OpenGL ES
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU") // skia:11919
 	}
+
+	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
+		// Fails on Ubuntu18-Golo bots with QuadroP400 GPUs on Vulkan and OpenGL
+		skip(ALL, "tests", ALL, "SkSLPreserveSideEffects_GPU") // skia:13035
+	}
+
+	if b.gpu("QuadroP400") && b.matchOs("Win10") && b.matchModel("Golo") {
+	    // Times out with driver 30.0.15.1179
+		skip("vkmsaa4", "gm", ALL, "shadow_utils")
+    }
 
 	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
 		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU") // skia:11919

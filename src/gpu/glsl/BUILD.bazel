@@ -36,7 +36,7 @@ generated_cc_atom(
     visibility = ["//:__subpackages__"],
     deps = [
         ":GrGLSLShaderBuilder_hdr",
-        "//src/gpu:GrBlend_hdr",
+        "//src/gpu:Blend_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/gpu:GrProcessor_hdr",
     ],
@@ -81,6 +81,7 @@ generated_cc_atom(
     deps = [
         ":GrGLSLProgramBuilder_hdr",
         ":GrGLSLVarying_hdr",
+        "//include/sksl:DSL_hdr",
         "//src/gpu:GrCaps_hdr",
         "//src/gpu:GrFragmentProcessor_hdr",
         "//src/gpu:GrGeometryProcessor_hdr",

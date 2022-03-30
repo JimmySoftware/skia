@@ -7,13 +7,13 @@
 
 #include "experimental/graphite/src/CommandBuffer.h"
 
-#include "experimental/graphite/src/GraphicsPipeline.h"
-#include "src/core/SkTraceEvent.h"
-
 #include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/GraphicsPipeline.h"
 #include "experimental/graphite/src/Sampler.h"
 #include "experimental/graphite/src/Texture.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/RefCntedCallback.h"
 
 namespace skgpu {
 
@@ -31,6 +31,14 @@ void CommandBuffer::releaseResources() {
 
 void CommandBuffer::trackResource(sk_sp<Resource> resource) {
     fTrackedResources.push_back(std::move(resource));
+}
+
+void CommandBuffer::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
+    fFinishedProcs.push_back(std::move(finishedProc));
+}
+
+void CommandBuffer::callFinishedProcs() {
+    fFinishedProcs.reset();
 }
 
 bool CommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
@@ -101,20 +109,12 @@ void CommandBuffer::bindDrawBuffers(BindBufferInfo vertices,
     this->bindIndexBuffer(sk_ref_sp(indices.fBuffer), indices.fOffset);
 }
 
-void CommandBuffer::bindTextures(const TextureBindEntry* entries, int count) {
-    this->onBindTextures(entries, count);
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fTexture);
-        this->trackResource(entries[i].fTexture);
-    }
-}
-
-void CommandBuffer::bindSamplers(const SamplerBindEntry* entries, int count) {
-    this->onBindSamplers(entries, count);
-    for (int i = 0; i < count; ++i) {
-        SkASSERT(entries[i].fSampler);
-        this->trackResource(entries[i].fSampler);
-    }
+void CommandBuffer::bindTextureAndSampler(sk_sp<Texture> texture,
+                                          sk_sp<Sampler> sampler,
+                                          int bindIndex) {
+    this->onBindTextureAndSampler(texture, sampler, bindIndex);
+    this->trackResource(std::move(texture));
+    this->trackResource(std::move(sampler));
 }
 
 bool CommandBuffer::copyTextureToBuffer(sk_sp<skgpu::Texture> texture,

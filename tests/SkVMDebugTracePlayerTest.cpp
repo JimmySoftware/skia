@@ -93,6 +93,19 @@ static std::string make_global_vars_string(const SkSL::SkVMDebugTrace& trace,
     return make_vars_string(trace, player.getGlobalVariables());
 }
 
+DEF_TEST(SkSLTracePlayerCanResetToNull, r) {
+    SkSL::SkVMDebugTracePlayer player;
+    player.reset(nullptr);
+
+    // We should be in a reasonable state.
+    REPORTER_ASSERT(r, player.cursor() == 0);
+    REPORTER_ASSERT(r, player.getCurrentLine() == -1);
+    REPORTER_ASSERT(r, player.traceHasCompleted());
+    REPORTER_ASSERT(r, player.getCallStack().empty());
+    REPORTER_ASSERT(r, player.getGlobalVariables().empty());
+    REPORTER_ASSERT(r, player.getLineNumbersReached().empty());
+}
+
 DEF_TEST(SkSLTracePlayerHelloWorld, r) {
     sk_sp<SkSL::SkVMDebugTrace> trace = make_trace(r,
 R"(                // Line 1
@@ -266,7 +279,7 @@ int main() {                          // Line 6
     SkSL::SkVMDebugTracePlayer player;
     player.reset(trace);
 
-    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 3}, {4, 1}, {7, 1},
+    REPORTER_ASSERT(r, player.getLineNumbersReached() == LineNumberMap({{3, 1}, {4, 1}, {7, 1},
                                                                         {8, 1}, {9, 1}, {10, 1},
                                                                         {11, 1}, {12, 1}}));
     player.step();
@@ -291,19 +304,9 @@ int main() {                          // Line 6
     REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "");
     player.step();
 
-    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> float func()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##x = 4");
-    player.step();
-
-    REPORTER_ASSERT(r, player.getCurrentLine() == 3);
-    REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> float func()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##y = 5, x = 4");
-    player.step();
-
     REPORTER_ASSERT(r, player.getCurrentLine() == 4);
     REPORTER_ASSERT(r, make_stack_string(*trace, player) == "int main() -> float func()");
-    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##z = 6, y = 5, x = 4");
+    REPORTER_ASSERT(r, make_local_vars_string(*trace, player) == "##z = 6, ##y = 5, ##x = 4");
     player.step();
 
     REPORTER_ASSERT(r, player.getCurrentLine() == 9);

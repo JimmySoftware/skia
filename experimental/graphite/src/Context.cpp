@@ -19,8 +19,10 @@
 #include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "include/core/SkPathTypes.h"
+#include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkShaderCodeDictionary.h"
+#include "src/gpu/RefCntedCallback.h"
 
 #ifdef SK_METAL
 #include "experimental/graphite/src/mtl/MtlTrampoline.h"
@@ -50,30 +52,52 @@ std::unique_ptr<Recorder> Context::makeRecorder() {
     return std::unique_ptr<Recorder>(new Recorder(fGpu, fGlobalCache));
 }
 
-void Context::insertRecording(std::unique_ptr<Recording> recording) {
-    fRecordings.emplace_back(std::move(recording));
+void Context::insertRecording(const InsertRecordingInfo& info) {
+    sk_sp<RefCntedCallback> callback;
+    if (info.fFinishedProc) {
+        callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
+    }
+
+    SkASSERT(info.fRecording);
+    if (!info.fRecording) {
+        return;
+    }
+
+    SkASSERT(!fCurrentCommandBuffer);
+    // For now we only allow one CommandBuffer. So we just ref it off the InsertRecordingInfo and
+    // hold onto it until we submit.
+    fCurrentCommandBuffer = info.fRecording->fCommandBuffer;
+    if (callback) {
+        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+    }
 }
 
 void Context::submit(SyncToCpu syncToCpu) {
-    // TODO: we want Gpu::submit to take an array of command buffers but, for now, it just takes
-    // one. Once we have more than one recording queued up we will need to extract the
-    // command buffers and submit them as a block.
-    SkASSERT(fRecordings.size() == 1);
-    fGpu->submit(fRecordings[0]->fCommandBuffer);
+    SkASSERT(fCurrentCommandBuffer);
+
+    fGpu->submit(std::move(fCurrentCommandBuffer));
 
     fGpu->checkForFinishedWork(syncToCpu);
-    fRecordings.clear();
+}
+
+void Context::checkAsyncWorkCompletion() {
+    fGpu->checkForFinishedWork(SyncToCpu::kNo);
 }
 
 void Context::preCompile(const PaintCombo& paintCombo) {
     static const Renderer* kRenderers[] = {
-            &Renderer::StencilAndFillPath(SkPathFillType::kWinding),
-            &Renderer::StencilAndFillPath(SkPathFillType::kEvenOdd),
-            &Renderer::StencilAndFillPath(SkPathFillType::kInverseWinding),
-            &Renderer::StencilAndFillPath(SkPathFillType::kInverseEvenOdd)
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kWinding),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kEvenOdd),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kInverseWinding),
+            &Renderer::StencilTessellatedCurvesAndTris(SkPathFillType::kInverseEvenOdd),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kWinding),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kEvenOdd),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kInverseWinding),
+            &Renderer::StencilTessellatedWedges(SkPathFillType::kInverseEvenOdd)
     };
 
     SkShaderCodeDictionary* dict = fGlobalCache->shaderCodeDictionary();
+    SkKeyContext keyContext(dict);
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
@@ -81,15 +105,14 @@ void Context::preCompile(const PaintCombo& paintCombo) {
         for (auto& shaderCombo: paintCombo.fShaders) {
             for (auto shaderType: shaderCombo.fTypes) {
                 for (auto tm: shaderCombo.fTileModes) {
-                    SkPaintParamsKey key = CreateKey(dict, &builder, shaderType, tm, bm);
-                    auto entry = dict->findOrCreate(std::move(key));
+                    auto uniqueID = CreateKey(keyContext, &builder, shaderType, tm, bm);
 
                     GraphicsPipelineDesc desc;
 
                     for (const Renderer* r : kRenderers) {
                         for (auto&& s : r->steps()) {
                             if (s->performsShading()) {
-                                desc.setProgram(s, entry->uniqueID());
+                                desc.setProgram(s, uniqueID);
                             }
                             // TODO: Combine with renderpass description set to generate full
                             // GraphicsPipeline and MSL program. Cache that compiled pipeline on

@@ -35,11 +35,12 @@ protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        SkISize dimensions,
                        int sampleCnt,
-                       const GrDawnRenderTargetInfo& info);
+                       const GrDawnRenderTargetInfo& info,
+                       std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {}
+    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {}
 
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;

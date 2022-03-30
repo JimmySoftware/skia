@@ -9,7 +9,6 @@
 #define SkBlenderBase_DEFINED
 
 #include "include/core/SkBlender.h"
-#include "include/core/SkColorSpace.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
@@ -18,10 +17,11 @@
 enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
+class SkColorInfo;
 class SkPaintParamsKeyBuilder;
+class SkPipelineData;
 class SkRuntimeEffect;
-class SkShaderCodeDictionary;
-class SkUniformBlock;
+class SkKeyContext;
 
 /**
  * Encapsulates a blend function, including non-public APIs.
@@ -59,9 +59,9 @@ public:
 
 #ifdef SK_ENABLE_SKSL
     // TODO: make pure virtual
-    virtual void addToKey(SkShaderCodeDictionary*,
+    virtual void addToKey(const SkKeyContext&,
                           SkPaintParamsKeyBuilder*,
-                          SkUniformBlock*) const;
+                          SkPipelineData*) const;
 #endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }

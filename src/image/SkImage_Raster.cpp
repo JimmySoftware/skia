@@ -26,6 +26,17 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "experimental/graphite/include/GraphiteTypes.h"
+#include "experimental/graphite/include/Recorder.h"
+#include "experimental/graphite/src/Buffer.h"
+#include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/CommandBuffer.h"
+#include "experimental/graphite/src/RecorderPriv.h"
+#include "experimental/graphite/src/TextureUtils.h"
+#include "experimental/graphite/src/UploadTask.h"
+#endif
+
 // fixes https://bug.skia.org/5096
 static bool is_not_subset(const SkBitmap& bm) {
     SkASSERT(bm.pixelRef());
@@ -145,6 +156,11 @@ private:
                                                                const SkMatrix&,
                                                                const SkRect*,
                                                                const SkRect*) const override;
+#endif
+#ifdef SK_GRAPHITE_ENABLED
+    std::tuple<skgpu::TextureProxyView, SkColorType> onAsView(skgpu::Recorder*,
+                                                              skgpu::Mipmapped,
+                                                              SkBudgeted) const override;
 #endif
 
     SkBitmap fBitmap;
@@ -459,4 +475,14 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
                                          subset,
                                          domain);
 }
+#endif
+
+#ifdef SK_GRAPHITE_ENABLED
+std::tuple<skgpu::TextureProxyView, SkColorType> SkImage_Raster::onAsView(
+        skgpu::Recorder* recorder,
+        skgpu::Mipmapped mipmapped,
+        SkBudgeted budgeted) const {
+    return MakeBitmapProxyView(recorder, fBitmap, mipmapped, budgeted);
+}
+
 #endif

@@ -843,7 +843,17 @@ if (skia_compile_sksl_tests) {
 optional("gpu_shared") {
   enabled = skia_enable_gpu || skia_enable_graphite
 
-  sources = skia_shared_gpu_sources
+  deps = []
+  public_defines = []
+
+  if (skia_use_direct3d) {
+    # Must be defined when 'skia_sksl_gpu_sources' is built, even if the rest of skia_use_direct3d
+    # is handled only in the 'gpu' component.
+    public_defines += [ "SK_ENABLE_SPIRV_CROSS" ]
+    deps += [ "//third_party/spirv-cross:spirv_cross" ]
+  }
+
+  sources = skia_shared_gpu_sources + skia_sksl_gpu_sources
 }
 
 optional("gpu") {
@@ -865,7 +875,7 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources = skia_gpu_sources + skia_sksl_gpu_sources
+  sources = skia_gpu_sources
   if (!skia_enable_skgpu_v1) {
     sources -= skia_skgpu_v1_sources
   }
@@ -942,14 +952,14 @@ optional("gpu") {
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
     sources += skia_dawn_sources
-    public_deps += [ "//third_party/externals/dawn/src/dawn:dawn_headers" ]
+    public_deps += [ "//third_party/externals/dawn/include/dawn:cpp_headers" ]
     deps += [
-      "//third_party/externals/dawn/src/dawn:dawn_proc",
-      "//third_party/externals/dawn/src/dawn:dawncpp",
+      "//third_party/externals/dawn/src/dawn:cpp",
+      "//third_party/externals/dawn/src/dawn:proc",
     ]
     if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
         dawn_enable_opengles || dawn_enable_vulkan) {
-      deps += [ "//third_party/externals/dawn/src/dawn_native" ]
+      deps += [ "//third_party/externals/dawn/src/dawn/native" ]
     }
     if (dawn_enable_d3d12) {
       libs += [
@@ -963,14 +973,8 @@ optional("gpu") {
   }
 
   if (skia_use_direct3d) {
-    public_defines += [
-      "SK_DIRECT3D",
-      "SK_ENABLE_SPIRV_CROSS",
-    ]
-    deps += [
-      "//third_party/d3d12allocator",
-      "//third_party/spirv-cross:spirv_cross",
-    ]
+    public_defines += [ "SK_DIRECT3D" ]
+    deps += [ "//third_party/d3d12allocator" ]
     sources += skia_direct3d_sources
     if (skia_enable_direct3d_debug_layer) {
       public_defines += [ "SK_ENABLE_D3D_DEBUG_LAYER" ]
@@ -2044,6 +2048,8 @@ if (skia_enable_tools) {
     sources = [
       "tests/Test.cpp",
       "tests/Test.h",
+      "tests/TestHarness.cpp",
+      "tests/TestHarness.h",
       "tests/TestUtils.cpp",
       "tests/TestUtils.h",
     ]
@@ -2086,7 +2092,6 @@ if (skia_enable_tools) {
       ":skia",
       ":test",
       ":tool_utils",
-      "experimental/skrive:tests",
       "experimental/sktext:tests",
       "modules/skottie:tests",
       "modules/skparagraph:tests",
@@ -2217,7 +2222,6 @@ if (skia_enable_tools) {
         ":tests",
         ":tool_utils",
         ":trace",
-        "experimental/skrive",
         "modules/skottie",
         "modules/skottie:utils",
         "modules/svg",
@@ -2481,6 +2485,7 @@ if (skia_enable_tools) {
       sources = [
         "dm/DMGpuTestProcs.cpp",
         "tools/skqp/src/skqp.cpp",
+        "tools/skqp/src/skqp.h",
       ]
       deps = [
         ":gm",
@@ -2796,8 +2801,6 @@ if (skia_enable_tools) {
         "tools/viewer/SKPSlide.h",
         "tools/viewer/SampleSlide.cpp",
         "tools/viewer/SampleSlide.h",
-        "tools/viewer/SkRiveSlide.cpp",
-        "tools/viewer/SkRiveSlide.h",
         "tools/viewer/SkSLDebuggerSlide.cpp",
         "tools/viewer/SkSLDebuggerSlide.h",
         "tools/viewer/SkSLSlide.cpp",
@@ -2829,7 +2832,6 @@ if (skia_enable_tools) {
         ":skia",
         ":tool_utils",
         ":trace",
-        "experimental/skrive",
         "experimental/sktext",
         "modules/audioplayer",
         "modules/particles",

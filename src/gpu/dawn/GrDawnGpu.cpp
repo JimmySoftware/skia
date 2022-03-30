@@ -170,7 +170,7 @@ GrOpsRenderPass* GrDawnGpu::onGetOpsRenderPass(
 ///////////////////////////////////////////////////////////////////////////////
 sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
-    sk_sp<GrGpuBuffer> b(new GrDawnBuffer(this, size, type, accessPattern));
+    sk_sp<GrGpuBuffer> b(new GrDawnBuffer(this, size, type, accessPattern, {}));
     if (data && b) {
         b->updateData(data, size);
     }
@@ -385,7 +385,7 @@ void GrDawnGpu::uploadTextureData(GrColorType srcColorType, const GrMipLevel tex
 }
 
 bool GrDawnGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
-                                      sk_sp<GrRefCntedCallback> finishedCallback,
+                                      sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                       std::array<float, 4> color) {
     GrDawnTextureInfo info;
     SkAssertResult(backendTexture.getDawnTextureInfo(&info));
@@ -444,7 +444,7 @@ GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(
 }
 
 bool GrDawnGpu::onUpdateCompressedBackendTexture(const GrBackendTexture&,
-                                                 sk_sp<GrRefCntedCallback> finishedCallback,
+                                                 sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                                  const void* data,
                                                  size_t size) {
     return false;

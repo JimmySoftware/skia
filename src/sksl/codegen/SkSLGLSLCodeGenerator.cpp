@@ -7,38 +7,64 @@
 
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 
-#include <memory>
-
+#include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkSLDefines.h"
+#include "include/private/SkSLLayout.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLProgramKind.h"
+#include "include/private/SkSLStatement.h"
+#include "include/private/SkSLString.h"
+#include "include/private/SkTArray.h"
+#include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLGLSL.h"
+#include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
+#include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
-#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/spirv.h"
 
-#ifndef SKSL_STANDALONE
-#include "include/private/SkOnce.h"
-#endif
+#include <memory>
+#include <type_traits>
+#include <vector>
 
 namespace SkSL {
 
@@ -57,7 +83,7 @@ void GLSLCodeGenerator::write(std::string_view s) {
 
 void GLSLCodeGenerator::writeLine(std::string_view s) {
     this->write(s);
-    fOut->writeText(fLineEnding);
+    fOut->writeText("\n");
     fAtLineStart = true;
 }
 
@@ -650,16 +676,12 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     proj = false;
                     break;
             }
-            if (!fTextureFunctionOverride.empty()) {
-                this->write(fTextureFunctionOverride.c_str());
-            } else {
-                this->write("texture");
-                if (this->caps().generation() < SkSL::GLSLGeneration::k130) {
-                    this->write(dim);
-                }
-                if (proj) {
-                    this->write("Proj");
-                }
+            this->write("texture");
+            if (this->caps().generation() < SkSL::GLSLGeneration::k130) {
+                this->write(dim);
+            }
+            if (proj) {
+                this->write("Proj");
             }
             nameWritten = true;
             break;
@@ -805,7 +827,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             if (this->caps().fbFetchSupport()) {
                 this->write(this->caps().fbFetchColorName());
             } else {
-                fContext.fErrors->error(ref.fLine,
+                fContext.fErrors->error(ref.fPosition,
                                         "sk_LastFragColor requires framebuffer fetch support");
             }
             break;
@@ -932,12 +954,12 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
         this->writeExpression(*b.right(), Precedence::kTernary);
     } else {
-        Literal boolTrue(/*line=*/-1, /*value=*/1, fContext.fTypes.fBool.get());
+        Literal boolTrue(Position(), /*value=*/1, fContext.fTypes.fBool.get());
         this->writeLiteral(boolTrue);
     }
     this->write(" : ");
     if (b.getOperator().kind() == Token::Kind::TK_LOGICALAND) {
-        Literal boolFalse(/*line=*/-1, /*value=*/0, fContext.fTypes.fBool.get());
+        Literal boolFalse(Position(), /*value=*/0, fContext.fTypes.fBool.get());
         this->writeLiteral(boolFalse);
     } else {
         this->writeExpression(*b.right(), Precedence::kTernary);
@@ -1312,8 +1334,8 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.test()) {
         if (this->caps().addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    /*line=*/-1, f.test()->clone(), Token::Kind::TK_LOGICALAND,
-                    Literal::MakeBool(fContext, /*line=*/-1, /*value=*/true),
+                    Position(), f.test()->clone(), Token::Kind::TK_LOGICALAND,
+                    Literal::MakeBool(fContext, Position(), /*value=*/true),
                     fContext.fTypes.fBool.get()));
             this->writeExpression(*and_true, Precedence::kTopLevel);
         } else {

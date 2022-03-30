@@ -7,51 +7,52 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include <memory>
-#include <unordered_set>
-
+#include "include/private/SkSLLayout.h"
+#include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLStatement.h"
+#include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
+#include "include/sksl/DSLModifiers.h"
+#include "include/sksl/DSLType.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinMap.h"
-#include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDSLParser.h"
-#include "src/sksl/SkSLOperators.h"
+#include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
-#include "src/sksl/dsl/priv/DSLWriter.h"
-#include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLModifiersDeclaration.h"
-#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/transform/SkSLProgramWriter.h"
+#include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
-#include "src/utils/SkBitSet.h"
 
-#include <fstream>
-
-#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
-#include "include/gpu/GrContextOptions.h"
-#include "src/gpu/GrShaderCaps.h"
-#endif
+#include <atomic>
+#include <cstdint>
+#include <memory>
+#include <stdio.h>
+#include <utility>
 
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
@@ -59,6 +60,7 @@
 
 #ifdef SKSL_STANDALONE
 #define REHYDRATE 0
+#include <fstream>
 #else
 #define REHYDRATE 1
 #endif
@@ -93,14 +95,14 @@ using RefKind = VariableReference::RefKind;
 
 class AutoSource {
 public:
-    AutoSource(Compiler* compiler, const char* source)
+    AutoSource(Compiler* compiler, std::string_view source)
             : fCompiler(compiler) {
-        SkASSERT(!fCompiler->errorReporter().source());
+        SkASSERT(!fCompiler->errorReporter().source().data());
         fCompiler->errorReporter().setSource(source);
     }
 
     ~AutoSource() {
-        fCompiler->errorReporter().setSource(nullptr);
+        fCompiler->errorReporter().setSource(std::string_view());
     }
 
     Compiler* fCompiler;
@@ -223,7 +225,8 @@ std::shared_ptr<SymbolTable> Compiler::makePrivateSymbolTable(std::shared_ptr<Sy
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    privateSymbolTable->add(std::make_unique<Variable>(/*line=*/-1,
+    privateSymbolTable->add(std::make_unique<Variable>(/*pos=*/Position(),
+                                                       /*modifiersPosition=*/Position(),
                                                        fCoreModifiers.add(Modifiers{}),
                                                        "sk_Caps",
                                                        fContext->fTypes.fSkCaps.get(),
@@ -476,10 +479,23 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
 
-std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_view name) {
+void Compiler::updateInputsForBuiltinVariable(const Variable& var) {
+    switch (var.modifiers().fLayout.fBuiltin) {
+        case SK_FRAGCOORD_BUILTIN:
+            if (fContext->fCaps.canUseFragCoord()) {
+                ThreadContext::Inputs().fUseFlipRTUniform = true;
+            }
+            break;
+        case SK_CLOCKWISE_BUILTIN:
+            ThreadContext::Inputs().fUseFlipRTUniform = true;
+            break;
+    }
+}
+
+std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
-        this->errorReporter().error(line, "unknown identifier '" + std::string(name) + "'");
+        this->errorReporter().error(pos, "unknown identifier '" + std::string(name) + "'");
         return nullptr;
     }
     switch (result->kind()) {
@@ -487,31 +503,20 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_vi
             std::vector<const FunctionDeclaration*> f = {
                 &result->as<FunctionDeclaration>()
             };
-            return std::make_unique<FunctionReference>(*fContext, line, f);
+            return std::make_unique<FunctionReference>(*fContext, pos, f);
         }
         case Symbol::Kind::kUnresolvedFunction: {
             const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
-            return std::make_unique<FunctionReference>(*fContext, line, f->functions());
+            return std::make_unique<FunctionReference>(*fContext, pos, f->functions());
         }
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();
-            const Modifiers& modifiers = var->modifiers();
-            switch (modifiers.fLayout.fBuiltin) {
-                case SK_FRAGCOORD_BUILTIN:
-                    if (fContext->fCaps.canUseFragCoord()) {
-                        ThreadContext::Inputs().fUseFlipRTUniform = true;
-                    }
-                    break;
-                case SK_CLOCKWISE_BUILTIN:
-                    ThreadContext::Inputs().fUseFlipRTUniform = true;
-                    break;
-            }
             // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return VariableReference::Make(line, var, VariableReference::RefKind::kRead);
+            return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
-            auto base = VariableReference::Make(line, &field->owner(),
+            auto base = VariableReference::Make(pos, &field->owner(),
                                                 VariableReference::RefKind::kRead);
             return FieldAccess::Make(*fContext, std::move(base), field->fieldIndex(),
                                      FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
@@ -519,12 +524,12 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(int line, std::string_vi
         case Symbol::Kind::kType: {
             // go through DSLType so we report errors on private types
             dsl::DSLModifiers modifiers;
-            dsl::DSLType dslType(result->name(), &modifiers, PositionInfo(/*file=*/nullptr, line));
-            return TypeReference::Convert(*fContext, line, &dslType.skslType());
+            dsl::DSLType dslType(result->name(), &modifiers, pos);
+            return TypeReference::Convert(*fContext, pos, &dslType.skslType());
         }
         case Symbol::Kind::kExternal: {
             const ExternalFunction* r = &result->as<ExternalFunction>();
-            return std::make_unique<ExternalFunctionReference>(line, r);
+            return std::make_unique<ExternalFunctionReference>(pos, r);
         }
         default:
             SK_ABORT("unsupported symbol type %d\n", (int) result->kind());
@@ -626,11 +631,11 @@ bool Compiler::finalize(Program& program) {
     return this->errorCount() == 0;
 }
 
-#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
+#if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
-    AutoSource as(this, program.fSource->c_str());
+    AutoSource as(this, *program.fSource);
     ProgramSettings settings;
     settings.fDSLUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
@@ -663,8 +668,8 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
             if (tools.Disassemble((const uint32_t*)data.data(), data.size() / 4, &disassembly)) {
                 errors.append(disassembly);
             }
-            this->errorReporter().error(-1, errors);
-            this->errorReporter().reportPendingErrors(PositionInfo());
+            this->errorReporter().error(Position(), errors);
+            this->errorReporter().reportPendingErrors(Position());
 #else
             SkDEBUGFAILF("%s", errors.c_str());
 #endif
@@ -690,7 +695,7 @@ bool Compiler::toSPIRV(Program& program, std::string* out) {
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
-    AutoSource as(this, program.fSource->c_str());
+    AutoSource as(this, *program.fSource);
     GLSLCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;
@@ -731,7 +736,7 @@ bool Compiler::toHLSL(Program& program, std::string* out) {
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
-    AutoSource as(this, program.fSource->c_str());
+    AutoSource as(this, *program.fSource);
     MetalCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;
@@ -746,12 +751,12 @@ bool Compiler::toMetal(Program& program, std::string* out) {
     return result;
 }
 
-#endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
+#endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU || SK_GRAPHITE_ENABLED
 
-void Compiler::handleError(std::string_view msg, PositionInfo pos) {
+void Compiler::handleError(std::string_view msg, Position pos) {
     fErrorText += "error: ";
-    if (pos.line() >= 1) {
-        fErrorText += std::to_string(pos.line()) + ": ";
+    if (pos.valid()) {
+        fErrorText += std::to_string(pos.line(this->errorReporter().source())) + ": ";
     }
     fErrorText += std::string(msg) + "\n";
 }

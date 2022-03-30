@@ -35,7 +35,7 @@ RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
 
 RenderPassTask::~RenderPassTask() = default;
 
-void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
+bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuffer* commandBuffer) {
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
     // TODO: for task execution, start the render pass, then iterate passes and
@@ -48,16 +48,19 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
             SKGPU_LOG_W("Given invalid texture proxy. Will not create renderpass!");
             SKGPU_LOG_W("Dimensions are (%d, %d).",
                         fTarget->dimensions().width(), fTarget->dimensions().height());
-            return;
+            return false;
         }
     }
 
     sk_sp<Texture> depthStencilTexture;
     if (fRenderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
         // TODO: ensure this is a scratch/recycled texture
-        depthStencilTexture = resourceProvider->findOrCreateTexture(
+        depthStencilTexture = resourceProvider->findOrCreateDepthStencilAttachment(
                 fTarget->dimensions(), fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
-        SkASSERT(depthStencilTexture);
+        if (!depthStencilTexture) {
+            SKGPU_LOG_W("Could not get DepthStencil attachment for RenderPassTask");
+            return false;
+        }
     }
 
     if (commandBuffer->beginRenderPass(fRenderPassDesc, fTarget->refTexture(), nullptr,
@@ -65,11 +68,16 @@ void RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
         // Assuming one draw pass per renderpasstask for now
         SkASSERT(fDrawPasses.size() == 1);
         for (const auto& drawPass: fDrawPasses) {
-            drawPass->addCommands(resourceProvider, commandBuffer, fRenderPassDesc);
+            if (!drawPass->addCommands(resourceProvider, commandBuffer, fRenderPassDesc)) {
+                commandBuffer->endRenderPass();
+                return false;
+            }
         }
 
         commandBuffer->endRenderPass();
     }
+
+    return true;
 }
 
 } // namespace skgpu

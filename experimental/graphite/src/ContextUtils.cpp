@@ -8,35 +8,35 @@
 #include "experimental/graphite/src/ContextUtils.h"
 
 #include <string>
-#include "experimental/graphite/src/ContextPriv.h"
-#include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/PaintParams.h"
-#include "include/core/SkPaint.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
-#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkKeyContext.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
-#include "src/core/SkUniform.h"
-#include "src/core/SkUniformData.h"
 
 namespace skgpu {
 
-std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkUniformBlock>> ExtractPaintData(
-        SkShaderCodeDictionary* dict,
+std::tuple<SkUniquePaintParamsID, std::unique_ptr<SkPipelineData>> ExtractPaintData(
+        Recorder* recorder,
         SkPaintParamsKeyBuilder* builder,
         const PaintParams& p) {
 
     SkDEBUGCODE(builder->checkReset());
 
-    std::unique_ptr<SkUniformBlock> block = std::make_unique<SkUniformBlock>();
+    SkKeyContext keyContext(recorder);
 
-    p.toKey(dict, builder, block.get());
+    std::unique_ptr<SkPipelineData> pipelineData = std::make_unique<SkPipelineData>();
+
+    p.toKey(keyContext, builder, pipelineData.get());
 
     SkPaintParamsKey key = builder->lockAsKey();
 
-    auto entry = dict->findOrCreate(key);
+    auto dict = keyContext.dict();
 
-    return { entry->uniqueID(), std::move(block) };
+    auto entry = dict->findOrCreate(key, pipelineData->blendInfo());
+
+    return { entry->uniqueID(), std::move(pipelineData) };
 }
 
 } // namespace skgpu

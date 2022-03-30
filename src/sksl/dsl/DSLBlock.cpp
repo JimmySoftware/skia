@@ -8,6 +8,7 @@
 #include "include/sksl/DSLBlock.h"
 
 #include "include/sksl/DSLStatement.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLBlock.h"
 
 namespace SkSL {
@@ -36,7 +37,7 @@ DSLBlock::~DSLBlock() {
 }
 
 std::unique_ptr<SkSL::Block> DSLBlock::release() {
-    return std::make_unique<SkSL::Block>(/*line=*/-1, std::move(fStatements),
+    return std::make_unique<SkSL::Block>(Position(), std::move(fStatements),
                                          std::move(fSymbols));
 }
 

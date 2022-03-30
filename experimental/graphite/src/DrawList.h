@@ -11,80 +11,18 @@
 #include "include/core/SkPaint.h"
 #include "src/core/SkTBlockList.h"
 
+#include "experimental/graphite/src/DrawGeometry.h"
 #include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/PaintParams.h"
-#include "experimental/graphite/src/geom/Shape.h"
 #include "experimental/graphite/src/geom/Transform_graphite.h"
 
 #include <limits>
 #include <optional>
 
-class SkPath;
-class SkShader;
-struct SkIRect;
-
 namespace skgpu {
 
 class Renderer;
-
-// NOTE: Only represents the stroke or hairline styles; stroke-and-fill must be handled higher up.
-class StrokeParams {
-public:
-    StrokeParams() : fHalfWidth(0.f), fJoinLimit(0.f), fCap(SkPaint::kButt_Cap) {}
-    StrokeParams(float width,
-                 float miterLimit,
-                 SkPaint::Join join,
-                 SkPaint::Cap cap)
-            : fHalfWidth(std::max(0.f, 0.5f * width))
-            , fJoinLimit(join == SkPaint::kMiter_Join ? std::max(0.f, miterLimit) :
-                         (join == SkPaint::kBevel_Join ? 0.f : -1.f))
-            , fCap(cap) {}
-
-    StrokeParams(const StrokeParams&) = default;
-
-    StrokeParams& operator=(const StrokeParams&) = default;
-
-    bool isMiterJoin() const { return fJoinLimit > 0.f;  }
-    bool isBevelJoin() const { return fJoinLimit == 0.f; }
-    bool isRoundJoin() const { return fJoinLimit < 0.f;  }
-
-    float         halfWidth()  const { return fHalfWidth;                }
-    float         width()      const { return 2.f * fHalfWidth;          }
-    float         miterLimit() const { return std::max(0.f, fJoinLimit); }
-    SkPaint::Cap  cap()        const { return fCap;                      }
-    SkPaint::Join join()       const {
-        return fJoinLimit > 0.f ? SkPaint::kMiter_Join :
-               (fJoinLimit == 0.f ? SkPaint::kBevel_Join : SkPaint::kRound_Join);
-    }
-
-private:
-    float        fHalfWidth; // >0: relative to transform; ==0: hairline, 1px in device space
-    float        fJoinLimit; // >0: miter join; ==0: bevel join; <0: round join
-    SkPaint::Cap fCap;
-};
-
-// TBD: Separate DashParams extracted from an SkDashPathEffect? Or folded into StrokeParams?
-
-class Clip {
-public:
-    Clip(const Rect& drawBounds, const SkIRect& scissor)
-            : fDrawBounds(drawBounds)
-            , fScissor(scissor) {}
-
-    const Rect&    drawBounds() const { return fDrawBounds; }
-    const SkIRect& scissor()    const { return fScissor;    }
-
-private:
-    // Draw bounds represent the tight bounds of the draw, including any padding/outset for stroking
-    // and intersected with the scissor.
-    // - DrawList assumes the DrawBounds are correct for a given shape, transform, and style. They
-    //   are provided to the DrawList to avoid re-calculating the same bounds.
-    Rect    fDrawBounds;
-    // The scissor must contain fDrawBounds, and must already be intersected with the device bounds.
-    SkIRect fScissor;
-    // TODO: If we add more complex analytic shapes for clipping, e.g. coverage rrect, it should
-    // go here.
-};
+class Shape;
 
 /**
  * A DrawList represents a collection of drawing commands (and related clip/shading state) in
@@ -125,38 +63,18 @@ public:
     // DrawOrder cannot overflow since they are always less than or equal to the number of draws.
     static constexpr int kMaxDraws = std::numeric_limits<uint16_t>::max();
 
-    // NOTE: All path rendering functions, e.g. [fill|stroke|...]Path() that take a Shape
-    // draw using the same underlying techniques regardless of the shape's type. If a Shape has
-    // a type matching a simpler primitive technique or coverage AA, the caller must explicitly
-    // invoke it to use that rendering algorithms.
-    //
-    // Additionally, DrawList requires that all Transforms passed to its draw calls be valid and
-    // assert as much; invalid transforms should be detected at the Device level or similar.
-
-    void stencilAndFillPath(const Transform& localToDevice,
-                            const Shape& shape,
-                            const Clip& clip,
-                            DrawOrder ordering,
-                            const PaintParams* paint);
-
-    void fillConvexPath(const Transform& localToDevice,
-                        const Shape& shape,
-                        const Clip& clip,
-                        DrawOrder ordering,
-                        const PaintParams* paint);
-
-    void strokePath(const Transform& localToDevice,
+    // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
+    // be detected at the Device level or similar. The provided Renderer must be compatible with the
+    // 'shape' and 'stroke' parameters. If the renderer uses coverage AA, 'ordering' must have a
+    // compressed painters order that reflects that. If the renderer uses stencil, the 'ordering'
+    // must have a valid stencil index as well.
+    void recordDraw(const Renderer& renderer,
+                    const Transform& localToDevice,
                     const Shape& shape,
-                    const StrokeParams& stroke,
                     const Clip& clip,
                     DrawOrder ordering,
-                    const PaintParams* paint);
-
-    // TODO: fill[R]Rect, stroke[R]Rect (will need to support per-edge aa and arbitrary quads)
-    //       fillImage (per-edge aa and arbitrary quad, only if this fast path is required)
-    //       dashPath(feasible for general paths?)
-    //       dash[R]Rect(only if general dashPath isn't viable)
-    //       dashLine(only if general or rrect version aren't viable)
+                    const PaintParams* paint,
+                    const StrokeStyle* stroke);
 
     int drawCount() const { return fDraws.count(); }
     int renderStepCount() const { return fRenderStepCount; }
@@ -165,26 +83,16 @@ private:
     friend class DrawPass;
 
     struct Draw {
-        const Renderer&  fRenderer;  // Statically defined by function that recorded the Draw
-        const Transform& fTransform; // Points to a transform in fTransforms
-
-        Shape     fShape;
-        Clip      fClip;
-        DrawOrder fOrder;
-
-        std::optional<PaintParams>  fPaintParams; // Not present implies depth-only draw
-        std::optional<StrokeParams> fStrokeParams; // Not present implies fill
+        const Renderer& fRenderer; // Statically defined by function that recorded the Draw
+        DrawGeometry fGeometry; // The GeomParam's transform is owned by fTransforms of the DrawList
+        std::optional<PaintParams> fPaintParams; // Not present implies depth-only draw
 
         Draw(const Renderer& renderer, const Transform& transform, const Shape& shape,
              const Clip& clip, DrawOrder order, const PaintParams* paint,
-             const StrokeParams* stroke)
+             const StrokeStyle* stroke)
                 : fRenderer(renderer)
-                , fTransform(transform)
-                , fShape(shape)
-                , fClip(clip)
-                , fOrder(order)
-                , fPaintParams(paint ? std::optional<PaintParams>(*paint) : std::nullopt)
-                , fStrokeParams(stroke ? std::optional<StrokeParams>(*stroke) : std::nullopt) {}
+                , fGeometry(transform, shape, clip, order, stroke)
+                , fPaintParams(paint ? std::optional<PaintParams>(*paint) : std::nullopt) {}
     };
 
     // The returned Transform reference remains valid for the lifetime of the DrawList.

@@ -20,6 +20,7 @@
 namespace skgpu {
 
 class BackendTexture;
+class CommandBuffer;
 class ContextPriv;
 class GlobalCache;
 class Gpu;
@@ -70,8 +71,13 @@ public:
 
     std::unique_ptr<Recorder> makeRecorder();
 
-    void insertRecording(std::unique_ptr<Recording>);
+    void insertRecording(const InsertRecordingInfo&);
     void submit(SyncToCpu = SyncToCpu::kNo);
+
+    /**
+     * Checks whether any asynchronous work is complete and if so calls related callbacks.
+     */
+    void checkAsyncWorkCompletion();
 
     void preCompile(const PaintCombo&);
 
@@ -106,7 +112,8 @@ protected:
 private:
     friend class ContextPriv;
 
-    std::vector<std::unique_ptr<Recording>> fRecordings;
+    sk_sp<CommandBuffer> fCurrentCommandBuffer;
+
     sk_sp<Gpu> fGpu;
     sk_sp<GlobalCache> fGlobalCache;
     BackendApi fBackend;

@@ -15,10 +15,10 @@
 #include "experimental/graphite/src/DrawBufferManager.h"
 #include "experimental/graphite/src/GlobalCache.h"
 #include "experimental/graphite/src/Gpu.h"
+#include "experimental/graphite/src/PipelineDataCache.h"
 #include "experimental/graphite/src/ResourceProvider.h"
 #include "experimental/graphite/src/TaskGraph.h"
-#include "experimental/graphite/src/UniformCache.h"
-#include "src/core/SkUniformData.h"
+#include "src/core/SkPipelineData.h"
 
 namespace skgpu {
 
@@ -27,7 +27,8 @@ namespace skgpu {
 Recorder::Recorder(sk_sp<Gpu> gpu, sk_sp<GlobalCache> globalCache)
         : fGpu(std::move(gpu))
         , fGraph(new TaskGraph)
-        , fUniformCache(new UniformCache) {
+        , fUniformDataCache(new UniformDataCache)
+        , fTextureDataCache(new TextureDataCache) {
 
     fResourceProvider = fGpu->makeResourceProvider(std::move(globalCache), this->singleOwner());
     fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(),
@@ -48,13 +49,29 @@ std::unique_ptr<Recording> Recorder::snap() {
         device->flushPendingWorkToRecorder();
     }
 
+    // TODO: fulfill all promise images in the TextureDataCache here
+    // TODO: create all the samplers needed in the TextureDataCache here
+
     auto commandBuffer = fResourceProvider->createCommandBuffer();
 
-    fGraph->addCommands(fResourceProvider.get(), commandBuffer.get());
+    if (!fGraph->addCommands(fResourceProvider.get(), commandBuffer.get())) {
+        // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
+        // attached to extant SkSurfaces.
+        size_t requiredAlignment = fGpu->caps()->requiredUniformBufferAlignment();
+        fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(), requiredAlignment));
+        fTextureDataCache = std::make_unique<TextureDataCache>();
+        // We leave the UniformDataCache alone
+        fGraph->reset();
+        return nullptr;
+    }
+
     fDrawBufferManager->transferToCommandBuffer(commandBuffer.get());
 
     fGraph->reset();
-    return std::unique_ptr<Recording>(new Recording(std::move(commandBuffer)));
+    std::unique_ptr<Recording> recording(new Recording(std::move(commandBuffer),
+                                                       std::move(fTextureDataCache)));
+    fTextureDataCache = std::make_unique<TextureDataCache>();
+    return recording;
 }
 
 void Recorder::registerDevice(Device* device) {

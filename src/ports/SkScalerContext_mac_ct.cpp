@@ -128,7 +128,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
     // As a result, it is necessary to know the actual device size and request that.
     SkVector scale;
     SkMatrix skTransform;
-    bool invertible = fRec.computeMatrices(SkScalerContextRec::kVertical_PreMatrixScale,
+    bool invertible = fRec.computeMatrices(SkScalerContextRec::PreMatrixScale::kVertical,
                                            &scale, &skTransform, nullptr, nullptr, nullptr);
     fTransform = MatrixToCGAffineTransform(skTransform);
     // CGAffineTransformInvert documents that if the transform is non-invertible it will return the
@@ -659,10 +659,10 @@ bool SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         scaleX = scaleY = kScaleForSubPixelPositionHinting;
         // now see if we need to restore hinting for axis-aligned baselines
         switch (this->computeAxisAlignmentForHText()) {
-            case kX_SkAxisAlignment:
+            case SkAxisAlignment::kX:
                 scaleY = SK_Scalar1; // want hinting in the Y direction
                 break;
-            case kY_SkAxisAlignment:
+            case SkAxisAlignment::kY:
                 scaleX = SK_Scalar1; // want hinting in the X direction
                 break;
             default:
@@ -718,8 +718,8 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
-    SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fCTFont.get()));
-    if (ctAxes && CFArrayGetCount(ctAxes.get()) > 0) {
+    CFArrayRef ctAxes = ((SkTypeface_Mac*)this->getTypeface())->getVariationAxes();
+    if (ctAxes && CFArrayGetCount(ctAxes) > 0) {
         // The bounds are only valid for the default variation.
         metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }

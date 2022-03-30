@@ -7,22 +7,21 @@
 
 #include "experimental/graphite/src/Device.h"
 
-#include "experimental/graphite/include/Context.h"
 #include "experimental/graphite/include/Recorder.h"
-#include "experimental/graphite/include/Recording.h"
 #include "experimental/graphite/include/SkStuff.h"
 #include "experimental/graphite/src/Buffer.h"
 #include "experimental/graphite/src/Caps.h"
+#include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/ContextPriv.h"
-#include "experimental/graphite/src/CopyTask.h"
 #include "experimental/graphite/src/DrawContext.h"
+#include "experimental/graphite/src/DrawGeometry.h"
 #include "experimental/graphite/src/DrawList.h"
 #include "experimental/graphite/src/Gpu.h"
 #include "experimental/graphite/src/Log.h"
 #include "experimental/graphite/src/RecorderPriv.h"
-#include "experimental/graphite/src/ResourceProvider.h"
-#include "experimental/graphite/src/Texture.h"
+#include "experimental/graphite/src/Renderer.h"
 #include "experimental/graphite/src/TextureProxy.h"
+#include "experimental/graphite/src/TextureUtils.h"
 #include "experimental/graphite/src/geom/BoundsManager.h"
 #include "experimental/graphite/src/geom/IntersectionTree.h"
 #include "experimental/graphite/src/geom/Shape.h"
@@ -36,6 +35,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/core/SkStroke.h"
 
 #include <unordered_map>
 #include <vector>
@@ -196,54 +196,19 @@ bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
 bool Device::readPixels(Context* context,
                         Recorder* recorder,
                         const SkPixmap& pm,
-                        int x,
-                        int y) {
-    // TODO: Support more formats that we can read back into
-    if (pm.colorType() != kRGBA_8888_SkColorType) {
-        return false;
-    }
-
-    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
-
-    TextureProxy* srcProxy = fDC->target();
-    if (!srcProxy->instantiate(resourceProvider)) {
-        return false;
-    }
-    sk_sp<Texture> srcTexture = srcProxy->refTexture();
-    SkASSERT(srcTexture);
-
-    size_t rowBytes = pm.rowBytes();
-    size_t size = rowBytes * pm.height();
-    sk_sp<Buffer> dstBuffer = resourceProvider->findOrCreateBuffer(size,
-                                                                   BufferType::kXferGpuToCpu,
-                                                                   PrioritizeGpuReads::kNo);
-    if (!dstBuffer) {
-        return false;
-    }
-
-    SkIRect srcRect = SkIRect::MakeXYWH(x, y, pm.width(), pm.height());
-    sk_sp<CopyTextureToBufferTask> task =
-            CopyTextureToBufferTask::Make(std::move(srcTexture),
-                                          srcRect,
-                                          dstBuffer,
-                                          /*bufferOffset=*/0,
-                                          rowBytes);
-    if (!task) {
-        return false;
-    }
-
-    this->flushPendingWorkToRecorder();
-    fRecorder->priv().add(std::move(task));
-
-    // TODO: Can snapping ever fail?
-    context->insertRecording(fRecorder->snap());
-    context->submit(SyncToCpu::kYes);
-
-    void* mappedMemory = dstBuffer->map();
-
-    memcpy(pm.writable_addr(), mappedMemory, size);
-
-    return true;
+                        int srcX,
+                        int srcY) {
+    return ReadPixelsHelper([this]() {
+                                this->flushPendingWorkToRecorder();
+                            },
+                            context,
+                            recorder,
+                            fDC->target(),
+                            pm.info(),
+                            pm.writable_addr(),
+                            pm.rowBytes(),
+                            srcX,
+                            srcY);
 }
 
 bool Device::onWritePixels(const SkPixmap& pm, int x, int y) {
@@ -401,34 +366,20 @@ void Device::drawShape(const Shape& shape,
     if (dependsOnDst) {
         order.dependsOnPaintersOrder(prevDraw);
     }
-    // TODO: if the chosen Renderer for a draw uses coverage AA, then it cannot be considered opaque
-    // regardless of what the PaintParams would do, but we won't know that until after the Renderer
-    // has been selected for the draw.
 
     if (styleType == SkStrokeRec::kStroke_Style ||
         styleType == SkStrokeRec::kHairline_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        // TODO: If DC supports stroked primitives, Device could choose one of those based on shape
-        StrokeParams stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
-        fDC->strokePath(localToDevice, shape, stroke, clip, order, &shading);
+        StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
+        this->recordDraw(localToDevice, shape, clip, order, &shading, &stroke);
     }
     if (styleType == SkStrokeRec::kFill_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        // TODO: If DC supports filled primitives, Device could choose one of those based on shape
-
-        // TODO: Route all filled shapes to stencil-and-cover for the sprint; convex will draw
-        // correctly but uses an unnecessary stencil step.
-        // if (shape.convex()) {
-        //     fDC->fillConvexPath(localToDevice, shape, clip, order, &shading);
-        // } else {
-            DisjointStencilIndex setIndex = fDisjointStencilSet->add(order.paintOrder(),
-                                                                     clip.drawBounds());
-            order.dependsOnStencil(setIndex);
-            fDC->stencilAndFillPath(localToDevice, shape, clip, order, &shading);
-        // }
+        this->recordDraw(localToDevice, shape, clip, order, &shading, nullptr);
     }
 
     // Record the painters order and depth used for this draw
+    // TODO: If recordDraw picked a coverage AA renderer, 'dependsOnDst' is out of date.
     const bool fullyOpaque = !dependsOnDst &&
                              shape.isRect() &&
                              localToDevice.type() <= Transform::Type::kRectStaysRect;
@@ -439,6 +390,97 @@ void Device::drawShape(const Shape& shape,
 
     fCurrentDepth = order.depth();
     fDrawsOverlap |= (prevDraw != DrawOrder::kNoIntersection);
+}
+
+void Device::recordDraw(const Transform& localToDevice,
+                        const Shape& shape,
+                        const Clip& clip,
+                        DrawOrder ordering,
+                        const PaintParams* paint,
+                        const StrokeStyle* stroke) {
+    // TODO: remove after CPU-transform fallbacks are no longer needed
+    static const Transform kIdentity{SkM44()};
+
+    // TODO: For now stroked paths are converted to fills on the CPU since the fixed count
+    // stroke path renderer hasn't been ported to Graphite yet.
+    if (stroke) {
+        SkPath strokeAsPath = shape.asPath();
+        SkStroke stroker;
+        stroker.setCap(stroke->cap());
+        stroker.setJoin(stroke->join());
+        stroker.setMiterLimit(stroke->miterLimit());
+        stroker.setDoFill(false);
+        const Transform* transform;
+        if (stroke->halfWidth() == 0.f) {
+            // Manually transform to device space and then generate a 1px stroke filled path, which
+            // would require applying a local matrix to the paint but we skip that for now since all
+            // of this is temporary anyways and most hairlines aren't spatially-varying.
+            strokeAsPath.transform(localToDevice.matrix().asM33());
+            stroker.setWidth(1.f);
+            stroker.strokePath(strokeAsPath, &strokeAsPath);
+            transform = &kIdentity;
+        } else {
+            stroker.setResScale(localToDevice.maxScaleFactor());
+            stroker.setWidth(stroke->width());
+            stroker.strokePath(strokeAsPath, &strokeAsPath);
+            transform = &localToDevice;
+        }
+        // Strokes as fills shouldn't be inverse filled
+        if (strokeAsPath.isInverseFillType()) {
+            strokeAsPath.toggleInverseFillType();
+        }
+        // Stroked paths with just moveTos may produce an empty path, which shouldn't be sent on
+        if (!strokeAsPath.isEmpty()) {
+            this->recordDraw(*transform, Shape(strokeAsPath), clip, ordering, paint, nullptr);
+        }
+        return;
+    }
+    // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
+    // device space so we draw something approximately correct (barring local coord issues).
+    if (localToDevice.type() == Transform::Type::kProjection) {
+        SkPath devicePath = shape.asPath();
+        devicePath.transform(localToDevice.matrix().asM33());
+        this->recordDraw(kIdentity, Shape(devicePath), clip, ordering, paint, nullptr);
+        return;
+    }
+
+    // TODO: Eventually the Renderer selection logic should be lifted to some external
+    // RendererSelector that can be reused between Device and other wrappers around DrawContext.
+    // TODO: All shapes that select a tessellating path renderer need to be "pre-chopped" if they
+    // are large enough to exceed the fixed count tessellation limits.
+    const Renderer* renderer = nullptr;
+
+    if (shape.convex() && !shape.inverted()) {
+        // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
+        // would be pretty trivial to spin up.
+        renderer = &Renderer::ConvexTessellatedWedges();
+    } else {
+        // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between
+        // wedges curves consistently in Graphite and Ganesh.
+        const bool preferWedges = (shape.isPath() && shape.path().countVerbs() < 50) ||
+                                   clip.drawBounds().area() <= (256 * 256);
+
+        if (preferWedges) {
+            renderer = &Renderer::StencilTessellatedWedges(shape.fillType());
+        } else {
+            renderer = &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+        }
+    }
+
+    if (!renderer) {
+        SKGPU_LOG_W("Skipping draw with no supported path renderer.");
+        return;
+    }
+
+    if (renderer->depthStencilFlags() & DepthStencilFlags::kStencil) {
+        DisjointStencilIndex setIndex = fDisjointStencilSet->add(ordering.paintOrder(),
+                                                                 clip.drawBounds());
+        ordering.dependsOnStencil(setIndex);
+    }
+    // TODO: if the chosen Renderer uses coverage AA, then 'ordering' depends on painter's order,
+    // so we will need to take into account the previous draw. Since no Renderer uses coverage AA
+    // right now, it's not an issue yet.
+    fDC->recordDraw(*renderer, localToDevice, shape, clip, ordering, paint, stroke);
 }
 
 std::pair<Clip, CompressedPaintersOrder> Device::applyClipToDraw(const Transform& localToDevice,

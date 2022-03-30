@@ -9,6 +9,7 @@
 #include <cstring>
 #include <type_traits>
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -194,7 +195,10 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     auto wmy = SkTileModeToWrapMode(tileModes[1]);
     GrSamplerState sampler(wmx, wmy, sampling.filter, sampling.mipmap);
     if (sampler.mipmapped() == GrMipmapped::kYes && !this->setupMipmapsForPlanes(context)) {
-        sampler.setMipmapMode(GrSamplerState::MipmapMode::kNone);
+        sampler = GrSamplerState(sampler.wrapModeX(),
+                                 sampler.wrapModeY(),
+                                 sampler.filter(),
+                                 GrSamplerState::MipmapMode::kNone);
     }
 
     const auto& yuvM = sampling.useCubic ? SkMatrix::I() : m;
@@ -226,7 +230,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                              sk_sp<SkColorSpace> imageColorSpace,
                                              TextureReleaseProc textureReleaseProc,
                                              ReleaseContext releaseContext) {
-    auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
+    auto releaseHelper = skgpu::RefCntedCallback::Make(textureReleaseProc, releaseContext);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
@@ -344,9 +348,9 @@ sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> t
     // Our contract is that we will always call the release proc even on failure.
     // We use the helper to convey the context, so we need to ensure make doesn't fail.
     textureReleaseProc = textureReleaseProc ? textureReleaseProc : [](void*) {};
-    sk_sp<GrRefCntedCallback> releaseHelpers[4];
+    sk_sp<skgpu::RefCntedCallback> releaseHelpers[4];
     for (int i = 0; i < n; ++i) {
-        releaseHelpers[i] = GrRefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
+        releaseHelpers[i] = skgpu::RefCntedCallback::Make(textureReleaseProc, textureContexts[i]);
     }
 
     if (!threadSafeProxy) {

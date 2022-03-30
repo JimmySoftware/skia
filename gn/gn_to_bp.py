@@ -180,7 +180,7 @@ cc_library_static {
           "android",
         ],
       },
-      linux_glibc: {
+      host_linux: {
         srcs: [
           $linux_srcs
         ],
@@ -448,7 +448,10 @@ cc_library_shared {
 android_test {
     name: "CtsSkQPTestCases",
     defaults: ["cts_defaults"],
-    test_suites: ["cts"],
+    test_suites: [
+        "general-tests",
+        "cts",
+    ],
 
     libs: ["android.test.runner.stubs"],
     jni_libs: ["libskqp_jni"],

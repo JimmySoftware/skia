@@ -63,13 +63,15 @@ protected:
                       const GrD3DTextureResourceInfo& msaaInfo,
                       sk_sp<GrD3DResourceState> msaaState,
                       const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
-                      const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView);
+                      const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
+                      std::string_view label);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
-                      const GrD3DDescriptorHeap::CPUHandle& renderTargetView);
+                      const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
+                      std::string_view label);
 
     void onAbandon() override;
     void onRelease() override;
@@ -96,14 +98,16 @@ private:
                       sk_sp<GrD3DResourceState> msaaState,
                       const GrD3DDescriptorHeap::CPUHandle& colorRenderTargetView,
                       const GrD3DDescriptorHeap::CPUHandle& resolveRenderTargetView,
-                      Wrapped);
+                      Wrapped,
+                      std::string_view label);
 
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DDescriptorHeap::CPUHandle& renderTargetView,
-                      Wrapped);
+                      Wrapped,
+                      std::string_view label);
 
     GrD3DGpu* getD3DGpu() const;
 
@@ -114,7 +118,7 @@ private:
 
     // In Direct3D we call the release proc after we are finished with the underlying
     // GrD3DTextureResource::Resource object (which occurs after the GPU finishes all work on it).
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
         // Forward the release proc on to GrD3DTextureResource
         this->setResourceRelease(std::move(releaseHelper));
     }

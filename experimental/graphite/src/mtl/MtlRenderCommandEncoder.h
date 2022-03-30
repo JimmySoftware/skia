@@ -67,6 +67,7 @@ public:
     }
 
     void setVertexBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        SkASSERT(buffer != nil);
         SkASSERT(index < kMaxExpectedBuffers);
         if (@available(macOS 10.11, iOS 8.3, *)) {
             if (fCurrentVertexBuffer[index] == buffer) {
@@ -93,6 +94,7 @@ public:
     }
 
     void setFragmentBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        SkASSERT(buffer != nil);
         SkASSERT(index < kMaxExpectedBuffers);
         if (@available(macOS 10.11, iOS 8.3, *)) {
             if (fCurrentFragmentBuffer[index] == buffer) {
@@ -246,7 +248,7 @@ private:
     inline static constexpr int kMaxExpectedTextures = 16;
 
     RenderCommandEncoder(const Gpu* gpu, sk_cfp<id<MTLRenderCommandEncoder>> encoder)
-            : Resource(gpu), fCommandEncoder(std::move(encoder)) {
+            : Resource(gpu, Ownership::kOwned), fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;
             fCurrentFragmentBuffer[i] = nil;

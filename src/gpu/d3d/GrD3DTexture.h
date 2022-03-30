@@ -50,7 +50,8 @@ protected:
                  const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
                  const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
-                 GrMipmapStatus);
+                 GrMipmapStatus,
+                 std::string_view label);
 
     GrD3DGpu* getD3DGpu() const;
 
@@ -65,21 +66,25 @@ private:
     GrD3DTexture(GrD3DGpu*, SkBudgeted, SkISize dimensions, const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
                  const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
-                 GrMipmapStatus);
+                 GrMipmapStatus,
+                 std::string_view label);
     GrD3DTexture(GrD3DGpu*, SkISize dimensions, const GrD3DTextureResourceInfo&,
                  sk_sp<GrD3DResourceState>,
                  const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
-                 GrMipmapStatus, GrWrapCacheable, GrIOType);
+                 GrMipmapStatus,
+                 GrWrapCacheable,
+                 GrIOType,
+                 std::string_view label);
 
     // In D3D we call the release proc after we are finished with the underlying
     // GrSurfaceResource::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
         // Forward the release proc on to GrSurfaceResource
         this->setResourceRelease(std::move(releaseHelper));
     }
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
+        uint32_t operator()(GrSamplerState state) const { return state.asKey(); }
     };
 
     GrD3DDescriptorHeap::CPUHandle fShaderResourceView;

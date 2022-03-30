@@ -23,6 +23,7 @@ namespace skgpu::mtl {
 bool FormatIsDepthOrStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth32Float:
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:
@@ -32,6 +33,7 @@ bool FormatIsDepthOrStencil(MTLPixelFormat format) {
 
 bool FormatIsDepth(MTLPixelFormat format) {
     switch (format) {
+        case MTLPixelFormatDepth32Float:
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:
@@ -46,22 +48,6 @@ bool FormatIsStencil(MTLPixelFormat format) {
             return true;
         default:
             return false;
-    }
-}
-
-MTLPixelFormat SkColorTypeToFormat(SkColorType colorType) {
-    switch (colorType) {
-        case kRGBA_8888_SkColorType:
-            return MTLPixelFormatRGBA8Unorm;
-        case kBGRA_8888_SkColorType:
-            return MTLPixelFormatBGRA8Unorm;
-        case kAlpha_8_SkColorType:
-            return MTLPixelFormatR8Unorm;
-        case kRGBA_F16_SkColorType:
-            return MTLPixelFormatRGBA16Float;
-        default:
-            // TODO: fill in the rest of the formats
-            SkUNREACHABLE;
     }
 }
 

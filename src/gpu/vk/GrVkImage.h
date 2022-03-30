@@ -199,7 +199,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    void setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper);
+    void setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
@@ -228,7 +228,8 @@ private:
               sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
               sk_sp<const GrVkImageView> framebufferView,
               sk_sp<const GrVkImageView> textureView,
-              SkBudgeted);
+              SkBudgeted,
+              std::string_view label);
 
     GrVkImage(GrVkGpu* gpu,
               SkISize dimensions,
@@ -239,7 +240,8 @@ private:
               sk_sp<const GrVkImageView> textureView,
               GrBackendObjectOwnership,
               GrWrapCacheable,
-              bool forSecondaryCB);
+              bool forSecondaryCB,
+              std::string_view label);
 
     void init(GrVkGpu*, bool forSecondaryCB);
 

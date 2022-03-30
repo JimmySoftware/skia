@@ -43,11 +43,13 @@
 #include "src/core/SkPictureData.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecorder.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
+#include "src/utils/SkTestCanvas.h"
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
 #include "tools/Resources.h"
@@ -66,10 +68,6 @@
 #if defined(SK_ENABLE_SKOTTIE)
     #include "modules/skottie/include/Skottie.h"
     #include "modules/skresources/include/SkResources.h"
-#endif
-
-#if defined(SK_ENABLE_SKRIVE)
-    #include "experimental/skrive/include/SkRive.h"
 #endif
 
 #if defined(SK_ENABLE_SVG)
@@ -1263,61 +1261,6 @@ bool SkottieSrc::veto(SinkFlags flags) const {
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-#if defined(SK_ENABLE_SKRIVE)
-SkRiveSrc::SkRiveSrc(Path path) : fPath(std::move(path)) {}
-
-Result SkRiveSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
-    auto fileStream = SkFILEStream::Make(fPath.c_str());
-    if (!fileStream) {
-        return Result::Fatal("Unable to open file: %s", fPath.c_str());
-    }
-
-    const auto skrive = skrive::SkRive::Builder().make(std::move(fileStream));
-    if (!skrive) {
-        return Result::Fatal("Unable to parse file: %s", fPath.c_str());
-    }
-
-    auto bounds = SkRect::MakeEmpty();
-
-    for (const auto& ab : skrive->artboards()) {
-        const auto& pos  = ab->getTranslation();
-        const auto& size = ab->getSize();
-
-        bounds.join(SkRect::MakeXYWH(pos.x, pos.y, size.x, size.y));
-    }
-
-    canvas->drawColor(SK_ColorWHITE);
-
-    if (!bounds.isEmpty()) {
-        // TODO: tiled frames when we add animation support
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->concat(SkMatrix::RectToRect(bounds, SkRect::MakeWH(kTargetSize, kTargetSize),
-                                            SkMatrix::kCenter_ScaleToFit));
-        for (const auto& ab : skrive->artboards()) {
-            ab->render(canvas);
-        }
-    }
-
-    return Result::Ok();
-}
-
-SkISize SkRiveSrc::size() const {
-    return SkISize::Make(kTargetSize, kTargetSize);
-}
-
-Name SkRiveSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
-
-bool SkRiveSrc::veto(SinkFlags flags) const {
-    // No need to test to non-(raster||gpu||vector) or indirect backends.
-    bool type_ok = flags.type == SinkFlags::kRaster
-                || flags.type == SinkFlags::kGPU
-                || flags.type == SinkFlags::kVector;
-
-    return !type_ok || flags.approach != SinkFlags::kDirect;
-}
-#endif
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_ENABLE_SVG)
 // Used when the image doesn't have an intrinsic size.
 static const SkSize kDefaultSVGSize = {1000, 1000};
@@ -1547,7 +1490,8 @@ bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
 
 Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        const GrContextOptions& baseOptions,
-                       std::function<void(GrDirectContext*)> initContext) const {
+                       std::function<void(GrDirectContext*)> initContext,
+                       std::function<SkCanvas*(SkCanvas*)> wrapCanvas) const {
     GrContextOptions grOptions = baseOptions;
 
     // We don't expect the src to mess with the persistent cache or the executor.
@@ -1576,7 +1520,12 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         factory.abandonContexts();
     }
 
-    Result result = src.draw(direct, surface->getCanvas());
+    auto canvas = surface->getCanvas();
+    if (wrapCanvas != nullptr) {
+        canvas = wrapCanvas(canvas);
+    }
+
+    Result result = src.draw(direct, canvas);
     if (!result.isOk()) {
         return result;
     }
@@ -1602,7 +1551,24 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+GPUSlugSink::GPUSlugSink(const SkCommandLineConfigGpu* config, const GrContextOptions& options)
+        : GPUSink(config, options) {}
 
+Result GPUSlugSink::draw(const Src& src, SkBitmap* dst, SkWStream* write, SkString* log) const {
+    GrContextOptions grOptions = this->baseContextOptions();
+    // Force padded atlas entries for slug drawing.
+    grOptions.fSupportBilerpFromGlyphAtlas |= true;
+
+    SkTLazy<SkTestCanvas<SkSlugTestKey>> testCanvas;
+
+    return onDraw(src, dst, write, log, grOptions, nullptr,
+        [&](SkCanvas* canvas){
+            testCanvas.init(canvas);
+            return testCanvas.get();
+        });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUThreadTestingSink::GPUThreadTestingSink(const SkCommandLineConfigGpu* config,
                                            const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
@@ -2201,8 +2167,13 @@ Result GraphiteSink::draw(const Src& src,
     }
 
     std::unique_ptr<skgpu::Recording> recording = recorder->snap();
+    if (!recording) {
+        return Result::Fatal("Could not create a recording.");
+    }
 
-    context->insertRecording(std::move(recording));
+    skgpu::InsertRecordingInfo info;
+    info.fRecording = recording.get();
+    context->insertRecording(info);
     context->submit(skgpu::SyncToCpu::kYes);
 
     return Result::Ok();

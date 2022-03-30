@@ -66,6 +66,9 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
+namespace skgpu { class Recorder; }
+namespace SkRecords { class Draw; }
+
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
@@ -296,6 +299,12 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_recordingContext
      */
     virtual GrRecordingContext* recordingContext();
+
+    /** Returns Recorder for the GPU surface associated with SkCanvas.
+
+        @return  Recorder, if available; nullptr otherwise
+     */
+    virtual skgpu::Recorder* recorder();
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.
@@ -2263,12 +2272,12 @@ protected:
 #if SK_SUPPORT_GPU
     /** Experimental
      */
-    virtual sk_sp<GrSlug> doConvertBlobToSlug(
-            const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
+    virtual sk_sp<GrSlug> onConvertGlyphRunListToSlug(
+            const SkGlyphRunList& glyphRunList, const SkPaint& paint);
 
     /** Experimental
      */
-    virtual void doDrawSlug(GrSlug* slug);
+    virtual void onDrawSlug(const GrSlug* slug);
 #endif
 
 private:
@@ -2394,6 +2403,10 @@ private:
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkOverdrawCanvas;
     friend class SkRasterHandleAllocator;
+    friend class SkRecords::Draw;
+    template <typename Key>
+    friend class SkTestCanvas;
+
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
     SkCanvas(const SkIRect& bounds);
@@ -2416,7 +2429,7 @@ private:
     /** Experimental
      * Draw an GrSlug given the current canvas state.
      */
-    void drawSlug(GrSlug* slug);
+    void drawSlug(const GrSlug* slug);
 #endif
 
     /** Experimental

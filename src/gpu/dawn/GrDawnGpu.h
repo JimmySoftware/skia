@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrGpu.h"
 
-#include "dawn/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -146,7 +146,7 @@ private:
                                             GrProtected) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
-                               sk_sp<GrRefCntedCallback> finishedCallback,
+                               sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                std::array<float, 4> color) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
@@ -155,7 +155,7 @@ private:
                                                       GrProtected) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
-                                          sk_sp<GrRefCntedCallback> finishedCallback,
+                                          sk_sp<skgpu::RefCntedCallback> finishedCallback,
                                           const void* data,
                                           size_t size) override;
 

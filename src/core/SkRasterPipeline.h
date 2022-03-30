@@ -17,7 +17,6 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include <functional>
-#include <vector>  // TODO: unused
 
 class SkData;
 
@@ -126,6 +125,8 @@ struct SkRasterPipeline_GatherCtx {
     int         stride;
     float       width;
     float       height;
+
+    float       weights[16];  // for bicubic and bicubic_clamp_8888
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
@@ -136,6 +137,8 @@ struct SkRasterPipeline_SamplerCtx {
     float     fy[SkRasterPipeline_kMaxStride];
     float scalex[SkRasterPipeline_kMaxStride];
     float scaley[SkRasterPipeline_kMaxStride];
+
+    float weights[16];  // for bicubic_[np][13][xy]
 };
 
 struct SkRasterPipeline_TileCtx {

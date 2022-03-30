@@ -17,7 +17,9 @@
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkUniquePaintParamsID.h"
+#include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniformData.h"
 
@@ -73,7 +75,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
     using namespace skgpu;
 
     auto recorder = context->makeRecorder();
-    auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
+    SkKeyContext keyContext(recorder.get());
+    auto dict = keyContext.dict();
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
 
@@ -94,20 +97,27 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(UniformTest, reporter, context) {
 
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
                 auto [ p, expectedNumUniforms ] = create_paint(s, tm, bm);
-                auto [ actualID, uniformBlock] = ExtractPaintData(dict, &builder, PaintParams(p));
-                int actualNumUniforms = uniformBlock->count();
 
-                auto entry = dict->lookup(actualID);
+                auto [ uniqueID1, pipelineData] = ExtractPaintData(recorder.get(), &builder,
+                                                                   PaintParams(p));
 
-                SkPaintParamsKey expected = CreateKey(dict, &builder, s, tm, bm);
+                SkUniquePaintParamsID uniqueID2 = CreateKey(keyContext, &builder, s, tm, bm);
+                // ExtractPaintData and CreateKey agree
+                REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 
-                REPORTER_ASSERT(reporter, expected == entry->paintParamsKey());
-                REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
-                for (auto& u : *uniformBlock) {
-                    for (int i = 0; i < u->count(); ++i) {
-                        REPORTER_ASSERT(reporter,
-                                        u->offset(i) >= 0 && u->offset(i) < u->dataSize());
+                // ExtractPaintData made the pipeline data we expected
+                {
+                    auto uniforms = pipelineData->uniformDataBlock();
+                    int actualNumUniforms = uniforms.numUniforms();
+                    REPORTER_ASSERT(reporter, expectedNumUniforms == actualNumUniforms);
+                    for (const auto& u : uniforms) {
+                        for (int i = 0; i < u->count(); ++i) {
+                            REPORTER_ASSERT(reporter,
+                                            u->offset(i) >= 0 && u->offset(i) < u->dataSize());
+                        }
                     }
+
+                    // TODO: check the blendInfo here too
                 }
             }
         }

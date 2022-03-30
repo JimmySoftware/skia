@@ -16,62 +16,88 @@
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkPaintParamsKey.h"
+#include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 
-class SkShaderInfo {
+// TODO: How to represent the type (e.g., 2D) of texture being sampled?
+class SkTextureAndSampler {
 public:
-    struct SnippetEntry;
+    constexpr SkTextureAndSampler(const char* name) : fName(name) {}
+
+    const char* name() const { return fName; }
+
+private:
+    const char* fName;
+};
+
+struct SkShaderSnippet {
     using GenerateGlueCodeForEntry = std::string (*)(const std::string& resultName,
                                                      int entryIndex, // for uniform name mangling
-                                                     const SnippetEntry&,
+                                                     const SkPaintParamsKey::BlockReader&,
+                                                     const std::string& priorStageOutputName,
                                                      const std::vector<std::string>& childNames,
                                                      int indent);
 
-    struct SnippetEntry {
-        SnippetEntry() = default;
+    SkShaderSnippet() = default;
 
-        SnippetEntry(SkSpan<const SkUniform> uniforms,
-                     const char* functionName,
-                     const char* code,
-                     GenerateGlueCodeForEntry glueCodeGenerator,
-                     int numChildren,
-                     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
-             : fUniforms(uniforms)
-             , fStaticFunctionName(functionName)
-             , fStaticSkSL(code)
-             , fGlueCodeGenerator(glueCodeGenerator)
-             , fNumChildren(numChildren)
-             , fDataPayloadExpectations(dataPayloadExpectations) {
-        }
-
-        std::string getMangledUniformName(int uniformIndex, int mangleId) const;
-
-        SkSpan<const SkUniform> fUniforms;
-        const char* fStaticFunctionName = nullptr;
-        const char* fStaticSkSL = nullptr;
-        GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
-        int fNumChildren = 0;
-        SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
-    };
-
-    void add(const SnippetEntry& entry) {
-        fEntries.push_back(entry);
+    SkShaderSnippet(SkSpan<const SkUniform> uniforms,
+                    SkSpan<const SkTextureAndSampler> texturesAndSamplers,
+                    const char* functionName,
+                    const char* code,
+                    GenerateGlueCodeForEntry glueCodeGenerator,
+                    int numChildren,
+                    SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations)
+            : fUniforms(uniforms)
+            , fTexturesAndSamplers(texturesAndSamplers)
+            , fStaticFunctionName(functionName)
+            , fStaticSkSL(code)
+            , fGlueCodeGenerator(glueCodeGenerator)
+            , fNumChildren(numChildren)
+            , fDataPayloadExpectations(dataPayloadExpectations) {
     }
 
-    // TODO: writing to color should be a property of the SnippetEntries and accumulated as the
-    // entries are added. _Not_ set manually via 'setWritesColor'.
-    void setWritesColor() { fWritesColor = true; }
-    bool writesColor() const { return fWritesColor; }
+    std::string getMangledUniformName(int uniformIndex, int mangleId) const;
+
+    SkSpan<const SkUniform> fUniforms;
+    SkSpan<const SkTextureAndSampler> fTexturesAndSamplers;
+    const char* fStaticFunctionName = nullptr;
+    const char* fStaticSkSL = nullptr;
+    GenerateGlueCodeForEntry fGlueCodeGenerator = nullptr;
+    int fNumChildren = 0;
+    SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
+};
+
+// This is just a simple collection object that gathers together all the information needed
+// for program creation and its invocation.
+class SkShaderInfo {
+public:
+    void add(const SkPaintParamsKey::BlockReader& reader) {
+        fBlockReaders.push_back(reader);
+    }
+#ifdef SK_GRAPHITE_ENABLED
+    void setBlendInfo(const SkPipelineData::BlendInfo& blendInfo) {
+        fBlendInfo = blendInfo;
+    }
+    const SkPipelineData::BlendInfo& blendInfo() const { return fBlendInfo; }
+#endif
 
 #if SK_SUPPORT_GPU && defined(SK_GRAPHITE_ENABLED) && defined(SK_METAL)
     std::string toSkSL() const;
 #endif
 
 private:
-    std::string emitGlueCodeForEntry(int* entryIndex, std::string* result, int indent) const;
+    std::string emitGlueCodeForEntry(int* entryIndex,
+                                     const std::string& priorStageOutputName,
+                                     std::string* result,
+                                     int indent) const;
 
-    std::vector<SnippetEntry> fEntries;
-    bool fWritesColor = false;
+    std::vector<SkPaintParamsKey::BlockReader> fBlockReaders;
+
+#ifdef SK_GRAPHITE_ENABLED
+    // The blendInfo doesn't actually contribute to the program's creation but, it contains the
+    // matching fixed-function settings that the program's caller needs to set up.
+    SkPipelineData::BlendInfo fBlendInfo;
+#endif
 };
 
 class SkShaderCodeDictionary {
@@ -85,11 +111,21 @@ public:
             return fUniqueID;
         }
         const SkPaintParamsKey& paintParamsKey() const { return fKey; }
+#ifdef SK_GRAPHITE_ENABLED
+        const SkPipelineData::BlendInfo& blendInfo() const { return fBlendInfo; }
+#endif
 
     private:
         friend class SkShaderCodeDictionary;
 
+#ifdef SK_GRAPHITE_ENABLED
+        Entry(const SkPaintParamsKey& key, const SkPipelineData::BlendInfo& blendInfo)
+                : fKey(key.asSpan())
+                , fBlendInfo(blendInfo) {
+        }
+#else
         Entry(const SkPaintParamsKey& key) : fKey(key.asSpan()) {}
+#endif
 
         void setUniqueID(uint32_t newID) {
             SkASSERT(!fUniqueID.isValid());
@@ -98,9 +134,21 @@ public:
 
         SkUniquePaintParamsID fUniqueID;  // fixed-size (uint32_t) unique ID assigned to a key
         SkPaintParamsKey fKey; // variable-length paint key descriptor
+
+#ifdef SK_GRAPHITE_ENABLED
+        // The BlendInfo isn't used in the hash (that is the key's job) but it does directly vary
+        // with the key. It could, theoretically, be recreated from the key but that would add
+        // extra complexity.
+        SkPipelineData::BlendInfo fBlendInfo;
+#endif
     };
 
+#ifdef SK_GRAPHITE_ENABLED
+    const Entry* findOrCreate(const SkPaintParamsKey&,
+                              const SkPipelineData::BlendInfo&) SK_EXCLUDES(fSpinLock);
+#else
     const Entry* findOrCreate(const SkPaintParamsKey&) SK_EXCLUDES(fSpinLock);
+#endif
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
@@ -109,8 +157,8 @@ public:
     SkSpan<const SkPaintParamsKey::DataPayloadField> dataPayloadExpectations(int snippetID) const;
 
     // This method can return nullptr
-    const SkShaderInfo::SnippetEntry* getEntry(int codeSnippetID) const;
-    const SkShaderInfo::SnippetEntry* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
+    const SkShaderSnippet* getEntry(int codeSnippetID) const;
+    const SkShaderSnippet* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
 
@@ -127,7 +175,11 @@ public:
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
 private:
+#ifdef SK_GRAPHITE_ENABLED
+    Entry* makeEntry(const SkPaintParamsKey&, const SkPipelineData::BlendInfo&);
+#else
     Entry* makeEntry(const SkPaintParamsKey&);
+#endif
 
     struct Hash {
         size_t operator()(const SkPaintParamsKey*) const;
@@ -139,11 +191,11 @@ private:
         }
     };
 
-    std::array<SkShaderInfo::SnippetEntry, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
+    std::array<SkShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
     // entries as pointers.
-    std::vector<std::unique_ptr<SkShaderInfo::SnippetEntry>> fUserDefinedCodeSnippets;
+    std::vector<std::unique_ptr<SkShaderSnippet>> fUserDefinedCodeSnippets;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;

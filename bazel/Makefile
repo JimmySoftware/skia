@@ -8,7 +8,8 @@ generate:
 		modules/skottie modules/skresources modules/sksg experimental/ffmpeg \
 		modules/particles \
 		experimental/bazel_test experimental/graphite example \
-		modules/canvaskit/go
+		modules/canvaskit/go \
+		infra/bots/task_drivers
 
 # This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
 gazelle_update_repo:
@@ -16,9 +17,35 @@ gazelle_update_repo:
 
 # Run this target to test all known working Bazel builds
 known_good_builds:
-	bazelisk build //experimental/bazel_test/... --config=clang
-	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang
+	bazelisk build //experimental/bazel_test/... --config=clang --sandbox_base=/dev/shm
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=clang --sandbox_base=/dev/shm
 	bazelisk build //:skia_core --config=clang --sandbox_base=/dev/shm
 	bazelisk build //src/sksl/lex:sksllex --config=clang --sandbox_base=/dev/shm
 	bazelisk build //tools/skdiff --config=clang --sandbox_base=/dev/shm
-	bazelisk build //example:hello_world --config=clang --sandbox_base=/dev/shm
+	bazelisk build //modules/canvaskit:canvaskit_wasm --compilation_mode opt --sandbox_base=/dev/shm
+
+	# Test the enforcement of include what you use
+	bazelisk build //example:hello_world_gl --config=clang --sandbox_base=/dev/shm \
+ 		--features skia_enforce_iwyu
+ 	# Both with and without a GPU backend should be error free (i.e. IWYU should let us
+ 	# conditionally import things.
+	bazelisk build //src/svg/... --config=clang --sandbox_base=/dev/shm \
+		--features skia_enforce_iwyu --gpu_backend=gl_backend --include_decoder=jpeg_decode_codec
+	bazelisk build //src/svg/... --config=clang --sandbox_base=/dev/shm \
+		--features skia_enforce_iwyu
+
+rbe_known_good_builds:
+	bazelisk build //experimental/bazel_test/... --config=linux-rbe
+	bazelisk run //experimental/bazel_test:bazel_test_exe --config=linux-rbe
+	bazelisk build //:skia_core --config=linux-rbe
+	bazelisk build //src/sksl/lex:sksllex --config=linux-rbe
+	bazelisk build //tools/skdiff --config=linux-rbe
+	# TODO(kjlubick) CanvasKit does not link on RBE (closure issue)
+
+	# Test the enforcement of include what you use
+	bazelisk build //example:hello_world_gl --config=linux-rbe --features skia_enforce_iwyu
+ 	# Both with and without a GPU backend should be error free (i.e. IWYU should let us
+ 	# conditionally import things.
+	bazelisk build //src/svg/... --config=linux-rbe --features skia_enforce_iwyu \
+		--gpu_backend=gl_backend --include_decoder=jpeg_decode_codec
+	bazelisk build //src/svg/... --config=linux-rbe --features skia_enforce_iwyu

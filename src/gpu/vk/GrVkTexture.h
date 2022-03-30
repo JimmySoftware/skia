@@ -61,7 +61,8 @@ protected:
     GrVkTexture(GrVkGpu*,
                 SkISize dimensions,
                 sk_sp<GrVkImage> texture,
-                GrMipmapStatus);
+                GrMipmapStatus,
+                std::string_view label);
 
     GrVkGpu* getVkGpu() const;
 
@@ -74,20 +75,28 @@ protected:
 
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<GrRefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
         // Forward the release proc onto the fTexture's GrVkImage
         fTexture->setResourceRelease(std::move(releaseHelper));
     }
 
 private:
-    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, sk_sp<GrVkImage> texture, GrMipmapStatus);
+    GrVkTexture(GrVkGpu*,
+                SkBudgeted,
+                SkISize,
+                sk_sp<GrVkImage> texture,
+                GrMipmapStatus,
+                std::string_view label);
     GrVkTexture(GrVkGpu*, SkISize, sk_sp<GrVkImage> texture, GrMipmapStatus,
-                GrWrapCacheable, GrIOType, bool isExternal);
+                GrWrapCacheable,
+                GrIOType,
+                bool isExternal,
+                std::string_view label);
 
     sk_sp<GrVkImage> fTexture;
 
     struct SamplerHash {
-        uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }
+        uint32_t operator()(GrSamplerState state) const { return state.asKey(); }
     };
     struct DescriptorCacheEntry;
     SkLRUCache<const GrSamplerState, std::unique_ptr<DescriptorCacheEntry>, SamplerHash>
