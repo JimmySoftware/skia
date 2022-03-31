@@ -5,6 +5,9 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "tools/Resources.h"
 
 #include "SkottieViewerApp.h"
@@ -45,10 +48,14 @@ void SkottieViewerApp::setup() {
         //"skottie/ChargingFull.json";
         //"skottie/BatteryEmpty.json";
 
-    if (auto stream = GetResourceAsStream(skottie_filename)) {
-        fAnimation = skottie::Animation::Builder()
-                        .setResourceProvider(sk_make_sp<ResourceProvider>())
-                        .make(stream.get());
+    if (std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(skottie_filename)) {
+        //fAnimation = skottie::Animation::Builder()
+        //                .setResourceProvider(sk_make_sp<ResourceProvider>())
+        //                .make(stream.get());
+        fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
+        fAnimation   = skottie::Animation::Builder()
+                        .setPropertyObserver(fPropManager->getPropertyObserver())
+                        .make(stream.get());                        
         fAnimation->seek(0);
         printf( "Animation OK\n" );
     }

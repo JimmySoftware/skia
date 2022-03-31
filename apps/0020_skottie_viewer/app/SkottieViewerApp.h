@@ -5,6 +5,7 @@
 #include "tools/sk_app/Window.h"
 #include "tools/viewer/AnimTimer.h"
 #include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/utils/SkottieUtils.h"
 #include "../../GigaApp/GigaApp.h"
 
 class SkottieViewerApp : public GigaApp {
@@ -16,6 +17,7 @@ public:
     virtual void draw( SkCanvas *canvas ) override;
 private:
     sk_sp<skottie::Animation> fAnimation;
+    std::unique_ptr<skottie_utils::CustomPropertyManager>      fPropManager;
     AnimTimer              fAnimTimer;
 };
 
