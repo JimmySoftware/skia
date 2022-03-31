@@ -475,8 +475,13 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
                 return QuadOptimization::kClipApplied;
             } else {
                 // Update result to store the render target bounds in order and then fall
-                // through to attempt the draw->native clear optimization
-                result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), *aa);
+                // through to attempt the draw->native clear optimization. Pick an AA value such
+                // that any geometric clipping doesn't need to change aa or edge flags (since we
+                // know this is on pixel boundaries, it will draw the same regardless).
+                // See skbug.com/13114 for more details.
+                GrAA clipAA = (*aa == GrAA::kNo || quad->fEdgeFlags == GrQuadAAFlags::kNone) ?
+                              GrAA::kNo : GrAA::kYes;
+                result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), clipAA);
             }
             break;
         case GrClip::Effect::kClipped:
@@ -626,7 +631,7 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
         if (colorSpaceXform) {
             fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
         }
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+        fp = GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(fp), nullptr);
         paint.setColorFragmentProcessor(std::move(fp));
         if (blendMode != SkBlendMode::kSrcOver) {
             paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
