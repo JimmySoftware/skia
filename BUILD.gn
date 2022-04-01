@@ -2864,14 +2864,27 @@ if (skia_enable_tools) {
       libs = []
 
       deps = [
+        "modules/skottie:skottie",
+        "apps/SkiaApp",
+        "apps/GigaApp",
+        ":common_flags_fontmgr",
+        ":common_flags_gpu",
         ":flags",
+        ":gm",
         ":gpu_tool_utils",
+        ":samples",
         ":sk_app",
         ":skia",
         ":tool_utils",
-        "modules/skottie:skottie",
-        "apps/SkiaApp",
-        "apps/GigaApp"
+        ":trace",
+        "experimental/sktext",
+        "modules/audioplayer",
+        "modules/particles",
+        "modules/skottie",
+        "modules/skottie:utils",
+        "modules/sksg:samples",
+        "modules/svg",
+        "//third_party/imgui",        
       ]
     }
   }  

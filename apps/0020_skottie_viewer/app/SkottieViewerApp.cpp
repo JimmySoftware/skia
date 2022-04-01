@@ -8,6 +8,7 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
+#include "src/core/SkStreamPriv.h"
 #include "tools/Resources.h"
 
 #include "SkottieViewerApp.h"
@@ -48,14 +49,16 @@ void SkottieViewerApp::setup() {
         //"skottie/ChargingFull.json";
         //"skottie/BatteryEmpty.json";
 
-    if (std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(skottie_filename)) {
+    if (auto stream = GetResourceAsStream(skottie_filename)) {
+        //sk_sp<SkData> data(SkData::MakeFromStream(stream.get(), stream->getLength()));
         //fAnimation = skottie::Animation::Builder()
         //                .setResourceProvider(sk_make_sp<ResourceProvider>())
         //                .make(stream.get());
         fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
         fAnimation   = skottie::Animation::Builder()
-                        .setPropertyObserver(fPropManager->getPropertyObserver())
-                        .make(stream.get());                        
+                        //.setPropertyObserver(fPropManager->getPropertyObserver())
+                        .setResourceProvider(sk_make_sp<ResourceProvider>())
+                        .make((SkStream *)stream.get());               
         fAnimation->seek(0);
         printf( "Animation OK\n" );
     }
