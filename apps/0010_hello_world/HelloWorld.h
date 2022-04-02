@@ -1,21 +1,24 @@
-#ifndef SKIA_APP_DEFINED
-#define SKIA_APP_DEFINED
+/*
+* Copyright 2017 Google Inc.
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
 
-#include "src/utils/SkUTF.h"
+#ifndef HelloWorldApp_DEFINED
+#define HelloWorldApp_DEFINED
+
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
-#include "tools/skui/ModifierKey.h"
-
 #include "../GigaApp/GigaApp.h"
+
 
 class SkCanvas;
 
-class SkiaApp : public sk_app::Application, sk_app::Window::Layer {
+class HelloWorld : public sk_app::Application, sk_app::Window::Layer {
 public:
-    SkiaApp(int argc, char** argv, void* platformData, GigaApp *app);
-    ~SkiaApp() override;
-
-    void pushLayer(  sk_app::Window::Layer *layer );
+    HelloWorld(int argc, char** argv, void* platformData);
+    ~HelloWorld() override;
 
     void onIdle() override;
 
@@ -32,4 +35,4 @@ private:
     GigaApp *gigaApp;
 };
 
-#endif //SKIA_APP_DEFINED
+#endif
