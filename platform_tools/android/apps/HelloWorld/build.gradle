@@ -15,7 +15,7 @@ android {
     compileSdkVersion 30
     ndkVersion "22.0.7026061"
     defaultConfig {
-        applicationId "org.skia.viewer"
+        applicationId "org.skia.HelloWorld"
         minSdkVersion 27
         targetSdkVersion 27
         versionCode 1
@@ -27,5 +27,5 @@ android {
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "libviewer")
+    setupSkiaLibraryBuild(project, applicationVariants, "libHelloWorld")
 }
