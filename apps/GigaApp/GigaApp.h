@@ -8,8 +8,8 @@ class SkCanvas;
 
 class GigaApp {
 public:
-    GigaApp() {};
-    virtual ~GigaApp() {};
+    GigaApp() {}
+    virtual ~GigaApp() {}
 
     virtual void setup() = 0;
     virtual void draw( SkCanvas *canvas ) = 0;
