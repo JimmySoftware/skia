@@ -588,6 +588,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("tests")
 	}
 
+	// Workaround for skbug.com/13040. Eventually, the CommandBuffer bots are going to be
+	// replaced with ANGLE bots, so this is fine as a temporary fix
+	if b.extraConfig("CommandBuffer") {
+		removeFromArgs("tests")
+	}
+
 	if b.extraConfig("NativeFonts") { // images won't exercise native font integration :)
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
@@ -1036,6 +1042,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.gpu("PowerVRGE8320") {
 		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinct_GPU")
+		skip(ALL, "tests", ALL, "SkSLOutParamsAreDistinctFromGlobal_GPU") // skia:13115
 	}
 
 	if !b.extraConfig("Vulkan") && (b.gpu("RadeonR9M470X") || b.gpu("RadeonHD7770")) {
