@@ -1520,7 +1520,6 @@ group("modules") {
     "modules/skparagraph",
     "modules/skshaper",
     "modules/svg",
-    "apps/GigaApp",
   ]
 
   if (is_wasm) {
@@ -2849,8 +2848,7 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":sk_app",
         ":skia",
-        ":tool_utils",
-        "apps/GigaApp"
+        ":tool_utils"
       ]
     }
   }
@@ -2866,7 +2864,6 @@ if (skia_enable_tools) {
 
       deps = [
         "modules/skottie:skottie",
-        "apps/GigaApp",
         ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":flags",
