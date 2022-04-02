@@ -1,13 +1,16 @@
 #!/bin/bash
 echo ""
-bin/gn gen out/ios-debug --args='target_os="ios" target_cpu="arm64" ios_min_target = "13.0" skia_ios_identity=".*Bussaya Tejasen.*" skia_ios_profile="/Users/jimmy/keys/JimmyDev2021.mobileprovision"' --ide=xcode
+bin/gn gen out/ios-debug --args='target_os="ios" target_cpu="arm64" ios_min_target = "13.0" skia_ios_identity=".*Bussaya Tejasen.*" skia_ios_profile="/Users/jimmy/keys/JimmyDev2022.mobileprovision"' --ide=xcode
 echo ""
 echo "Build cmd:"
-echo "ninja -C out/ios-debug"
+echo "ninja -C out/ios-debug HelloWorld"
+echo "ninja -C out/ios-debug HelloWorldApp"
+echo "ninja -C out/ios-debug SkottieViewerApp"
+echo "ninja -C out/ios-debug viewer"
 echo ""
 echo "Deploy to device:"
+echo "b/ios-debug-deploy HelloWorld.app"
 echo "b/ios-debug-deploy HelloWorldApp.app"
-echo "b/ios-debug-deploy TemplateApp.app"
-echo "b/ios-debug-deploy ImageTest.app"
-echo "b/ios-debug-deploy TouchApp.app"
+echo "b/ios-debug-deploy SkottieViewerApp.app"
+echo "b/ios-debug-deploy viewer.app"
 echo ""

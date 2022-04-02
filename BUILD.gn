@@ -2820,7 +2820,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac || is_ios)) {
     test_app("HelloWorld") {
       sources = [ "example/HelloWorld.cpp" ]
       libs = []
@@ -2835,7 +2835,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac || is_ios)) {
     test_app("HelloWorldApp") {
       sources = [ 
         "apps/0010_hello_world/HelloWorld.cpp",
@@ -2855,7 +2855,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac || is_ios)) {
     test_app("SkottieViewerApp") {
       sources = [ 
         "apps/0020_skottie_viewer/SkottieViewer.cpp",
