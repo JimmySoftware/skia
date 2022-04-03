@@ -1,6 +1,6 @@
 #!/bin/bash
 echo ""
-bin/gn gen out/android-arm64-release --args='is_debug=false ndk="'${ANDROID_NDK_ROOT}'" target_cpu="arm64" is_official_build=true'
+bin/gn gen out/android-arm64-release --args='is_debug=false ndk="'${ANDROID_NDK_ROOT}'" target_cpu="arm64" is_official_build=false'
 echo ""
 echo "Build cmd:"
 echo "ninja -C out/android-arm64-release"

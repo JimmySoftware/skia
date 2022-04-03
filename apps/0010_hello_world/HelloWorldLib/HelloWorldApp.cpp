@@ -17,7 +17,15 @@ HelloWorldApp::~HelloWorldApp() {
 }
 
 void HelloWorldApp::setup() {
-
+    try
+    {
+        SkDebugf( "Try\n" );
+        throw std::invalid_argument("HELLO");
+    }
+    catch(const std::exception& e)
+    {
+        SkDebugf( "%s\n", e.what() );
+    }
 }
 
 void HelloWorldApp::draw( SkCanvas *canvas ) {

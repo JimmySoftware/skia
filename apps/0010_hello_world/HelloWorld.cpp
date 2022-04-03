@@ -12,7 +12,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "app/HelloWorldApp.h"
+#include "HelloWorldLib/HelloWorldApp.h"
 
 using namespace sk_app;
 

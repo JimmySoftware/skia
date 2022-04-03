@@ -176,7 +176,7 @@ template("component") {
 # Default configs
 default_configs = [
   "//gn/skia:default",
-  "//gn/skia:no_exceptions",
+  #"//gn/skia:no_exceptions", # JS_Skia - we need exceptions
   "//gn/skia:no_rtti",
 ]
 if (!is_debug) {

@@ -2839,7 +2839,6 @@ if (skia_enable_tools) {
       is_shared_library = is_android
       sources = [ 
         "apps/0010_hello_world/HelloWorld.cpp",
-        "apps/0010_hello_world/app/HelloWorldApp.cpp",
       ]
       libs = []
 
@@ -2848,7 +2847,8 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":sk_app",
         ":skia",
-        ":tool_utils"
+        ":tool_utils",
+        "apps/0010_hello_world/HelloWorldLib"
       ]
     }
   }
