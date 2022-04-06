@@ -1,8 +1,16 @@
+debug:
+	# Does an incremental build where possible.
+	./compile.sh debug_build
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
+
 clean:
 	- rm -rf ../../out/canvaskit_wasm
 	- rm -rf ./npm_build/bin
 	- rm -rf ./build/
-	$(MAKE) release
+	# $(MAKE) release
 
 release:
 	# Does an incremental build where possible.
@@ -28,13 +36,7 @@ release_viewer:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
-debug:
-	# Does an incremental build where possible.
-	./compile.sh debug_build
-	- rm -rf build/
-	mkdir build
-	cp ../../out/canvaskit_wasm_debug/canvaskit.js   ./build/
-	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm ./build/
+
 
 debug_cpu:
 	# Does an incremental build where possible.
@@ -94,7 +96,7 @@ gm_tests:
 	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./out
 
 local-example:
-	echo "Go check out http://localhost:8000/npm_build/example.html"
+	echo "Go check out http://localhost:8800/npm_build/example.html"
 	python3 ../../tools/serve_wasm.py
 
 test-continuous:

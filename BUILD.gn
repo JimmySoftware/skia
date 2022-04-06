@@ -1520,6 +1520,7 @@ group("modules") {
     "modules/skparagraph",
     "modules/skshaper",
     "modules/svg",
+    "apps/0010_hello_world/HelloWorldLib",
   ]
 
   if (is_wasm) {
