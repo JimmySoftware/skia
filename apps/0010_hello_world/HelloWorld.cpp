@@ -84,7 +84,7 @@ void HelloWorld::onBackendCreated() {
 
 void HelloWorld::onPaint(SkSurface* surface) {
     auto canvas = surface->getCanvas();
-    gigaApp->draw( canvas );
+    gigaApp->draw( *canvas );
 }
 
 void HelloWorld::onIdle() {

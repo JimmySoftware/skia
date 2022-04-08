@@ -33,6 +33,10 @@ SkottieViewerApp::~SkottieViewerApp() {
 
 }
 
+SkottieViewerApp *SkottieViewerApp::createApp() {
+    return new SkottieViewerApp();
+}
+
 void SkottieViewerApp::setup() {
     const char *skottie_filename = 
         //"skottie/skottie_sample_1.json";
@@ -54,7 +58,7 @@ void SkottieViewerApp::setup() {
         //fAnimation = skottie::Animation::Builder()
         //                .setResourceProvider(sk_make_sp<ResourceProvider>())
         //                .make(stream.get());
-        fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
+        //fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
         fAnimation   = skottie::Animation::Builder()
                         //.setPropertyObserver(fPropManager->getPropertyObserver())
                         .setResourceProvider(sk_make_sp<ResourceProvider>())
@@ -65,8 +69,8 @@ void SkottieViewerApp::setup() {
     fAnimTimer.run();
 }
 
-void SkottieViewerApp::draw( SkCanvas *canvas ) {
-    canvas->clear(SK_ColorBLACK);
+void SkottieViewerApp::draw( SkCanvas &canvas ) {
+    canvas.clear(SK_ColorBLACK);
     if ( fAnimation == nullptr ) {
         return;
     }
@@ -78,5 +82,5 @@ void SkottieViewerApp::draw( SkCanvas *canvas ) {
     fAnimation->seek(std::fmod(1e-9 * nanos, duration) / duration);  
 
     auto dest = SkRect::MakeWH(1024, 600);
-    fAnimation->render(canvas, &dest);  
+    fAnimation->render(&canvas, &dest);  
 }

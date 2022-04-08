@@ -62,6 +62,9 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#include "apps/0010_hello_world/HelloWorldLib/HelloWorldApp.h"
+#include "apps/0020_skottie_viewer/SkottieViewerLib/SkottieViewerApp.h"
+
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
@@ -2045,6 +2048,24 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // Emscripten won't let us return bare pointers, but we can return ints just fine.
             return reinterpret_cast<WASMPointerF32>(self.texCoords());
         }));
+
+    class_<HelloWorldApp>("HelloWorldApp")
+        .constructor<>()
+        .class_function("createApp", optional_override([]() {
+            return *HelloWorldApp::createApp();
+        }))
+        .function("setup", &HelloWorldApp::setup)
+        .function("draw", &HelloWorldApp::draw);
+
+    /*
+    class_<SkottieViewerApp>("SkottieViewerApp")
+        .constructor<>()
+        .class_function("createApp", optional_override([]() {
+            return *SkottieViewerApp::createApp();
+        }))
+        .function("setup", &SkottieViewerApp::setup)
+        .function("draw", &SkottieViewerApp::draw);      
+        */  
 
     enum_<SkAlphaType>("AlphaType")
         .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)

@@ -93,6 +93,11 @@ action("create_notomono_cpp") {
 
 skia_wasm_lib("canvaskit") {
   deps = [ "../..:skia" ]
+
+  deps += [
+    "../../apps/0010_hello_world/HelloWorldLib",
+    "../../apps/0020_skottie_viewer/SkottieViewerLib",
+  ]
   if (skia_canvaskit_enable_paragraph) {
     deps += [ "../../modules/skparagraph:skparagraph" ]
   }
@@ -314,7 +319,7 @@ skia_wasm_lib("canvaskit") {
     "-sLLD_REPORT_UNDEFINED",
     "-sALLOW_MEMORY_GROWTH",
     "-sUSE_PTHREADS=0",
-    "-sDISABLE_EXCEPTION_CATCHING",
+    "-sNO_DISABLE_EXCEPTION_CATCHING",
     "-sNODEJS_CATCH_EXIT=0",
     "-sDYNAMIC_EXECUTION=0",
     "-sEXPORT_NAME=CanvasKitInit",

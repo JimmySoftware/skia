@@ -1520,7 +1520,6 @@ group("modules") {
     "modules/skparagraph",
     "modules/skshaper",
     "modules/svg",
-    "apps/0010_hello_world/HelloWorldLib",
   ]
 
   if (is_wasm) {
@@ -2859,7 +2858,6 @@ if (skia_enable_tools) {
       is_shared_library = is_android
       sources = [ 
         "apps/0020_skottie_viewer/SkottieViewer.cpp",
-        "apps/0020_skottie_viewer/app/SkottieViewerApp.cpp",
       ]
       libs = []
 
@@ -2882,7 +2880,8 @@ if (skia_enable_tools) {
         "modules/skottie:utils",
         "modules/sksg:samples",
         "modules/svg",
-        "//third_party/imgui",        
+        "//third_party/imgui",       
+        "apps/0020_skottie_viewer/SkottieViewerLib" 
       ]
     }
   }  

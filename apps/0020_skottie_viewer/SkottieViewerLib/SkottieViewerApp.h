@@ -13,11 +13,13 @@ public:
     SkottieViewerApp( );
     virtual ~SkottieViewerApp() override;
 
+    static SkottieViewerApp *createApp();    
+
     virtual void setup() override;
-    virtual void draw( SkCanvas *canvas ) override;
+    virtual void draw( SkCanvas &canvas ) override;
 private:
     sk_sp<skottie::Animation> fAnimation;
-    std::unique_ptr<skottie_utils::CustomPropertyManager>      fPropManager;
+    //std::unique_ptr<skottie_utils::CustomPropertyManager>      fPropManager;
     AnimTimer              fAnimTimer;
 };
 

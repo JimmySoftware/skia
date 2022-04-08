@@ -12,7 +12,7 @@ public:
     virtual ~GigaApp() {}
 
     virtual void setup() = 0;
-    virtual void draw( SkCanvas *canvas ) = 0;
+    virtual void draw( SkCanvas &canvas ) = 0;
 };
 
 #endif //__GIGA_APP_LAYER_H__

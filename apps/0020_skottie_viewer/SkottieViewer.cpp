@@ -12,7 +12,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "app/SkottieViewerApp.h"
+#include "SkottieViewerLib/SkottieViewerApp.h"
 
 using namespace sk_app;
 
@@ -84,7 +84,7 @@ void SkottieViewer::onBackendCreated() {
 
 void SkottieViewer::onPaint(SkSurface* surface) {
     auto canvas = surface->getCanvas();
-    gigaApp->draw( canvas );
+    gigaApp->draw( *canvas );
 }
 
 void SkottieViewer::onIdle() {

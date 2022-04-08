@@ -10,8 +10,10 @@ public:
     HelloWorldApp( );
     virtual ~HelloWorldApp() override;
 
+    static HelloWorldApp *createApp();
+
     virtual void setup() override;
-    virtual void draw( SkCanvas *canvas ) override;
+    virtual void draw( SkCanvas &canvas ) override;
 private:
     SkScalar fRotationAngle;      
 };

@@ -16,6 +16,10 @@ HelloWorldApp::~HelloWorldApp() {
 
 }
 
+HelloWorldApp *HelloWorldApp::createApp() {
+    return new HelloWorldApp();
+}
+
 void HelloWorldApp::setup() {
     try
     {
@@ -28,16 +32,16 @@ void HelloWorldApp::setup() {
     }
 }
 
-void HelloWorldApp::draw( SkCanvas *canvas ) {
+void HelloWorldApp::draw( SkCanvas &canvas ) {
     // Clear background
-    canvas->clear(SK_ColorWHITE);
+    canvas.clear(SK_ColorWHITE);
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
     // Draw a rectangle with red paint
     SkRect rect = SkRect::MakeXYWH(10, 10, 128, 128);
-    canvas->drawRect(rect, paint);
+    canvas.drawRect(rect, paint);
 
     // Set up a linear gradient and draw a circle
     {
@@ -47,7 +51,7 @@ void HelloWorldApp::draw( SkCanvas *canvas ) {
                                                      SkTileMode::kMirror));
         paint.setAntiAlias(true);
 
-        canvas->drawCircle(200, 200, 64, paint);
+        canvas.drawCircle(200, 200, 64, paint);
 
         // Detach shader
         paint.setShader(nullptr);
@@ -59,19 +63,19 @@ void HelloWorldApp::draw( SkCanvas *canvas ) {
     font.setSize(20);
     paint.setColor(SK_ColorBLACK);
 
-    canvas->save();
+    canvas.save();
     static const char message[] = "Hello World App!";
 
     // Translate and rotate
-    canvas->translate(300, 300);
+    canvas.translate(300, 300);
     fRotationAngle += 0.2f;
     if (fRotationAngle > 360) {
         fRotationAngle -= 360;
     }
-    canvas->rotate(fRotationAngle);
+    canvas.rotate(fRotationAngle);
 
     // Draw the text
-    canvas->drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
+    canvas.drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
-    canvas->restore();   
+    canvas.restore();   
 }
