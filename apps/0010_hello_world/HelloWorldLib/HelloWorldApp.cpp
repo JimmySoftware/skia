@@ -25,7 +25,7 @@ HelloWorldApp *HelloWorldApp::createApp() {
 }
 
 void HelloWorldApp::setup() {
-    /*
+
     try
     {
         SkDebugf( "Try\n" );
@@ -35,7 +35,7 @@ void HelloWorldApp::setup() {
     {
         SkDebugf( "%s\n", e.what() );
     }
-    */
+
 }
 
 void HelloWorldApp::draw( SkCanvas &canvas ) {
@@ -72,7 +72,7 @@ void HelloWorldApp::draw( SkCanvas &canvas ) {
     paint.setColor(SK_ColorBLACK);
 
     canvas.save();
-    static const char message[] = "Hello World App! HELLO......";
+    static const char message[] = "Hello World App! HELLO......YO!";
 
     // Translate and rotate
     canvas.translate(300, 300); 
