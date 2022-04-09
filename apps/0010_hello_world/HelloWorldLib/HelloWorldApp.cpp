@@ -25,6 +25,7 @@ HelloWorldApp *HelloWorldApp::createApp() {
 }
 
 void HelloWorldApp::setup() {
+    /*
     try
     {
         SkDebugf( "Try\n" );
@@ -34,6 +35,7 @@ void HelloWorldApp::setup() {
     {
         SkDebugf( "%s\n", e.what() );
     }
+    */
 }
 
 void HelloWorldApp::draw( SkCanvas &canvas ) {

@@ -2878,6 +2878,9 @@ if (skia_enable_tools) {
       is_shared_library = is_android
       sources = [ 
         "apps/0010_hello_world/HelloWorld.cpp",
+        "apps/GigaAppLib/GigaMainApp.cpp",
+        #"apps/0010_hello_world/HelloWorldLib/HelloWorldApp.cpp",
+        #"apps/GigaAppLib/FPSLayer.cpp"
       ]
       libs = []
 

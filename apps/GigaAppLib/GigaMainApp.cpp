@@ -8,9 +8,11 @@
 
 using namespace sk_app;
 
+
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new GigaMainApp(argc, argv, platformData);
 }
+
 
 GigaMainApp::GigaMainApp(int argc, char** argv, void* platformData)
 #if defined(SK_GL)

@@ -1,8 +1,9 @@
 #include "FPSLayer.h"
-#include <unistd.h>
 #include "include/core/SkFont.h"
 #if defined(SK_BUILD_FOR_WIN)
 //#include <sysinfoapi.h>
+#else
+#include <unistd.h>
 #endif
 
 static const int fontSize = 18;
