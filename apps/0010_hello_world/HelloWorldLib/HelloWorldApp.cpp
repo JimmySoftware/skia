@@ -4,7 +4,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "../../GigaApp/FPSLayer.h"
+#include "../../GigaAppLib/FPSLayer.h"
 #include "HelloWorldApp.h"
 
 HelloWorldApp::HelloWorldApp( ) 

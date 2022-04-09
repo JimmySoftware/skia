@@ -12,6 +12,8 @@ public:
     GigaApp() {}
     virtual ~GigaApp() {}
 
+    static GigaApp *create();
+
     void pushLayer(GigaAppLayer* layer) { fLayers.push_back(layer); }
 
     virtual void setup() = 0;

@@ -6,7 +6,7 @@
 #include "tools/viewer/AnimTimer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
-#include "../../GigaApp/GigaApp.h"
+#include "../../GigaAppLib/GigaApp.h"
 
 class SkottieViewerApp : public GigaApp {
 public:

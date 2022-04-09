@@ -5,20 +5,21 @@
 * found in the LICENSE file.
 */
 
-#ifndef SkottieViewerApp_DEFINED
-#define SkottieViewerApp_DEFINED
+#ifndef GigaMainApp_DEFINED
+#define GigaMainApp_DEFINED
 
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
-#include "../GigaAppLib/GigaApp.h"
-
+#include "tools/skui/ModifierKey.h"
+#include "src/utils/SkUTF.h"
+#include "GigaApp.h"
 
 class SkCanvas;
 
-class SkottieViewer : public sk_app::Application, sk_app::Window::Layer {
+class GigaMainApp : public sk_app::Application, sk_app::Window::Layer {
 public:
-    SkottieViewer(int argc, char** argv, void* platformData);
-    ~SkottieViewer() override;
+    GigaMainApp(int argc, char** argv, void* platformData);
+    ~GigaMainApp() override;
 
     void onIdle() override;
 

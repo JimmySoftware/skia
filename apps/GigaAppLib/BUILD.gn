@@ -1,19 +1,19 @@
 declare_args() {
-  skia_enable_helloworldlib = true
+  skia_enable_gigaapplib = true
 }
 
-import("../../../gn/skia.gni")
+import("../../gn/skia.gni")
 
 config("public_config") {
-  if (skia_enable_helloworldlib) {
+  if (skia_enable_gigaapplib) {
     include_dirs = [ 
       "./"
     ]
   }
 }
 
-static_library("HelloWorldLib") {
-  if (skia_enable_helloworldlib) {
+static_library("GigaAppLib") {
+  if (skia_enable_gigaapplib) {
     public_configs = [ ":public_config" ]
     include_dirs = [ 
       "./",
@@ -32,11 +32,11 @@ static_library("HelloWorldLib") {
       cflags = [ "-fexceptions" ]
     }
     deps = [
-      "../../..:skia",
-      "../../GigaAppLib"
+      "../..:skia"
     ]
     sources = [
-      "HelloWorldApp.cpp",
+      "FPSLayer.cpp",
+      "GigaMainApp.cpp",
     ]
   }
 }

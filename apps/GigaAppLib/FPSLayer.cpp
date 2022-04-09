@@ -80,7 +80,7 @@ void FPSLayer::onPaint(SkCanvas& canvas) {
     sprintf(message, "Frame rate: %.3f fps.", (float)fps);
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 2, 2 + fontSize * scale, font, paint);
-    SkDebugf( "%s\n", message );
+    //SkDebugf( "%s\n", message );
 
 #if defined(SK_BUILD_FOR_WIN)
 #else

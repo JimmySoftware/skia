@@ -3,7 +3,7 @@
 
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
-#include "../../GigaApp/GigaApp.h"
+#include "../../GigaAppLib/GigaApp.h"
 
 class HelloWorldApp : public GigaApp {
 public:
