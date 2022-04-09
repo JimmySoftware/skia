@@ -21,9 +21,8 @@ DemoApp::~DemoApp() {
 DemoApp *DemoApp::createApp() {
     DemoApp *app = new DemoApp();
     
-    app->pushLayer( new FPSLayer(SK_ColorBLACK, true) );
-    app->pushLayer( new TemplateLayer() );
     app->pushLayer( new UILayer() );
+    app->pushLayer( new FPSLayer(SK_ColorBLACK, true) );
 
     return app;
 }
