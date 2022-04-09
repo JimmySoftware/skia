@@ -96,7 +96,7 @@ skia_wasm_lib("canvaskit") {
 
   deps += [
     "../../apps/0010_hello_world/HelloWorldLib",
-    "../../apps/0020_skottie_viewer/SkottieViewerLib",
+    "../../apps/0030_skottie_viewer/SkottieViewerLib",
   ]
   if (skia_canvaskit_enable_paragraph) {
     deps += [ "../../modules/skparagraph:skparagraph" ]

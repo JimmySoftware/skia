@@ -8,13 +8,12 @@
 #ifndef GigaMainApp_DEFINED
 #define GigaMainApp_DEFINED
 
+#include "include/core/SkCanvas.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
 #include "tools/skui/ModifierKey.h"
 #include "src/utils/SkUTF.h"
 #include "GigaApp.h"
-
-class SkCanvas;
 
 class GigaMainApp : public sk_app::Application, sk_app::Window::Layer {
 public:

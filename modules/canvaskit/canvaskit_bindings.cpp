@@ -63,7 +63,7 @@
 #include <emscripten/html5.h>
 
 #include "apps/0010_hello_world/HelloWorldLib/HelloWorldApp.h"
-#include "apps/0020_skottie_viewer/SkottieViewerLib/SkottieViewerApp.h"
+#include "apps/0030_skottie_viewer/SkottieViewerLib/SkottieViewerApp.h"
 
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"

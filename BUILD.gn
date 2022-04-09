@@ -2899,7 +2899,7 @@ if (skia_enable_tools) {
     test_app("SkottieViewerApp") {
       is_shared_library = is_android
       sources = [ 
-        "apps/0020_skottie_viewer/SkottieViewer.cpp",
+        "apps/0030_skottie_viewer/SkottieViewer.cpp",
       ]
       libs = []
 
@@ -2923,7 +2923,7 @@ if (skia_enable_tools) {
         "modules/sksg:samples",
         "modules/svg",
         "//third_party/imgui",       
-        "apps/0020_skottie_viewer/SkottieViewerLib" 
+        "apps/0030_skottie_viewer/SkottieViewerLib" 
       ]
     }
   }  
