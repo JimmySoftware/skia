@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawPass_DEFINED
-#define skgpu_DrawPass_DEFINED
+#ifndef skgpu_graphite_DrawPass_DEFINED
+#define skgpu_graphite_DrawPass_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/GraphicsPipelineDesc.h"
@@ -20,7 +20,7 @@
 
 class SkTextureDataBlock;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BoundsManager;
 class CommandBuffer;
@@ -98,7 +98,7 @@ private:
     struct BindTexturesAndSamplers {
         // The data backing this pointer is stored in the TextureDataCache. Its lifetime is for
         // a single Recording (thus guaranteed to be longer than this DrawPass' lifetime).
-        SkTextureDataBlock* fTextureBlock;
+        const SkTextureDataBlock* fTextureBlock;
     };
     struct BindDrawBuffers {
         BindBufferInfo fVertices;
@@ -211,6 +211,6 @@ private:
     bool                    fRequiresMSAA = false;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawPass_DEFINED
+#endif // skgpu_graphite_DrawPass_DEFINED

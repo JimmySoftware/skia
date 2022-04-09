@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Renderer_DEFINED
-#define skgpu_Renderer_DEFINED
+#ifndef skgpu_graphite_Renderer_DEFINED
+#define skgpu_graphite_Renderer_DEFINED
 
 #include "experimental/graphite/src/Attribute.h"
 #include "experimental/graphite/src/DrawTypes.h"
@@ -26,15 +26,11 @@
 
 enum class SkPathFillType;
 class SkPipelineDataGatherer;
-class SkUniformData;
 
-namespace skgpu {
-
+namespace skgpu::graphite {
 class DrawWriter;
 class DrawGeometry;
 class ResourceProvider;
-
-enum class Layout;
 
 class RenderStep {
 public:
@@ -54,9 +50,7 @@ public:
     // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
     // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
     // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
-    virtual void writeUniforms(Layout layout,
-                               const DrawGeometry&,
-                               SkPipelineDataGatherer*) const = 0;
+    virtual void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const = 0;
 
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
@@ -268,6 +262,6 @@ private:
     Mask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
-} // skgpu namespace
+} // skgpu namespace::graphite
 
-#endif // skgpu_Renderer_DEFINED
+#endif // skgpu_graphite_Renderer_DEFINED

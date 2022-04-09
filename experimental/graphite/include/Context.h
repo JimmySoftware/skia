@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Context_DEFINED
-#define skgpu_Context_DEFINED
+#ifndef skgpu_graphite_Context_DEFINED
+#define skgpu_graphite_Context_DEFINED
 
 #include <vector>
 #include "include/core/SkBlendMode.h"
@@ -17,17 +17,17 @@
 
 #include "experimental/graphite/include/GraphiteTypes.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BackendTexture;
 class CommandBuffer;
 class ContextPriv;
 class GlobalCache;
 class Gpu;
+struct MtlBackendContext;
 class Recorder;
 class Recording;
 class TextureInfo;
-namespace mtl { struct BackendContext; }
 
 struct ShaderCombo {
     enum class ShaderType {
@@ -64,7 +64,7 @@ public:
     ~Context();
 
 #ifdef SK_METAL
-    static std::unique_ptr<Context> MakeMetal(const skgpu::mtl::BackendContext&);
+    static std::unique_ptr<Context> MakeMetal(const skgpu::graphite::MtlBackendContext&);
 #endif
 
     BackendApi backend() const { return fBackend; }
@@ -119,6 +119,6 @@ private:
     BackendApi fBackend;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Context_DEFINED
+#endif // skgpu_graphite_Context_DEFINED

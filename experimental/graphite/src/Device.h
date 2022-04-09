@@ -10,13 +10,14 @@
 
 #include "src/core/SkDevice.h"
 
+#include "experimental/graphite/src/ClipStack_graphite.h"
 #include "experimental/graphite/src/DrawOrder.h"
 #include "experimental/graphite/src/EnumBitMask.h"
 #include "experimental/graphite/src/geom/Rect.h"
 
 class SkStrokeRec;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class BoundsManager;
 class Clip;
@@ -57,17 +58,24 @@ private:
     class IntersectionTreeSet;
 
     // Clipping
-    void onSave() override {}
-    void onRestore() override {}
+    void onSave() override { fClip.save(); }
+    void onRestore() override { fClip.restore(); }
 
-    bool onClipIsAA() const override { return false; }
-    bool onClipIsWideOpen() const override { return true; }
-    ClipType onGetClipType() const override { return ClipType::kRect; }
+    bool onClipIsWideOpen() const override {
+        return fClip.clipState() == ClipStack::ClipState::kWideOpen;
+    }
+    bool onClipIsAA() const override;
+    ClipType onGetClipType() const override;
     SkIRect onDevClipBounds() const override;
+    void onAsRgnClip(SkRegion*) const override;
 
-    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override {}
-    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override {}
-    void onClipPath(const SkPath& path, SkClipOp, bool aa) override {}
+    void onClipRect(const SkRect& rect, SkClipOp, bool aa) override;
+    void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) override;
+    void onClipPath(const SkPath& path, SkClipOp, bool aa) override;
+
+    void onClipShader(sk_sp<SkShader> shader) override;
+    void onClipRegion(const SkRegion& globalRgn, SkClipOp) override;
+    void onReplaceClip(const SkIRect& rect) override;
 
     // Drawing
     void drawPaint(const SkPaint& paint) override;
@@ -91,11 +99,6 @@ private:
      * TODO: These functions are not in scope to be implemented yet, but will need to be. Call them
      * out explicitly so it's easy to keep tabs on how close feature-complete actually is.
      */
-
-    void onAsRgnClip(SkRegion*) const override {}
-    void onClipShader(sk_sp<SkShader>) override {}
-    void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
-    void onReplaceClip(const SkIRect& rect) override {}
 
     bool onWritePixels(const SkPixmap&, int x, int y) override;
 
@@ -166,22 +169,12 @@ private:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    // Determines most optimal painters order for a draw of the given shape and style. This computes
-    // the draw's bounds, applying both the style and scissor to the returned bounds. Low-level
-    // renderers must not draw outside of these bounds or decisions made about ordering draw
-    // operations at the Device level can be invalidated. In addition to the scissor test and draw
-    // bounds, this returns the largest compressed painter's order of the clip shapes that affect
-    // the draw (the draw's order must be greater than this value to be rendered/clipped correctly).
-    //
-    // This also records the draw's bounds to any clip elements that affect it so that they are
-    // recorded when popped off the stack, or making an image snapshot of the Device.
-    std::pair<Clip, CompressedPaintersOrder>
-    applyClipToDraw(const Transform&, const Shape&, const SkStrokeRec&, PaintersDepth z);
-
     bool needsFlushBeforeDraw(int numNewDraws) const;
 
     Recorder* fRecorder;
     sk_sp<DrawContext> fDC;
+
+    ClipStack fClip;
 
     // Tracks accumulated intersections for ordering dependent use of the color and depth attachment
     // (i.e. depth-based clipping, and transparent blending)

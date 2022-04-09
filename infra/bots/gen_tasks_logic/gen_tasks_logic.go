@@ -1045,33 +1045,6 @@ func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 	return name
 }
 
-// updateGoDeps generates the task to update Go dependencies.
-func (b *jobBuilder) updateGoDeps() {
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.usesGo()
-		b.asset("protoc")
-		b.cmd(
-			"./update_go_deps",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--workdir", ".",
-			"--gerrit_project", "skia",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-		)
-		b.dep(b.buildTaskDrivers("linux", "amd64"))
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
-		b.cas(CAS_EMPTY)
-		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
-	})
-}
-
 // createDockerImage creates the specified docker image. Returns the name of the
 // generated task.
 func (b *jobBuilder) createDockerImage(wasm bool) string {
@@ -1232,6 +1205,10 @@ func (b *jobBuilder) compile() string {
 			if b.extraConfig("Docker", "LottieWeb", "CMake") || b.compiler("EMCC") {
 				b.usesDocker()
 				b.cache(CACHES_DOCKER...)
+			}
+			if b.extraConfig("Dawn") {
+			    // https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
+			    b.usesGit()
 			}
 
 			// Android bots require a toolchain.

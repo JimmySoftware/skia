@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_render_CoverBoundsRenderStep_DEFINED
-#define skgpu_render_CoverBoundsRenderStep_DEFINED
+#ifndef skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
+#define skgpu_graphite_render_CoverBoundsRenderStep_DEFINED
 
 #include "experimental/graphite/src/Renderer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class CoverBoundsRenderStep final : public RenderStep {
 public:
@@ -20,12 +20,12 @@ public:
 
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawGeometry&) const override;
-    void writeUniforms(Layout, const DrawGeometry&, SkPipelineDataGatherer*) const override;
+    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override;
 
 private:
     const bool fInverseFill;
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
 #endif // skgpu_render_CoverBoundsRenderStep_DEFINED

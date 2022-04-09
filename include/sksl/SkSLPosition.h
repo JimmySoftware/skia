@@ -20,43 +20,30 @@ namespace SkSL {
 class Position {
 public:
     Position()
-        : fStartOffsetOrLine(-1)
+        : fStartOffset(-1)
         , fEndOffset(-1) {}
-
-    static Position Line(int line) {
-        Position result;
-        result.fStartOffsetOrLine = line;
-        result.fEndOffset = -1;
-        return result;
-    }
 
     static Position Range(int startOffset, int endOffset) {
         SkASSERT(startOffset <= endOffset);
         Position result;
-        result.fStartOffsetOrLine = startOffset;
+        result.fStartOffset = startOffset;
         result.fEndOffset = endOffset;
         return result;
     }
 
-#if __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
-    static Position Capture(const char* file = __builtin_FILE(), int line = __builtin_LINE());
-#else
-    static Position Capture() { return Position(); }
-#endif // __has_builtin(__builtin_FILE) && __has_builtin(__builtin_LINE)
-
     bool valid() const {
-        return fStartOffsetOrLine != -1;
+        return fStartOffset != -1;
     }
 
-    int line(std::string_view source = std::string_view()) const;
+    int line(std::string_view source) const;
 
     int startOffset() const {
-        SkASSERT(fEndOffset != -1);
-        return fStartOffsetOrLine;
+        SkASSERT(this->valid());
+        return fStartOffset;
     }
 
     int endOffset() const {
-        SkASSERT(fEndOffset != -1);
+        SkASSERT(this->valid());
         return fEndOffset;
     }
 
@@ -65,13 +52,19 @@ public:
         if (fEndOffset == -1 || end.fEndOffset == -1) {
             return *this;
         }
-        SkASSERT(this->startOffset() <= end.startOffset() && this->endOffset() <= end.endOffset());
+        SkASSERTF(this->startOffset() <= end.startOffset() && this->endOffset() <= end.endOffset(),
+                "Invalid range: (%d-%d) - (%d-%d)\n", this->startOffset(), this->endOffset(),
+                end.startOffset(), end.endOffset());
         return Range(this->startOffset(), end.endOffset());
     }
 
+    // Returns a position representing the character immediately after this position
+    Position after() const {
+        return Range(fEndOffset, fEndOffset + 1);
+    }
+
     bool operator==(const Position& other) const {
-        return fStartOffsetOrLine == other.fStartOffsetOrLine &&
-                fEndOffset == other.fEndOffset;
+        return fStartOffset == other.fStartOffset && fEndOffset == other.fEndOffset;
     }
 
     bool operator!=(const Position& other) const {
@@ -79,24 +72,23 @@ public:
     }
 
     bool operator>(const Position& other) const {
-        return fStartOffsetOrLine > other.fStartOffsetOrLine;
+        return fStartOffset > other.fStartOffset;
     }
 
     bool operator>=(const Position& other) const {
-        return fStartOffsetOrLine >= other.fStartOffsetOrLine;
+        return fStartOffset >= other.fStartOffset;
     }
 
     bool operator<(const Position& other) const {
-        return fStartOffsetOrLine < other.fStartOffsetOrLine;
+        return fStartOffset < other.fStartOffset;
     }
 
     bool operator<=(const Position& other) const {
-        return fStartOffsetOrLine <= other.fStartOffsetOrLine;
+        return fStartOffset <= other.fStartOffset;
     }
 
 private:
-    // Contains either a start offset (if fEndOffset != -1) or a line number (if fEndOffset == -1)
-    int32_t fStartOffsetOrLine;
+    int32_t fStartOffset;
     int32_t fEndOffset;
 };
 

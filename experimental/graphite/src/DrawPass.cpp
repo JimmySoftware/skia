@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 // Helper to manage packed fields within a uint64_t
 template <uint64_t Bits, uint64_t Offset>
@@ -200,17 +200,14 @@ public:
             return {};
         }
 
-        SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
+        const SkUniformDataBlock *udb = fUniformDataCache->lookup(uIndex);
         SkASSERT(udb);
 
         if (fBindings.find(uIndex.asUInt()) == fBindings.end()) {
             // First time encountering this data, so upload to the GPU
-            size_t totalDataSize = udb->totalUniformSize();
-            SkASSERT(totalDataSize);
-            auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(totalDataSize);
-            for (const auto &u : *udb) {
-                writer.write(u->data(), u->dataSize());
-            }
+            SkASSERT(udb->size());
+            auto[writer, bufferInfo] = fBufferMgr->getUniformWriter(udb->size());
+            writer.write(udb->data(), udb->size());
 
             fBindings.insert({uIndex.asUInt(), bufferInfo});
         }
@@ -233,14 +230,14 @@ private:
 
 // std::unordered_map implementation for GraphicsPipelineDesc* that de-reference the pointers.
 struct Hash {
-    size_t operator()(const skgpu::GraphicsPipelineDesc* desc) const noexcept {
-        return skgpu::GraphicsPipelineDesc::Hash()(*desc);
+    size_t operator()(const GraphicsPipelineDesc* desc) const noexcept {
+        return GraphicsPipelineDesc::Hash()(*desc);
     }
 };
 
 struct Eq {
-    bool operator()(const skgpu::GraphicsPipelineDesc* a,
-                    const skgpu::GraphicsPipelineDesc* b) const noexcept {
+    bool operator()(const GraphicsPipelineDesc* a,
+                    const GraphicsPipelineDesc* b) const noexcept {
         return *a == *b;
     }
 };
@@ -309,7 +306,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     SkShaderCodeDictionary* dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
-    SkPipelineDataGatherer gatherer;
+    SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         if (occlusionCuller && occlusionCuller->isOccluded(draw.fGeometry.clip().drawBounds(),
@@ -548,4 +545,4 @@ bool DrawPass::addCommands(ResourceProvider* resourceProvider,
     return true;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

@@ -25,9 +25,9 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/sksl/DSLCore.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/GrCaps.h"
-#include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLRehydrator.h"
@@ -352,6 +352,7 @@ SKSL_TEST(CPU + GPU + SkQP, SelfAssignment,                  "folding/SelfAssign
 SKSL_TEST(CPU + GPU + SkQP, ShortCircuitBoolFolding,         "folding/ShortCircuitBoolFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwitchCaseFolding,               "folding/SwitchCaseFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, SwizzleFolding,                  "folding/SwizzleFolding.sksl")
+SKSL_TEST(CPU + GPU + SkQP, TernaryFolding,                  "folding/TernaryFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, VectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(CPU + GPU + SkQP, VectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
@@ -455,6 +456,7 @@ SKSL_TEST(CPU + GPU + SkQP, DeadReturn,                      "shared/DeadReturn.
 // SKSL_TEST(GPU_ES3,       SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(CPU + GPU + SkQP, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(CPU + GPU + SkQP, DependentInitializers,           "shared/DependentInitializers.sksl")
+SKSL_TEST(CPU + GPU + SkQP, DoubleNegation,                  "shared/DoubleNegation.sksl")
 SKSL_TEST(GPU_ES3,          DoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(CPU + GPU + SkQP, EmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(GPU_ES3,          EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")

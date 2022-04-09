@@ -15,7 +15,7 @@
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 namespace {
 
@@ -206,10 +206,8 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw, const DrawGeometr
     }
 }
 
-void TessellateCurvesRenderStep::writeUniforms(Layout,
-                                               const DrawGeometry&,
-                                               SkPipelineDataGatherer*) const {
+void TessellateCurvesRenderStep::writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const {
     // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
 }
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite

@@ -279,6 +279,7 @@ sksl_metal_tests = [
 
 sksl_spirv_tests = [
   "/sksl/spirv/ConstantVectorFromVector.sksl",
+  "/sksl/spirv/ConstantVectorize.sksl",
   "/sksl/spirv/InterfaceBlockPushConstant.sksl",
   "/sksl/spirv/LayoutMultipleOf4.sksl",
   "/sksl/spirv/LayoutOutOfOrder.sksl",
@@ -410,6 +411,7 @@ sksl_shared_tests = [
   "/sksl/shared/DependentInitializers.sksl",
   "/sksl/shared/DerivativesUnused.sksl",
   "/sksl/shared/Discard.sksl",
+  "/sksl/shared/DoubleNegation.sksl",
   "/sksl/shared/DoWhileControlFlow.sksl",
   "/sksl/shared/EmptyBlocksES2.sksl",
   "/sksl/shared/EmptyBlocksES3.sksl",
@@ -536,6 +538,7 @@ sksl_folding_tests = [
   "/sksl/folding/ShortCircuitBoolFolding.sksl",
   "/sksl/folding/SwizzleFolding.sksl",
   "/sksl/folding/SwitchCaseFolding.sksl",
+  "/sksl/folding/TernaryFolding.sksl",
   "/sksl/folding/VectorScalarFolding.sksl",
   "/sksl/folding/VectorVectorFolding.sksl",
 ]

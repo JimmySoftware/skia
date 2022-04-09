@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_render_TessellateWedgesRenderStep_DEFINED
-#define skgpu_render_TessellateWedgesRenderStep_DEFINED
+#ifndef skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED
+#define skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED
 
 #include "experimental/graphite/src/Renderer.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class TessellateWedgesRenderStep final : public RenderStep {
 public:
@@ -21,10 +21,10 @@ public:
 
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawGeometry&) const override;
-    void writeUniforms(Layout, const DrawGeometry&, SkPipelineDataGatherer*) const override;
+    void writeUniforms(const DrawGeometry&, SkPipelineDataGatherer*) const override;
 
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif // skgpu_render_TessellateWedgesRenderStep_DEFINED
+#endif // skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED

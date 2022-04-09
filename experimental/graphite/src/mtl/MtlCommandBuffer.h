@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlCommandBuffer_DEFINED
-#define skgpu_MtlCommandBuffer_DEFINED
+#ifndef skgpu_graphite_MtlCommandBuffer_DEFINED
+#define skgpu_graphite_MtlCommandBuffer_DEFINED
 
 #include "experimental/graphite/src/CommandBuffer.h"
 #include "experimental/graphite/src/GpuWorkSubmission.h"
@@ -19,15 +19,15 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu::mtl {
-class BlitCommandEncoder;
-class Gpu;
-class RenderCommandEncoder;
+namespace skgpu::graphite {
+class MtlBlitCommandEncoder;
+class MtlGpu;
+class MtlRenderCommandEncoder;
 
-class CommandBuffer final : public skgpu::CommandBuffer {
+class MtlCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<CommandBuffer> Make(const Gpu*);
-    ~CommandBuffer() override;
+    static sk_sp<MtlCommandBuffer> Make(const MtlGpu*);
+    ~MtlCommandBuffer() override;
 
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
@@ -49,23 +49,23 @@ public:
     bool commit();
 
 private:
-    CommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const Gpu* gpu);
+    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer, const MtlGpu* gpu);
 
     bool onBeginRenderPass(const RenderPassDesc&,
-                           const skgpu::Texture* colorTexture,
-                           const skgpu::Texture* resolveTexture,
-                           const skgpu::Texture* depthStencilTexture) override;
+                           const Texture* colorTexture,
+                           const Texture* resolveTexture,
+                           const Texture* depthStencilTexture) override;
     void endRenderPass() override;
 
-    void onBindGraphicsPipeline(const skgpu::GraphicsPipeline*) override;
-    void onBindUniformBuffer(UniformSlot, const skgpu::Buffer*, size_t offset) override;
-    void onBindVertexBuffers(const skgpu::Buffer* vertexBuffer, size_t vertexOffset,
-                             const skgpu::Buffer* instanceBuffer, size_t instanceOffset) override;
-    void onBindIndexBuffer(const skgpu::Buffer* indexBuffer, size_t offset) override;
+    void onBindGraphicsPipeline(const GraphicsPipeline*) override;
+    void onBindUniformBuffer(UniformSlot, const Buffer*, size_t offset) override;
+    void onBindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
+                             const Buffer* instanceBuffer, size_t instanceOffset) override;
+    void onBindIndexBuffer(const Buffer* indexBuffer, size_t offset) override;
 
 
-    void onBindTextureAndSampler(sk_sp<skgpu::Texture>,
-                                 sk_sp<skgpu::Sampler>,
+    void onBindTextureAndSampler(sk_sp<Texture>,
+                                 sk_sp<Sampler>,
                                  unsigned int bindIndex) override;
 
     void onSetScissor(unsigned int left, unsigned int top,
@@ -84,31 +84,31 @@ private:
                                 unsigned int indexCount, unsigned int baseVertex,
                                 unsigned int baseInstance, unsigned int instanceCount) override;
 
-    bool onCopyTextureToBuffer(const skgpu::Texture*,
+    bool onCopyTextureToBuffer(const Texture*,
                                SkIRect srcRect,
-                               const skgpu::Buffer*,
+                               const Buffer*,
                                size_t bufferOffset,
                                size_t bufferRowBytes) override;
-    bool onCopyBufferToTexture(const skgpu::Buffer*,
-                               const skgpu::Texture*,
+    bool onCopyBufferToTexture(const Buffer*,
+                               const Texture*,
                                const BufferTextureCopyData* copyData,
                                int count) override;
 
-    BlitCommandEncoder* getBlitCommandEncoder();
+    MtlBlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();
 
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
-    sk_sp<RenderCommandEncoder> fActiveRenderCommandEncoder;
-    sk_sp<BlitCommandEncoder> fActiveBlitCommandEncoder;
+    sk_sp<MtlRenderCommandEncoder> fActiveRenderCommandEncoder;
+    sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
     size_t fCurrentVertexStride = 0;
     size_t fCurrentInstanceStride = 0;
     id<MTLBuffer> fCurrentIndexBuffer;
     size_t fCurrentIndexBufferOffset = 0;
 
-    const Gpu* fGpu;
+    const MtlGpu* fGpu;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlCommandBuffer_DEFINED
+#endif // skgpu_graphite_MtlCommandBuffer_DEFINED

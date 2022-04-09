@@ -570,7 +570,7 @@ size_t SkVMGenerator::writeFunction(const IRNode& caller,
     }
     SkASSERT(argIdx == arguments.size());
 
-    this->writeStatement(*function.body());
+    this->writeBlock(function.body()->as<Block>());
 
     // Copy 'out' and 'inout' parameters back to their caller-supplied argument storage
     argIdx = 0;
@@ -2028,7 +2028,10 @@ void SkVMGenerator::emitTraceScope(skvm::I32 executionMask, int delta) {
 }
 
 void SkVMGenerator::writeStatement(const Statement& s) {
-    this->emitTraceLine(this->getLine(s.fPosition));
+    if (!s.is<Block>() || !s.as<Block>().isScope()) {
+        // we don't care about tracing the positions of curly braces
+        this->emitTraceLine(this->getLine(s.fPosition));
+    }
 
     switch (s.kind()) {
         case Statement::Kind::kBlock:

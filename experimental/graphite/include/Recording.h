@@ -5,18 +5,18 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_Recording_DEFINED
-#define skgpu_Recording_DEFINED
+#ifndef skgpu_graphite_Recording_DEFINED
+#define skgpu_graphite_Recording_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
 class SkTextureDataBlock;
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 class CommandBuffer;
-template<typename DataBlockT> class PipelineDataCache;
-using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
+template<typename StorageT, typename BaseT> class PipelineDataCache;
+using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
 
 class Recording final {
 public:
@@ -34,6 +34,6 @@ private:
     std::unique_ptr<TextureDataCache> fTextureDataCache;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_Recording_DEFINED
+#endif // skgpu_graphite_Recording_DEFINED

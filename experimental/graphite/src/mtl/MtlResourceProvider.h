@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlResourceProvider_DEFINED
-#define skgpu_MtlResourceProvider_DEFINED
+#ifndef skgpu_graphite_MtlResourceProvider_DEFINED
+#define skgpu_graphite_MtlResourceProvider_DEFINED
 
 #include "experimental/graphite/src/DrawTypes.h"
 #include "experimental/graphite/src/ResourceProvider.h"
@@ -14,41 +14,38 @@
 
 #import <Metal/Metal.h>
 
-namespace skgpu {
+namespace skgpu::graphite {
+
 class CommandBuffer;
-}
+class MtlGpu;
 
-namespace skgpu::mtl {
-
-class Gpu;
-
-class ResourceProvider final : public skgpu::ResourceProvider {
+class MtlResourceProvider final : public ResourceProvider {
 public:
-    ResourceProvider(const skgpu::Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
-    ~ResourceProvider() override {}
+    MtlResourceProvider(const Gpu* gpu, sk_sp<GlobalCache>, SingleOwner*);
+    ~MtlResourceProvider() override {}
 
-    sk_sp<skgpu::Texture> createWrappedTexture(const BackendTexture&) override;
+    sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
 
     // Finds or creates a compatible DepthStencilState based on the enum
     sk_cfp<id<MTLDepthStencilState>> findOrCreateCompatibleDepthStencilState(
             const DepthStencilSettings&);
 
 private:
-    const Gpu* mtlGpu();
+    const MtlGpu* mtlGpu();
 
-    sk_sp<skgpu::CommandBuffer> createCommandBuffer() override;
-    sk_sp<skgpu::GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
+    sk_sp<CommandBuffer> createCommandBuffer() override;
+    sk_sp<GraphicsPipeline> onCreateGraphicsPipeline(const GraphicsPipelineDesc&,
                                                             const RenderPassDesc&) override;
-    sk_sp<skgpu::Texture> createTexture(SkISize, const skgpu::TextureInfo&) override;
-    sk_sp<skgpu::Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
+    sk_sp<Texture> createTexture(SkISize, const TextureInfo&) override;
+    sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 
-    sk_sp<skgpu::Sampler> createSampler(const SkSamplingOptions&,
+    sk_sp<Sampler> createSampler(const SkSamplingOptions&,
                                         SkTileMode xTileMode,
                                         SkTileMode yTileMode) override;
 
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlResourceProvider_DEFINED
+#endif // skgpu_graphite_MtlResourceProvider_DEFINED

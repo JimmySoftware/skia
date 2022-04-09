@@ -18,13 +18,14 @@
 
 namespace SkSL {
 
-static bool index_out_of_range(const Context& context, SKSL_INT index, const Expression& base) {
+static bool index_out_of_range(const Context& context, Position pos, SKSL_INT index,
+        const Expression& base) {
     if (index >= 0 && index < base.type().columns()) {
         return false;
     }
 
-    context.fErrors->error(base.fPosition, "index " + std::to_string(index) +
-            " out of range for '" + base.type().displayName() + "'");
+    context.fErrors->error(pos, "index " + std::to_string(index) + " out of range for '" +
+            base.type().displayName() + "'");
     return true;
 }
 
@@ -51,16 +52,17 @@ const Type& IndexExpression::IndexType(const Context& context, const Type& type)
 
 std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
                                                      SymbolTable& symbolTable,
+                                                     Position pos,
                                                      std::unique_ptr<Expression> base,
                                                      std::unique_ptr<Expression> index) {
     // Convert an array type reference: `int[10]`.
     if (base->is<TypeReference>()) {
         const Type& baseType = base->as<TypeReference>().value();
-        SKSL_INT arraySize = baseType.convertArraySize(context, std::move(index));
+        SKSL_INT arraySize = baseType.convertArraySize(context, pos, std::move(index));
         if (!arraySize) {
             return nullptr;
         }
-        return TypeReference::Convert(context, base->fPosition,
+        return TypeReference::Convert(context, pos,
                                       symbolTable.addArrayDimension(&baseType, arraySize));
     }
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
@@ -80,14 +82,15 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        if (index_out_of_range(context, indexValue, *base)) {
+        if (index_out_of_range(context, index->fPosition, indexValue, *base)) {
             return nullptr;
         }
     }
-    return IndexExpression::Make(context, std::move(base), std::move(index));
+    return IndexExpression::Make(context, pos, std::move(base), std::move(index));
 }
 
 std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
+                                                  Position pos,
                                                   std::unique_ptr<Expression> base,
                                                   std::unique_ptr<Expression> index) {
     const Type& baseType = base->type();
@@ -97,8 +100,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
     const Expression* indexExpr = ConstantFolder::GetConstantValueForVariable(*index);
     if (indexExpr->isIntLiteral()) {
         SKSL_INT indexValue = indexExpr->as<Literal>().intValue();
-        if (!index_out_of_range(context, indexValue, *base)) {
-            Position pos = base->fPosition;
+        if (!index_out_of_range(context, index->fPosition, indexValue, *base)) {
             if (baseType.isVector()) {
                 // Constant array indexes on vectors can be converted to swizzles: `v[2]` --> `v.z`.
                 // Swizzling is harmless and can unlock further simplifications for some base types.
@@ -115,7 +117,9 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                     const ExpressionArray& arguments = arrayCtor.arguments();
                     SkASSERT(arguments.count() == baseType.columns());
 
-                    return arguments[indexValue]->clone();
+                    std::unique_ptr<Expression> result = arguments[indexValue]->clone();
+                    result->fPosition = pos;
+                    return result;
                 }
             }
 
@@ -151,7 +155,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
         }
     }
 
-    return std::make_unique<IndexExpression>(context, std::move(base), std::move(index));
+    return std::make_unique<IndexExpression>(context, pos, std::move(base), std::move(index));
 }
 
 }  // namespace SkSL

@@ -28,6 +28,18 @@ selects.config_setting_group(
 
 cc_library(
     name = "sk_app",
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-lX11",
+            "-lxcb",  # dep of X11
+            "-lXau",  # dep of xcb
+            "-lXdmcp",  # dep of xcb
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        (":dawn_unix", ":vulkan_unix"): ["-lX11-xcb"],
+        "//conditions:default": [],
+    }),
     visibility = ["//:__subpackages__"],
     deps = [
         ":Application_hdr",
@@ -161,10 +173,10 @@ generated_cc_atom(
         "//include/gpu:GrBackendSurface_hdr",
         "//include/gpu:GrDirectContext_hdr",
         "//src/core:SkMathPriv_hdr",
-        "//src/gpu:GrCaps_hdr",
-        "//src/gpu:GrDirectContextPriv_hdr",
-        "//src/gpu/gl:GrGLDefines_hdr",
-        "//src/gpu/gl:GrGLUtil_hdr",
+        "//src/gpu/ganesh:GrCaps_hdr",
+        "//src/gpu/ganesh:GrDirectContextPriv_hdr",
+        "//src/gpu/ganesh/gl:GrGLDefines_impl_hdr",
+        "//src/gpu/ganesh/gl:GrGLUtil_hdr",
         "//src/image:SkImage_Base_hdr",
     ],
 )
@@ -209,7 +221,7 @@ generated_cc_atom(
         "//include/core:SkTypes_hdr",
         "//include/gpu/vk:GrVkBackendContext_hdr",
         "//include/gpu/vk:GrVkVulkan_hdr",
-        "//src/gpu/vk:GrVkInterface_hdr",
+        "//src/gpu/ganesh/vk:GrVkInterface_hdr",
         "//tools/gpu/vk:VkTestUtils_hdr",
     ],
 )
@@ -227,8 +239,8 @@ generated_cc_atom(
         "//include/gpu/vk:GrVkExtensions_hdr",
         "//include/gpu/vk:GrVkTypes_hdr",
         "//src/core:SkAutoMalloc_hdr",
-        "//src/gpu/vk:GrVkImage_hdr",
-        "//src/gpu/vk:GrVkUtil_hdr",
+        "//src/gpu/ganesh/vk:GrVkImage_hdr",
+        "//src/gpu/ganesh/vk:GrVkUtil_hdr",
     ],
 )
 

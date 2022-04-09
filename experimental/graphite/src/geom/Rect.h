@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_geom_Rect_DEFINED
-#define skgpu_geom_Rect_DEFINED
+#ifndef skgpu_graphite_geom_Rect_DEFINED
+#define skgpu_graphite_geom_Rect_DEFINED
 
 #include "experimental/graphite/src/geom/VectorTypes.h"
 #include "include/core/SkRect.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 #define AI SK_ALWAYS_INLINE
 
@@ -82,11 +82,8 @@ public:
     AI void setTopLeft(float2 topLeft) { fVals.xy() = topLeft; }
     AI void setBotRight(float2 botRight) { fVals.zw() = -botRight; }
 
-    AI SkRect asSkRect() const {
-        SkRect r;
-        this->ltrb().store(&r);
-        return r;
-    }
+    AI SkRect asSkRect() const { return skvx::bit_pun<SkRect>(this->ltrb()); }
+    AI SkIRect asSkIRect() const { return skvx::bit_pun<SkIRect>(skvx::cast<int>(this->ltrb())); }
 
     AI bool isEmptyNegativeOrNaN() const {
         return !all(fVals.xy() + fVals.zw() < 0);  // !([l-r, r-b] < 0) == ([w, h] <= 0)
@@ -152,6 +149,6 @@ private:
 
 #undef AI
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_geom_Rect_DEFINED
+#endif // skgpu_graphite_geom_Rect_DEFINED

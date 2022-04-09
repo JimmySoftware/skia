@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_MtlCaps_DEFINED
-#define skgpu_MtlCaps_DEFINED
+#ifndef skgpu_graphite_MtlCaps_DEFINED
+#define skgpu_graphite_MtlCaps_DEFINED
 
 #include <vector>
 
@@ -14,25 +14,25 @@
 
 #include "experimental/graphite/src/Caps.h"
 
-namespace skgpu::mtl {
+namespace skgpu::graphite {
 
-class Caps final : public skgpu::Caps {
+class MtlCaps final : public skgpu::graphite::Caps {
 public:
-    Caps(const id<MTLDevice>);
-    ~Caps() override {}
+    MtlCaps(const id<MTLDevice>);
+    ~MtlCaps() override {}
 
-    skgpu::TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                    uint32_t levelCount,
-                                                    Protected,
-                                                    Renderable) const override;
+    TextureInfo getDefaultSampledTextureInfo(SkColorType,
+                                             uint32_t levelCount,
+                                             Protected,
+                                             Renderable) const override;
 
-    skgpu::TextureInfo getDefaultMSAATextureInfo(SkColorType,
-                                                 uint32_t sampleCount,
-                                                 Protected) const override;
+    TextureInfo getDefaultMSAATextureInfo(SkColorType,
+                                          uint32_t sampleCount,
+                                          Protected) const override;
 
-    skgpu::TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
-                                                         uint32_t sampleCount,
-                                                         Protected) const override;
+    TextureInfo getDefaultDepthStencilTextureInfo(Mask<DepthStencilFlags>,
+                                                  uint32_t sampleCount,
+                                                  Protected) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
@@ -42,10 +42,10 @@ public:
 
     size_t getMinBufferAlignment() const { return this->isMac() ? 4 : 1; }
 
-    bool isRenderable(const skgpu::TextureInfo&) const override;
+    bool isRenderable(const TextureInfo&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
-                            const skgpu::TextureInfo&,
+                            const TextureInfo&,
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
@@ -70,9 +70,9 @@ private:
         return fColorTypeToFormatTable[idx];
     }
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const skgpu::TextureInfo&) const override;
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
 
-    bool onIsTexturable(const skgpu::TextureInfo&) const override;
+    bool onIsTexturable(const TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
     bool isRenderable(MTLPixelFormat, uint32_t numSamples) const;
     uint32_t maxRenderTargetSampleCount(MTLPixelFormat) const;
@@ -123,6 +123,6 @@ private:
     int fFamilyGroup;
 };
 
-} // namespace skgpu::mtl
+} // namespace skgpu::graphite
 
-#endif // skgpu_MtlCaps_DEFINED
+#endif // skgpu_graphite_MtlCaps_DEFINED

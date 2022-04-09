@@ -19,7 +19,7 @@
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkShaderCodeDictionary.h"
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Index>
 ExtractPaintData(Recorder* recorder,
@@ -41,7 +41,7 @@ ExtractPaintData(Recorder* recorder,
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
 
     auto entry = dict->findOrCreate(key, gatherer->blendInfo());
-    UniformDataCache::Index uniformIndex = uniformDataCache->insert(gatherer->uniformDataBlock());
+    UniformDataCache::Index uniformIndex = uniformDataCache->insert(gatherer->peekUniformData());
     TextureDataCache::Index textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
 
     gatherer->reset();
@@ -55,14 +55,13 @@ UniformDataCache::Index ExtractRenderStepData(UniformDataCache* geometryUniformD
                                               const DrawGeometry& geometry) {
     SkDEBUGCODE(gatherer->checkReset());
 
-    // TODO: Get layout from the GPU
-    step->writeUniforms(Layout::kMetal, geometry, gatherer);
+    step->writeUniforms(geometry, gatherer);
 
-    UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->uniformDataBlock());
+    UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->peekUniformData());
 
     gatherer->reset();
 
     return uIndex;
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite

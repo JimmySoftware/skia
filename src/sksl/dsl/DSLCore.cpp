@@ -17,6 +17,7 @@
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -30,6 +31,7 @@
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -215,8 +217,9 @@ public:
         return SkSL::DiscardStatement::Make(pos);
     }
 
-    static DSLPossibleStatement Do(DSLStatement stmt, DSLExpression test) {
-        return DoStatement::Convert(ThreadContext::Context(), stmt.release(), test.release());
+    static DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
+        return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos, stmt.release(),
+                test.release()), pos);
     }
 
     static DSLPossibleStatement For(DSLStatement initializer, DSLExpression test,
@@ -227,10 +230,10 @@ public:
                                      ThreadContext::SymbolTable());
     }
 
-    static DSLPossibleStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
-                                   bool isStatic) {
-        return IfStatement::Convert(ThreadContext::Context(), Position(), isStatic, test.release(),
-                ifTrue.release(), ifFalse.releaseIfPossible());
+    static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
+            bool isStatic, Position pos) {
+        return DSLStatement(IfStatement::Convert(ThreadContext::Context(), pos, isStatic,
+                test.release(), ifTrue.release(), ifFalse.releaseIfPossible()), pos);
     }
 
     static void FindRTAdjust(SkSL::InterfaceBlock& intf, Position pos) {
@@ -269,8 +272,8 @@ public:
                     field.fModifiers.fPosition, field.fModifiers.fModifiers, baseType,
                     Variable::Storage::kInterfaceBlock);
             GetErrorReporter().reportPendingErrors(field.fPosition);
-            skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
-                                                   &field.fType.skslType()));
+            skslFields.push_back(SkSL::Type::Field(field.fPosition, field.fModifiers.fModifiers,
+                    field.fName, &field.fType.skslType()));
         }
         const SkSL::Type* structType =
                 ThreadContext::SymbolTable()->takeOwnershipOfSymbol(SkSL::Type::MakeStructType(
@@ -292,9 +295,8 @@ public:
             if (varName.empty()) {
                 const std::vector<SkSL::Type::Field>& structFields = structType->fields();
                 for (size_t i = 0; i < structFields.size(); ++i) {
-                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(pos,
-                                                                                    skslVar,
-                                                                                    i));
+                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(
+                            structFields[i].fPosition, skslVar, i));
                 }
             } else {
                 AddToSymbolTable(var);
@@ -349,10 +351,12 @@ public:
                              pos);
     }
 
-    static DSLPossibleExpression Select(DSLExpression test, DSLExpression ifTrue,
-                                        DSLExpression ifFalse) {
-        return TernaryExpression::Convert(ThreadContext::Context(), test.release(),
+    static DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
+            Position pos) {
+        auto result = TernaryExpression::Convert(ThreadContext::Context(), pos, test.release(),
                                           ifTrue.release(), ifFalse.release());
+        SkASSERT(!result || result->fPosition == pos);
+        return DSLExpression(std::move(result), pos);
     }
 
     static DSLPossibleStatement Switch(DSLExpression value, SkTArray<DSLCase> cases,
@@ -453,7 +457,7 @@ DSLStatement Discard(Position pos) {
 }
 
 DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
-    return DSLStatement(DSLCore::Do(std::move(stmt), std::move(test)), pos);
+    return DSLCore::Do(std::move(stmt), std::move(test), pos);
 }
 
 DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression next,
@@ -463,9 +467,8 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {
-    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
-                                    /*isStatic=*/false),
-                        pos);
+    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/false,
+            pos);
 }
 
 DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
@@ -486,15 +489,13 @@ DSLStatement Return(DSLExpression expr, Position pos) {
 
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position pos) {
-    return DSLExpression(DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse)),
-                         pos);
+    return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
 }
 
 DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
                       Position pos) {
-    return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
-                                    /*isStatic=*/true),
-                         pos);
+    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/true,
+            pos);
 }
 
 DSLPossibleStatement PossibleStaticSwitch(DSLExpression value, SkTArray<DSLCase> cases) {
