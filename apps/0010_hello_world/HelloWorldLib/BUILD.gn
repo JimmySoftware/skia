@@ -36,6 +36,7 @@ static_library("HelloWorldLib") {
     ]
     sources = [
       "HelloWorldApp.cpp",
+      "../../GigaApp/FPSLayer.cpp",
     ]
   }
 }

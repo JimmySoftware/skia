@@ -4,7 +4,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-
+#include "../../GigaApp/FPSLayer.h"
 #include "HelloWorldApp.h"
 
 HelloWorldApp::HelloWorldApp( ) 
@@ -17,7 +17,11 @@ HelloWorldApp::~HelloWorldApp() {
 }
 
 HelloWorldApp *HelloWorldApp::createApp() {
-    return new HelloWorldApp();
+    HelloWorldApp *app = new HelloWorldApp();
+    
+    app->pushLayer( new FPSLayer(SK_ColorBLACK, true) );
+
+    return app;
 }
 
 void HelloWorldApp::setup() {
@@ -33,6 +37,8 @@ void HelloWorldApp::setup() {
 }
 
 void HelloWorldApp::draw( SkCanvas &canvas ) {
+    GigaApp::draw( canvas );
+
     // Clear background
     canvas.clear(SK_ColorWHITE);
 

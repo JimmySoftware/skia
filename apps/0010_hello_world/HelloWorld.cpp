@@ -16,7 +16,7 @@
 
 using namespace sk_app;
 
-GigaApp *app = new HelloWorldApp();
+GigaApp *app = HelloWorldApp::createApp();
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
     return new HelloWorld(argc, argv, platformData);
@@ -83,8 +83,9 @@ void HelloWorld::onBackendCreated() {
 }
 
 void HelloWorld::onPaint(SkSurface* surface) {
-    auto canvas = surface->getCanvas();
+    SkCanvas *canvas = surface->getCanvas();
     gigaApp->draw( *canvas );
+    gigaApp->drawLayers( *canvas );
 }
 
 void HelloWorld::onIdle() {

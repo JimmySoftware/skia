@@ -10,8 +10,9 @@
 
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"
+#include "tools/skui/ModifierKey.h"
+#include "src/utils/SkUTF.h"
 #include "../GigaApp/GigaApp.h"
-
 
 class SkCanvas;
 
