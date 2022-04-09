@@ -5,6 +5,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "../../GigaAppLib/FPSLayer.h"
+#include "../../GigaAppLib/TemplateLayer.h"
 #include "DemoApp.h"
 
 DemoApp::DemoApp( ) 
@@ -20,6 +21,7 @@ DemoApp *DemoApp::createApp() {
     DemoApp *app = new DemoApp();
     
     app->pushLayer( new FPSLayer(SK_ColorBLACK, true) );
+    app->pushLayer( new TemplateLayer() );
 
     return app;
 }

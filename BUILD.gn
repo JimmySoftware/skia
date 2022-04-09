@@ -2888,7 +2888,8 @@ if (skia_enable_tools) {
         ":sk_app",
         ":skia",
         ":tool_utils",
-        "apps/0010_hello_world/HelloWorldLib"
+        "apps/0010_hello_world/HelloWorldLib",
+        ":typeface_freetype"
       ]
     }
   }
