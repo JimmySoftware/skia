@@ -70,10 +70,10 @@ void HelloWorldApp::draw( SkCanvas &canvas ) {
     paint.setColor(SK_ColorBLACK);
 
     canvas.save();
-    static const char message[] = "Hello World App!";
+    static const char message[] = "Hello World App! HELLO......";
 
     // Translate and rotate
-    canvas.translate(300, 300);
+    canvas.translate(300, 300); 
     fRotationAngle += 0.2f;
     if (fRotationAngle > 360) {
         fRotationAngle -= 360;
