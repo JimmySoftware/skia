@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<header>
+    <title>CanvasKit (Skia via Web Assembly)</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas,
+        img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</header>
+<body>
+    <canvas id="canvas" width="100%" height="100%"></canvas>
+
+    <script
+        type="text/javascript"
+        src="/build/canvaskit.js"
+    ></script>
+
+    <script type="text/javascript" charset="utf-8">
+        let CanvasKit = null;
+        let app = null;
+        let surface = null;
+        let windowWidth = 0;
+        let windowHeight = 0;
+
+        let touched = false;
+
+        function drawFrame(canvas) {
+            canvas.clear(CanvasKit.Color(2, 7, 56, 1.0));
+            if (isDrawEnable && app) {
+                //app.onAppPrePaint();
+                app.draw(canvas);
+            }
+            if (surface) surface.requestAnimationFrame(drawFrame);
+        }
+
+        let isDrawEnable = false;
+        let resizeTimer = -1;
+        window.onresize = () => {
+            isDrawEnable = false;
+            clearTimeout(resizeTimer);
+            surface = null;
+            resizeTimer = setTimeout(setCanvasSize, 25);
+        };
+
+        function setCanvasSize() {
+            console.log("Resize");
+            let canvas = document.getElementById("canvas");
+            canvas.width = window.innerWidth; //document.body.clientWidth //document.width is obsolete
+            canvas.height = window.innerHeight; //document.body.clientHeight //document.height is obsolete
+
+            windowWidth = canvas.width;
+            windowHeight = canvas.height;
+
+            canvas.setAttribute("style", `width:${canvas.width}px`);
+            canvas.setAttribute("style", `height:${canvas.height}px`);
+
+            if (CanvasKit) {
+                isDrawEnable = true;
+                if (!surface) {
+                    surface = CanvasKit.MakeCanvasSurface("canvas");
+                    surface.requestAnimationFrame(drawFrame);
+                }
+            }
+            if (app) {
+                //app.onAppResize(windowWidth, windowHeight, 1.0);
+            }
+        }
+
+        function getModifiers(event) {
+            let mod = CanvasKit.ModifierKey.None;
+            if (event.shiftKey) {
+                mod |= CanvasKit.ModifierKey.Shift;
+            } else if (event.ctrlKey) {
+                mod |= CanvasKit.ModifierKey.Control;
+            } else if (event.altKey) {
+                mod |= CanvasKit.ModifierKey.Option;
+            } else if (event.metaKey) {
+                mod |= CanvasKit.ModifierKey.Command;
+            }
+            return mod;
+        }
+
+        function getKey(event) {
+            let key = event.key;
+            console.log(key);
+            switch (key) {
+                case " ":
+                    return CanvasKit.Key.Space;
+                case "a":
+                    return CanvasKit.Key.keyA;
+                case "c":
+                    return CanvasKit.Key.keyC;
+                case "p":
+                    return CanvasKit.Key.keyP;
+                case "v":
+                    return CanvasKit.Key.keyV;
+                case "x":
+                    return CanvasKit.Key.keyX;
+                case "y":
+                    return CanvasKit.Key.keyY;
+                case "z":
+                    return CanvasKit.Key.keyZ;
+                case "0":
+                    return CanvasKit.Key.key0;
+                case "1":
+                    return CanvasKit.Key.key1;
+                case "2":
+                    return CanvasKit.Key.key2;
+                case "3":
+                    return CanvasKit.Key.key3;
+                case "4":
+                    return CanvasKit.Key.key4;
+                case "5":
+                    return CanvasKit.Key.key5;
+                case "6":
+                    return CanvasKit.Key.key6;
+                case "7":
+                    return CanvasKit.Key.key7;
+                case "8":
+                    return CanvasKit.Key.key8;
+                case "9":
+                    return CanvasKit.Key.key9;
+                case "ArrowLeft":
+                    return CanvasKit.Key.Left;
+                case "ArrowRight":
+                    return CanvasKit.Key.Right;
+                case "ArrowUp":
+                    return CanvasKit.Key.Up;
+                case "ArrowDown":
+                    return CanvasKit.Key.Down;
+                case "Tab":
+                    return CanvasKit.Key.Tab;
+                case "Shift":
+                    return CanvasKit.Key.Shift;
+                case "Control":
+                    return CanvasKit.Key.Ctrl;
+                case "Alt":
+                    return CanvasKit.Key.Option;
+                case "Meta":
+                    return CanvasKit.Key.Super;
+                default:
+                    console.log("Invalid Key");
+                    return 0;
+            }
+            return key;
+        }
+
+        function interact(e) {
+            if (!app) {
+                return;
+            }
+            let type = e.type;
+            if (type === "lostpointercapture" || type === "pointerup") {
+                touched = false;
+                /*
+                app.onAppMouse(
+                    e.offsetX,
+                    e.offsetY,
+                    CanvasKit.InputState.Up,
+                    getModifiers(e)
+                );
+                */
+            }
+            if (touched) {
+                /*
+                app.onAppMouse(
+                    e.offsetX,
+                    e.offsetY,
+                    CanvasKit.InputState.Move,
+                    getModifiers(e)
+                );
+                */
+            } else {
+                if (e.pressure) {
+                    touched = true;
+                    /*
+                    app.onAppMouse(
+                        e.offsetX,
+                        e.offsetY,
+                        CanvasKit.InputState.Down,
+                        getModifiers(e)
+                    );
+                    */
+                } else {
+                    /* 
+                    app.onAppMouse(
+                        e.offsetX,
+                        e.offsetY,
+                        CanvasKit.InputState.Move,
+                        getModifiers(e)
+                    );
+                    */
+                }
+            }
+        }
+
+        function wheel(event) {
+            event.preventDefault();
+            if (app) {
+                let w = 0 - event.deltaY;
+                //app.onAppMouseWheel(w, getModifiers(event));
+            }
+        }
+
+        const ckLoaded = CanvasKitInit({
+            locateFile: (file) => "/build/" + file,
+        });
+        Promise.all([ckLoaded]).then(([CK]) => {
+            CanvasKit = CK;
+
+            app = CanvasKit.DemoApp.createApp();
+            app.setup();
+            console.log("App: ", app);
+
+            setCanvasSize();
+
+            let canvas = document.getElementById("canvas");
+            canvas.addEventListener("touchmove", (e) => {
+                // Prevents touch events in the canvas from scrolling the canvas.
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            canvas.addEventListener("pointermove", interact);
+            canvas.addEventListener("pointerdown", interact);
+            canvas.addEventListener("lostpointercapture", interact);
+            canvas.addEventListener("pointerup", interact);
+            canvas.onwheel = wheel;
+
+            document.addEventListener("keypress", (event) => {
+                let mod = getModifiers(event);
+                if (app) {
+                    app.onAppChar(event.key.charCodeAt(0), mod);
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                let mod = getModifiers(event);
+                let key = getKey(event);
+                if (app) {
+                    app.onAppKey(key, CanvasKit.InputState.Down, mod);
+                }
+            });
+            document.addEventListener("keyup", (event) => {
+                let mod = getModifiers(event);
+                let key = getKey(event);
+                if (app) {
+                    app.onAppKey(key, CanvasKit.InputState.Up, mod);
+                }
+            });
+        });
+
+        /*
+        window.skappDownloadWidget = function (instance, filepath) {
+            console.log(instance, filepath);
+            const loadData = fetch(`/resources/${filepath}`)
+                // if clients want to use a Blob, they are responsible
+                // for reading it themselves.
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                var data = new Uint8Array(buffer);
+                var iptr = CanvasKit._malloc(data.byteLength);
+                CanvasKit.HEAPU8.set(data, iptr);
+                CanvasKit._setWidgetFromData(parseInt(instance), iptr, data.byteLength);
+                });
+        };          
+
+        window.skappDownloadImage = function (instance, filepath) {
+            console.log(instance, `/resources/${filepath}`);
+            const loadData = fetch(`/resources/${filepath}`)
+                .then((response) => response.blob())
+                .then((blob) => createImageBitmap(blob))
+                .then((bitmap) => CanvasKit.MakeImageFromCanvasImageSource(bitmap))
+                .then((img) => {
+                    console.log( img );
+                    if( app ) {
+                        console.log( "Send image to app" );
+                        app.setImage(parseInt(instance), img);
+                    }
+                });
+        };  
+
+        window.skappDownloadFont = function (instance, fontid, filepath) {
+            console.log(instance, fontid, filepath);
+            const loadData = fetch(`/resources/${filepath}`)
+                // if clients want to use a Blob, they are responsible
+                // for reading it themselves.
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                var data = new Uint8Array(buffer);
+                var iptr = CanvasKit._malloc(data.byteLength);
+                CanvasKit.HEAPU8.set(data, iptr);
+                CanvasKit._setTypefaceFromData(parseInt(instance), fontid, iptr, data.byteLength);
+                });
+        };   
+        */            
+    </script>
+</body>

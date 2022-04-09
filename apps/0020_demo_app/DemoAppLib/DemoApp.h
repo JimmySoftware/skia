@@ -1,5 +1,5 @@
-#ifndef __HELLOWORLD_LAYER_H__
-#define __HELLOWORLD_LAYER_H__
+#ifndef __DEMO_APP_H__
+#define __DEMO_APP_H__
 
 #include "../../GigaAppLib/GigaApp.h"
 
