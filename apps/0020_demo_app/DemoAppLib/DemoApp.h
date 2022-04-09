@@ -3,12 +3,12 @@
 
 #include "../../GigaAppLib/GigaApp.h"
 
-class HelloWorldApp : public GigaApp {
+class DemoApp : public GigaApp {
 public:
-    HelloWorldApp( );
-    virtual ~HelloWorldApp() override;
+    DemoApp( );
+    virtual ~DemoApp() override;
 
-    static HelloWorldApp *createApp();
+    static DemoApp *createApp();
 
     virtual void setup() override;
     virtual void draw( SkCanvas &canvas ) override;

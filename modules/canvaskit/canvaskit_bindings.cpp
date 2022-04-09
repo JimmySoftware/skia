@@ -63,6 +63,7 @@
 #include <emscripten/html5.h>
 
 #include "apps/0010_hello_world/HelloWorldLib/HelloWorldApp.h"
+#include "apps/0020_demo_app/DemoAppLib/DemoApp.h"
 #include "apps/0030_skottie_viewer/SkottieViewerLib/SkottieViewerApp.h"
 
 #ifdef SK_GL
@@ -2056,6 +2057,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("setup", &HelloWorldApp::setup)
         .function("draw", &HelloWorldApp::draw);
+
+    class_<DemoApp>("DemoApp")
+        .constructor<>()
+        .class_function("createApp", optional_override([]() {
+            return *DemoApp::createApp();
+        }))
+        .function("setup", &DemoApp::setup)
+        .function("draw", &DemoApp::draw);        
 
     /*
     class_<SkottieViewerApp>("SkottieViewerApp")

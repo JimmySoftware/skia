@@ -3,10 +3,10 @@
 *
 */
 #include "../GigaAppLib/GigaMainApp.h"
-#include "HelloWorldLib/HelloWorldApp.h"
+#include "DemoAppLib/DemoApp.h"
 
 GigaApp *GigaApp::create() {
-    return HelloWorldApp::createApp();
+    return DemoApp::createApp();
 }
 
 

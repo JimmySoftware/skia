@@ -1,8 +1,6 @@
 #ifndef __GIGA_APP_LAYER_H__
 #define __GIGA_APP_LAYER_H__
 
-#include "tools/sk_app/Application.h"
-#include "tools/sk_app/Window.h"
 #include "include/core/SkCanvas.h"
 #include "include/private/SkTDArray.h"
 #include "GigaAppLayer.h"

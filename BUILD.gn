@@ -2879,8 +2879,6 @@ if (skia_enable_tools) {
       sources = [ 
         "apps/0010_hello_world/HelloWorld.cpp",
         "apps/GigaAppLib/GigaMainApp.cpp",
-        #"apps/0010_hello_world/HelloWorldLib/HelloWorldApp.cpp",
-        #"apps/GigaAppLib/FPSLayer.cpp"
       ]
       libs = []
 
@@ -2894,6 +2892,26 @@ if (skia_enable_tools) {
       ]
     }
   }
+
+  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac || is_ios || is_android)) {
+    test_app("DemoApp") {
+      is_shared_library = is_android
+      sources = [ 
+        "apps/0020_demo_app/Demo.cpp",
+        "apps/GigaAppLib/GigaMainApp.cpp",
+      ]
+      libs = []
+
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":sk_app",
+        ":skia",
+        ":tool_utils",
+        "apps/0020_demo_app/DemoAppLib"
+      ]
+    }
+  }  
 
   if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac || is_ios || is_android)) {
     test_app("SkottieViewerApp") {

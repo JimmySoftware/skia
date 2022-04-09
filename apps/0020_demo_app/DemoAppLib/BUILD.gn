@@ -1,0 +1,42 @@
+declare_args() {
+  skia_enable_demoapplib = true
+}
+
+import("../../../gn/skia.gni")
+
+config("public_config") {
+  if (skia_enable_demoapplib) {
+    include_dirs = [ 
+      "./"
+    ]
+  }
+}
+
+static_library("DemoAppLib") {
+  if (skia_enable_demoapplib) {
+    public_configs = [ ":public_config" ]
+    include_dirs = [ 
+      "./",
+      "../../../third_party/externals/imgui"
+    ]
+    if (is_win) {
+      cflags = [ "-DWIN32", "/EHsc" ]
+      libs = [ 
+        "setupapi.lib",
+        "advapi32.lib",
+        "ws2_32.lib",
+        "mswsock.lib",
+      ]       
+    }
+    else {
+      cflags = [ "-fexceptions" ]
+    }
+    deps = [
+      "../../..:skia",
+      "../../GigaAppLib"
+    ]
+    sources = [
+      "DemoApp.cpp",
+    ]
+  }
+}
