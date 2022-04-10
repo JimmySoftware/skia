@@ -17,6 +17,7 @@ public:
     bool onTouch(intptr_t owner, skui::InputState, float x, float y) override;
 
 private:
+    SkScalar fRotationAngle;  
 };
 
 #endif //__DEMO_PAGE1_H__

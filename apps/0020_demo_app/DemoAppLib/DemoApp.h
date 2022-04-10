@@ -5,15 +5,9 @@
 
 class DemoApp : public GigaApp {
 public:
-    DemoApp( );
-    virtual ~DemoApp() override;
-
     static DemoApp *createApp();
-
-    virtual void setup() override;
-    virtual void draw( SkCanvas &canvas ) override;
 private:
-    SkScalar fRotationAngle;      
+    
 };
 
 #endif

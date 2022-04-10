@@ -26,6 +26,8 @@ public:
     void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
     bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) override;
+    bool onFling(skui::InputState state) override;
+    bool onPinch(skui::InputState state, float scale, float x, float y) override;    
 
 private:
     void updateTitle();

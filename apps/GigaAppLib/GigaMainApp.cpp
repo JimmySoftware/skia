@@ -108,3 +108,11 @@ bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     }
     return gigaApp->onChar( c, modifiers );
 }
+
+bool GigaMainApp::onFling(skui::InputState state) { 
+    return false; 
+}
+
+bool GigaMainApp::onPinch(skui::InputState state, float scale, float x, float y) { 
+    return false; 
+}

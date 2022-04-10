@@ -27,6 +27,15 @@ public:
     virtual void onPaint(SkCanvas &canvas) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
         int pg = getCurrentPageIndex();
+        if( c == 63234 ) {
+            // Left
+            previousPage();
+            return true;
+        }
+        else if( c == 63235 ) {
+            nextPage();
+            return true;
+        }
         if( pg >= 0 && pg <fPages.count() ) {
             if( fPages[pg]->onChar( c, modifiers) ) {
                 return true;
@@ -36,16 +45,6 @@ public:
     }
     virtual bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) {
         int pg = getCurrentPageIndex();
-        if( k == skui::Key::kLeft ) {
-            if( state == skui::InputState::kDown ) {
-                SkDebugf( "Left\n" );
-            }
-        }
-        if( k == skui::Key::kRight ) {
-            if( state == skui::InputState::kDown ) {
-                SkDebugf( "Right\n" );
-            }
-        }
         if( pg >= 0 && pg <fPages.count() ) {
             if( fPages[pg]->onKey( k, state, modifiers) ) {
                 return true;
@@ -59,8 +58,33 @@ public:
     virtual void onFontChange() {}
 
     // Platform-detected gesture events
-    virtual bool onFling(skui::InputState state) { return false; }
-    virtual bool onPinch(skui::InputState state, float scale, float x, float y) { return false; }
+    virtual bool onFling(skui::InputState state) { 
+        int pg = getCurrentPageIndex();
+        if( state == skui::InputState::kLeft ) {
+            // Left
+            previousPage();
+            return true;
+        }
+        else if( state == skui::InputState::kRight ) {
+            nextPage();
+            return true;
+        }        
+        if( pg >= 0 && pg <fPages.count() ) {
+            if( fPages[pg]->onFling( state ) ) {
+                return true;
+            }
+        }        
+        return false; 
+    }
+    virtual bool onPinch(skui::InputState state, float scale, float x, float y) { 
+        int pg = getCurrentPageIndex();
+        if( pg >= 0 && pg <fPages.count() ) {
+            if( fPages[pg]->onPinch( state, scale, x, y ) ) {
+                return true;
+            }
+        }         
+        return false; 
+    }
     virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
 
     void pushPage(GigaAppPage* page) { fPages.push_back(page); }
@@ -79,6 +103,22 @@ public:
         }
         return fCurrentPage;
     }
+    void previousPage() {
+        if( fCurrentPage > 0 ) {
+            setCurrentPageIndex( fCurrentPage-1 );
+        } 
+        else if( fPages.count() > 0 ) {
+            setCurrentPageIndex( fPages.count()-1 );
+        }
+    }
+    void nextPage() {
+        if( fCurrentPage < fPages.count()-1 ) {
+            setCurrentPageIndex( fCurrentPage+1 );
+        }
+        else if( fPages.count() ) {
+            setCurrentPageIndex( 0 );
+        }
+    }    
 
     void drawPages( SkCanvas &canvas ) {
         for (int i = 0; i < fPages.count(); ++i ) {

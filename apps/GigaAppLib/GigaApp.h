@@ -14,7 +14,7 @@ public:
 
     void pushLayer(GigaAppLayer* layer) { fLayers.push_back(layer); }
 
-    virtual void setup() = 0;
+    virtual void setup() {}
     virtual void draw( SkCanvas &canvas ) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
         for (int i = 0; i < fLayers.count(); ++i) {
@@ -36,6 +36,28 @@ public:
         }
         return false;
     } 
+
+    virtual bool onFling(skui::InputState state) {
+        for (int i = fLayers.count()-1; i>=0; --i) {
+            if( fLayers[i]->getActive() ) {
+                if( fLayers[i]->onFling( state ) ) {
+                    return true;
+                }
+            }
+        }
+        return false;        
+    }
+    
+    virtual bool onPinch(skui::InputState state, float scale, float x, float y) {
+        for (int i = fLayers.count()-1; i>=0; --i) {
+            if( fLayers[i]->getActive() ) {
+                if( fLayers[i]->onPinch( state, scale, x, y ) ) {
+                    return true;
+                }
+            }
+        }
+        return false;  
+    }     
 
     void drawLayers( SkCanvas &canvas ) {
         for (int i = 0; i < fLayers.count(); ++i) {

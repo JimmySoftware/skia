@@ -16,7 +16,11 @@ DemoLayer::~DemoLayer() {}
 void DemoLayer::onResize( int w, int h, float scale ) {
     
 }
+
 void DemoLayer::onPaint( SkCanvas& canvas ) {
+    // Clear background
+    canvas.clear(SK_ColorWHITE);
+
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     SkFont font;
@@ -26,16 +30,4 @@ void DemoLayer::onPaint( SkCanvas& canvas ) {
     sprintf(message, "DemoLayer");
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 100, 100, font, paint);
-}
-
-bool DemoLayer::onMouse(int x, int y, skui::InputState, skui::ModifierKey) {
-    return false;    
-}
-
-bool DemoLayer::onMouseWheel(float delta, skui::ModifierKey) {
-    return false;
-}
-
-bool DemoLayer::onTouch(intptr_t owner, skui::InputState, float x, float y) {
-    return false;
 }
