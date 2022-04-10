@@ -37,6 +37,10 @@ static_library("DemoAppLib") {
     ]
     sources = [
       "DemoApp.cpp",
+      "DemoLayer.cpp",
+      "DemoPage1.cpp",
+      "DemoPage2.cpp",
+      "DemoPage3.cpp",
     ]
   }
 }

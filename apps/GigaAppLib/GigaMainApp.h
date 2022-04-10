@@ -25,6 +25,7 @@ public:
     void onBackendCreated() override;
     void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
+    bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) override;
 
 private:
     void updateTitle();

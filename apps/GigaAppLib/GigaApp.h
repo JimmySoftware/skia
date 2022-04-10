@@ -16,13 +16,39 @@ public:
 
     virtual void setup() = 0;
     virtual void draw( SkCanvas &canvas ) {}
+    virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
+        for (int i = 0; i < fLayers.count(); ++i) {
+            if( fLayers[i]->getActive() ) {
+                if( fLayers[i]->onChar( c, modifiers) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    virtual bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) {
+        for (int i = 0; i < fLayers.count(); ++i) {
+            if( fLayers[i]->getActive() ) {
+                if( fLayers[i]->onKey( k, state, modifiers) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    } 
 
     void drawLayers( SkCanvas &canvas ) {
         for (int i = 0; i < fLayers.count(); ++i) {
-            fLayers[i]->onUpdate();
-            fLayers[i]->onPaint(canvas);
+            if( fLayers[i]->getActive() ) {
+                fLayers[i]->onUpdate();
+            }
+            if( fLayers[i]->getVisible() ) {
+                fLayers[i]->onPaint(canvas);
+                fLayers[i]->drawPages(canvas);
+            }
         }
     }
+
 protected:
     SkTDArray<GigaAppLayer*>      fLayers;    
 };

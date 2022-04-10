@@ -6,8 +6,8 @@
 #include "include/effects/SkGradientShader.h"
 #include "../../GigaAppLib/FPSLayer.h"
 #include "../../GigaAppLib/TemplateLayer.h"
-#include "../../GigaAppLib/UILayer.h"
 #include "DemoApp.h"
+#include "DemoLayer.h"
 
 DemoApp::DemoApp( ) 
     : fRotationAngle(0) {
@@ -21,28 +21,17 @@ DemoApp::~DemoApp() {
 DemoApp *DemoApp::createApp() {
     DemoApp *app = new DemoApp();
     
-    app->pushLayer( new UILayer() );
+    app->pushLayer( new DemoLayer() );
     app->pushLayer( new FPSLayer(SK_ColorBLACK, true) );
 
     return app;
 }
 
 void DemoApp::setup() {
-
-    try
-    {
-        SkDebugf( "Try\n" );
-        throw std::invalid_argument("HELLO");
-    }
-    catch(const std::exception& e)
-    {
-        SkDebugf( "%s\n", e.what() );
-    }
-
 }
 
 void DemoApp::draw( SkCanvas &canvas ) {
-    GigaApp::draw( canvas );
+    //GigaApp::draw( canvas );
 
     // Clear background
     canvas.clear(SK_ColorWHITE);

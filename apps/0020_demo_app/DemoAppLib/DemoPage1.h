@@ -1,14 +1,14 @@
-#ifndef __UI_LAYER_H__
-#define __UI_LAYER_H__
+#ifndef __DEMO_PAGE1_H__
+#define __DEMO_PAGE1_H__
 
-#include "GigaAppLayer.h"
+#include "GigaAppPage.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 
-class UILayer : public GigaAppLayer {
+class DemoPage1 : public GigaAppPage {
 public:
-    UILayer( );
-    virtual ~UILayer() override;
+    DemoPage1( );
+    virtual ~DemoPage1() override;
 
     void onResize( int w, int h, float scale ) override;
     void onPaint( SkCanvas& canvas ) override;
@@ -19,4 +19,4 @@ public:
 private:
 };
 
-#endif //__UI_LAYER_H__
+#endif //__DEMO_PAGE1_H__

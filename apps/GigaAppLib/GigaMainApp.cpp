@@ -83,6 +83,10 @@ void GigaMainApp::onIdle() {
     fWindow->inval();
 }
 
+bool GigaMainApp::onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) {
+    return gigaApp->onKey( k, state, modifiers );
+}
+
 bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     if (' ' == c) {
         if (Window::kRaster_BackendType == fBackendType) {
@@ -102,5 +106,5 @@ bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
         fWindow->detach();
         fWindow->attach(fBackendType);
     }
-    return true;
+    return gigaApp->onChar( c, modifiers );
 }
