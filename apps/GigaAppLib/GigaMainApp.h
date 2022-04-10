@@ -26,6 +26,9 @@ public:
     void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
     bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) override;
+    bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) override;
+    bool onMouseWheel(float delta, skui::ModifierKey) override;
+    bool onTouch(intptr_t owner, skui::InputState, float x, float y) override;
     bool onFling(skui::InputState state) override;
     bool onPinch(skui::InputState state, float scale, float x, float y) override;    
 

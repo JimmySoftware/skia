@@ -6,6 +6,9 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 
+
+char message1[128] = "";
+
 using namespace sk_app;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
@@ -109,10 +112,24 @@ bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
     return gigaApp->onChar( c, modifiers );
 }
 
+bool GigaMainApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
+    return gigaApp->onMouse( x, y, state, modifiers );
+}
+
+bool GigaMainApp::onMouseWheel(float delta, skui::ModifierKey modifiers) { 
+    return gigaApp->onMouseWheel( delta, modifiers ); 
+}
+
+bool GigaMainApp::onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
+    return gigaApp->onTouch( owner, state, x, y ); 
+}
+
+
 bool GigaMainApp::onFling(skui::InputState state) { 
-    return false; 
+    SkDebugf( "Fling: %i\n", (int)state );
+    return gigaApp->onFling( state );
 }
 
 bool GigaMainApp::onPinch(skui::InputState state, float scale, float x, float y) { 
-    return false; 
+    return gigaApp->onPinch( state, scale, x, y );
 }

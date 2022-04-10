@@ -61,7 +61,9 @@ bool Window::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
 }
 
 bool Window::onFling(skui::InputState state) {
-    return this->signalLayers([=](Layer* layer) { return layer->onFling(state); });
+    return this->signalLayers([=](Layer* layer) { 
+        return layer->onFling(state); 
+    });
 }
 
 bool Window::onPinch(skui::InputState state, float scale, float x, float y) {

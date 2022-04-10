@@ -1,5 +1,7 @@
 #include "DemoPage2.h"
 
+extern char message1[128];
+
 DemoPage2::DemoPage2() {}
 
 DemoPage2::~DemoPage2() {}
@@ -14,7 +16,7 @@ void DemoPage2::onPaint( SkCanvas& canvas ) {
     font.setSize(SkIntToScalar(40));
 
     char message[128] = "";
-    sprintf(message, "DemoPage2");
+    sprintf(message, "2 %s", message1);
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 200, 200, font, paint);
 }

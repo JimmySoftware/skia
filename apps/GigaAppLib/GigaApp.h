@@ -37,9 +37,46 @@ public:
         return false;
     } 
 
+    virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
+        for (int i = fLayers.count()-1; i>=0; --i) {
+            if( fLayers[i]->getActive() ) 
+            {
+                if( fLayers[i]->onMouse( x, y, state, modifiers ) ) {
+                    return true;
+                }
+            }
+        }
+        return false;  
+    }
+
+    virtual bool onMouseWheel(float delta, skui::ModifierKey modifiers) {
+        for (int i = fLayers.count()-1; i>=0; --i) {
+            if( fLayers[i]->getActive() ) 
+            {
+                if( fLayers[i]->onMouseWheel( delta, modifiers ) ) {
+                    return true;
+                }
+            }
+        }
+        return false; 
+    }
+
+    virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y) {
+        for (int i = fLayers.count()-1; i>=0; --i) {
+            if( fLayers[i]->getActive() ) 
+            {
+                if( fLayers[i]->onTouch( owner, state, x, y ) ) {
+                    return true;
+                }
+            }
+        }
+        return false; 
+    } 
+
     virtual bool onFling(skui::InputState state) {
         for (int i = fLayers.count()-1; i>=0; --i) {
-            if( fLayers[i]->getActive() ) {
+            if( fLayers[i]->getActive() ) 
+            {
                 if( fLayers[i]->onFling( state ) ) {
                     return true;
                 }
@@ -47,7 +84,7 @@ public:
         }
         return false;        
     }
-    
+
     virtual bool onPinch(skui::InputState state, float scale, float x, float y) {
         for (int i = fLayers.count()-1; i>=0; --i) {
             if( fLayers[i]->getActive() ) {

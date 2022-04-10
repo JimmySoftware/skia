@@ -10,6 +10,8 @@
 #include "include/private/SkTDArray.h"
 #include "GigaAppPage.h"
 
+extern char message1[128];
+
 class GigaAppLayer {
 public:
     GigaAppLayer() : fActive(true), fVisible(true), fCurrentPage(-1) {}
@@ -28,7 +30,6 @@ public:
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
         int pg = getCurrentPageIndex();
         if( c == 63234 ) {
-            // Left
             previousPage();
             return true;
         }
@@ -52,28 +53,43 @@ public:
         }
         return false;
     } 
-    virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) { return false; }
+    virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
+        SkDebugf( "Touch %i %i \n", x, y );
+        if( state == skui::InputState::kDown ) {
+            previousPage();
+        }
+        return false; 
+    }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
-    virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { return false; }
+    virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { 
+        SkDebugf( "Touch %0.2f %0.2f\n", x, y );
+        //nextPage();
+        return false; 
+    }
     virtual void onFontChange() {}
 
     // Platform-detected gesture events
     virtual bool onFling(skui::InputState state) { 
         int pg = getCurrentPageIndex();
-        if( state == skui::InputState::kLeft ) {
-            // Left
-            previousPage();
-            return true;
-        }
-        else if( state == skui::InputState::kRight ) {
+        
+        sprintf(message1, "Fling  %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
+        if( (int)state == 4 ) {
             nextPage();
-            return true;
-        }        
+            //sprintf(message1, "Fling Left1 %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
+            //return true;
+        }
+        else if( (int)state == 3 ) {
+            previousPage();
+            //sprintf(message1, "Fling Right1 %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
+            //return true;
+        }
+        /*        
         if( pg >= 0 && pg <fPages.count() ) {
             if( fPages[pg]->onFling( state ) ) {
                 return true;
             }
-        }        
+        }      
+        */  
         return false; 
     }
     virtual bool onPinch(skui::InputState state, float scale, float x, float y) { 
@@ -96,31 +112,39 @@ public:
             fPages[fCurrentPage]->setActive( false );
             fCurrentPage = -1;
         }
-        if( pg >= 0 && pg < fPages.count() ) {
+        if( (pg >= 0) && (pg < fPages.count()) ) 
+        {
             fCurrentPage = pg;
             fPages[fCurrentPage]->setActive( true );
             fPages[fCurrentPage]->setVisible( true );
+            //sprintf(message1, "Current Page %i %i %i", pg, (int)fCurrentPage, fPages.count());
+        }
+        else {
+            sprintf(message1, "PG Page %i %i %i", pg, (int)fCurrentPage, fPages.count());
         }
         return fCurrentPage;
     }
+
     void previousPage() {
-        if( fCurrentPage > 0 ) {
-            setCurrentPageIndex( fCurrentPage-1 );
-        } 
-        else if( fPages.count() > 0 ) {
-            setCurrentPageIndex( fPages.count()-1 );
+        int n = fCurrentPage - 1;
+        if( n < 0 ) {
+            n = fPages.count() - 1;
         }
+        setCurrentPageIndex( n );
+        sprintf(message1, "Prev1 Page %i %i %i", n, (int)fCurrentPage, fPages.count());
     }
+
     void nextPage() {
-        if( fCurrentPage < fPages.count()-1 ) {
-            setCurrentPageIndex( fCurrentPage+1 );
+        int n = fCurrentPage + 1;
+        if( n >= fPages.count() ) {
+            n = 0;
         }
-        else if( fPages.count() ) {
-            setCurrentPageIndex( 0 );
-        }
+        setCurrentPageIndex( n );
+        sprintf(message1, "Next Page %i %i %i", n, (int)fCurrentPage, fPages.count());
     }    
 
     void drawPages( SkCanvas &canvas ) {
+
         for (int i = 0; i < fPages.count(); ++i ) {
             if( fPages[i]->getActive() ) {
                 fPages[i]->onUpdate();

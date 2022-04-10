@@ -6,8 +6,12 @@
 #include "include/effects/SkGradientShader.h"
 #include "DemoPage1.h"
 
+extern char message1[128];
+
 DemoPage1::DemoPage1()
-: fRotationAngle(0) {}
+: fRotationAngle(0) {
+    sprintf(message1, "DemoPage1");
+}
 
 DemoPage1::~DemoPage1() {}
 
@@ -43,7 +47,7 @@ void DemoPage1::onPaint( SkCanvas& canvas ) {
     paint.setColor(SK_ColorBLACK);
 
     canvas.save();
-    static const char message1[] = "This is DEMO App.";
+    static const char messagex[] = "This is DEMO App.";
 
     // Translate and rotate
     canvas.translate(300, 300); 
@@ -54,17 +58,17 @@ void DemoPage1::onPaint( SkCanvas& canvas ) {
     canvas.rotate(fRotationAngle);
 
     // Draw the text
-    canvas.drawSimpleText(message1, strlen(message1), SkTextEncoding::kUTF8, 0, 0, font, paint);
+    canvas.drawSimpleText(messagex, strlen(messagex), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     canvas.restore(); 
 
     paint.setColor(SK_ColorBLUE);
     font.setSize(SkIntToScalar(40));
 
-    char message[128] = "";
-    sprintf(message, "DemoPage1");
+    
+    
     canvas.drawSimpleText(
-            message, strlen(message), SkTextEncoding::kUTF8, 200, 200, font, paint);
+            message1, strlen(message1), SkTextEncoding::kUTF8, 200, 200, font, paint);
 }
 
 bool DemoPage1::onMouse(int x, int y, skui::InputState, skui::ModifierKey) {
