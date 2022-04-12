@@ -22,9 +22,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
+import android.view.GestureDetector;
 
 public class ViewerActivity
-        extends Activity implements SurfaceHolder.Callback, View.OnTouchListener {
+        extends Activity implements SurfaceHolder.Callback, View.OnTouchListener, GestureDetector.OnGestureListener {
     private static final float FLING_VELOCITY_THRESHOLD = 1000;
 
     private DrawerLayout mDrawerLayout;
@@ -33,6 +35,7 @@ public class ViewerActivity
     private StateAdapter mStateAdapter;
 
     private ViewerApplication mApplication;
+    private GestureDetector gDetector;
 
     private native void onSurfaceCreated(long handle, Surface surface);
     private native void onSurfaceChanged(long handle, Surface surface);
@@ -47,6 +50,53 @@ public class ViewerActivity
         inflater.inflate(R.menu.title, menu);
         return true;
     }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent me) {
+        return gDetector.onTouchEvent(me);
+    }    
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        // TODO Auto-generated method stub
+        Toast.makeText(this,"onDown",Toast.LENGTH_LONG).show();
+        return false;
+    }
+    
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+            float velocityY) {
+        // TODO Auto-generated method stub
+        Toast.makeText(this,"Swipe to Explore the Happiness Path",Toast.LENGTH_LONG).show();
+        return false;
+    }
+    
+    @Override
+    public void onLongPress(MotionEvent e) {
+        // TODO Auto-generated method stub
+        Toast.makeText(this,"onLongPress",Toast.LENGTH_LONG).show();
+    
+    }
+    
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+            float distanceY) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
+    @Override
+    public void onShowPress(MotionEvent e) {
+        // TODO Auto-generated method stub
+    
+    }
+    
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        // TODO Auto-generated method stub`enter code here`
+        return false;
+    }
+    
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -72,6 +122,8 @@ public class ViewerActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        gDetector = new GestureDetector(this);
 
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.getHolder().addCallback(this);
@@ -145,7 +197,8 @@ public class ViewerActivity
             final float y = event.getY(i);
             final int owner = event.getPointerId(i);
             int action = event.getAction() & MotionEvent.ACTION_MASK;
-            onTouched(mApplication.getNativeHandle(), owner, action, x, y);
+            //Toast.makeText(this,"onTouch",Toast.LENGTH_LONG).show();
+            //onTouched(mApplication.getNativeHandle(), owner, action, x, y);
         }
         return true;
     }

@@ -131,6 +131,7 @@ bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
 }
 
 bool GigaMainApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
+    SkDebugf( "GigaMainApp::onMouse\n");
     return gigaApp->onMouse( x, y, state, modifiers );
 }
 
@@ -139,6 +140,7 @@ bool GigaMainApp::onMouseWheel(float delta, skui::ModifierKey modifiers) {
 }
 
 bool GigaMainApp::onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
+    SkDebugf( "GigaMainApp::onTouch\n");
     return gigaApp->onTouch( owner, state, x, y ); 
 }
 

@@ -65,14 +65,16 @@ public:
     virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
         SkDebugf( "Touch %i %i \n", x, y );
         if( state == skui::InputState::kDown ) {
-            previousPage();
+            nextPage();
         }
         return false; 
     }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
-    virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { 
+    virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
         SkDebugf( "Touch %0.2f %0.2f\n", x, y );
-        //nextPage();
+        if( state == skui::InputState::kDown ) {
+            nextPage();
+        }
         return false; 
     }
     virtual void onFontChange() {}
