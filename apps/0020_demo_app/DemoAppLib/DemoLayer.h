@@ -10,7 +10,6 @@ public:
     DemoLayer( );
     virtual ~DemoLayer() override;
 
-    void onResize( int w, int h, float scale ) override;
     void onPaint( SkCanvas& canvas ) override;
 private:
 };

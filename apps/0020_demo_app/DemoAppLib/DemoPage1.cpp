@@ -15,10 +15,10 @@ DemoPage1::DemoPage1()
 
 DemoPage1::~DemoPage1() {}
 
-void DemoPage1::onResize( int w, int h, float scale ) {
-    
-}
 void DemoPage1::onPaint( SkCanvas& canvas ) {
+    canvas.save();
+    canvas.scale( fScale, fScale );
+
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
@@ -64,11 +64,9 @@ void DemoPage1::onPaint( SkCanvas& canvas ) {
 
     paint.setColor(SK_ColorBLUE);
     font.setSize(SkIntToScalar(40));
-
     
-    
-    canvas.drawSimpleText(
-            message1, strlen(message1), SkTextEncoding::kUTF8, 200, 200, font, paint);
+    canvas.drawSimpleText( message1, strlen(message1), SkTextEncoding::kUTF8, 200, 200, font, paint);
+    canvas.restore();
 }
 
 bool DemoPage1::onMouse(int x, int y, skui::InputState, skui::ModifierKey) {

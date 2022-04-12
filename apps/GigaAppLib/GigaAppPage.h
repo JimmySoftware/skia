@@ -20,7 +20,12 @@ public:
     void setVisible(bool visible) { fVisible = visible; }
 
     // return value of 'true' means 'I have handled this event'
-    virtual void onResize( int w, int h, float scale=1.0 ) {fScaleFactor=scale;}
+    virtual void onResize(int width, int height, float scale ) {
+        iWidth = width;
+        iHeight = height;
+        fScale = scale;
+        SkDebugf( "GigaAppPage::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
+    }
     virtual void onUpdate() {}
     virtual void onPaint(SkCanvas &canvas) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
@@ -35,10 +40,13 @@ public:
     virtual bool onPinch(skui::InputState state, float scale, float x, float y) { return false; }
     virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
 
-private:
+protected:
     bool fActive;
     bool fVisible;
-    float fScaleFactor;
+
+    int iWidth;
+    int iHeight;
+    float fScale;
 };
 
 

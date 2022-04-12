@@ -24,7 +24,16 @@ public:
     void setVisible(bool visible) { fVisible = visible; }    
 
     // return value of 'true' means 'I have handled this event'
-    virtual void onResize( int w, int h, float scale=1.0 ) {fScaleFactor=scale;}
+    virtual void onResize(int width, int height, float scale ) {
+        iWidth = width;
+        iHeight = height;
+        fScale = scale;
+        SkDebugf( "GigaAppLayer::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
+        for (int i = 0; i < fPages.count(); ++i ) {
+            SkDebugf( "Call %i\n", i );
+            fPages[i]->onResize( width, height, scale );
+        }        
+    }
     virtual void onUpdate() {}
     virtual void onPaint(SkCanvas &canvas) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
@@ -160,7 +169,10 @@ protected:
     
     bool fActive;
     bool fVisible;
-    float fScaleFactor;
+
+    int iWidth;
+    int iHeight;
+    float fScale;
     
     int fCurrentPage;       
 };

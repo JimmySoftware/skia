@@ -10,7 +10,6 @@ public:
     DemoPage3( );
     virtual ~DemoPage3() override;
 
-    void onResize( int w, int h, float scale ) override;
     void onPaint( SkCanvas& canvas ) override;
     bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) override;
     bool onMouseWheel(float delta, skui::ModifierKey) override;

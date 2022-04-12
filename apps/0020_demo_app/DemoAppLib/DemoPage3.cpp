@@ -6,9 +6,6 @@ DemoPage3::DemoPage3() {}
 
 DemoPage3::~DemoPage3() {}
 
-void DemoPage3::onResize( int w, int h, float scale ) {
-    
-}
 void DemoPage3::onPaint( SkCanvas& canvas ) {
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);

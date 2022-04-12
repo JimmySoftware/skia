@@ -12,10 +12,22 @@ public:
 
     static GigaApp *create();
 
-    void pushLayer(GigaAppLayer* layer) { fLayers.push_back(layer); }
+    void pushLayer(GigaAppLayer* layer) { 
+        fLayers.push_back(layer); 
+        fLayers[fLayers.count()-1]->onResize( iWidth, iHeight, fScale );
+    }
 
     virtual void setup() {}
     virtual void draw( SkCanvas &canvas ) {}
+    virtual void onResize(int width, int height, float scale ) {
+        iWidth = width;
+        iHeight = height;
+        fScale = scale;
+        SkDebugf( "GigaApp::onResize %i %i %0.2f (%i)\n", iWidth, iHeight, fScale, fLayers.count() );
+        for (int i = 0; i < fLayers.count(); ++i) {
+            fLayers[i]->onResize( width, height, scale );
+        }        
+    }
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
         for (int i = 0; i < fLayers.count(); ++i) {
             if( fLayers[i]->getActive() ) {
@@ -109,7 +121,10 @@ public:
     }
 
 protected:
-    SkTDArray<GigaAppLayer*>      fLayers;    
+    SkTDArray<GigaAppLayer*>      fLayers;   
+    int iWidth;
+    int iHeight;
+    float fScale; 
 };
 
 #endif //__GIGA_APP_LAYER_H__

@@ -13,10 +13,6 @@ DemoLayer::DemoLayer() {
 
 DemoLayer::~DemoLayer() {}
 
-void DemoLayer::onResize( int w, int h, float scale ) {
-    
-}
-
 void DemoLayer::onPaint( SkCanvas& canvas ) {
     // Clear background
     canvas.clear(SK_ColorWHITE);

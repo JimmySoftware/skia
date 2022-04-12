@@ -23,6 +23,7 @@ public:
     void onIdle() override;
 
     void onBackendCreated() override;
+    void onResize(int width, int height ) override;
     void onPaint(SkSurface*) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifiers) override;
     bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) override;
@@ -37,6 +38,10 @@ private:
 
     sk_app::Window* fWindow;
     sk_app::Window::BackendType fBackendType;
+
+    int iWidth;
+    int iHeight;
+    float fScale;
 
     GigaApp *gigaApp;
 };

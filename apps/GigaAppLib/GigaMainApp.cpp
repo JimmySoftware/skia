@@ -25,6 +25,9 @@ GigaMainApp::GigaMainApp(int argc, char** argv, void* platformData)
 #else
         : fBackendType(Window::kRaster_BackendType)
 #endif
+        , iWidth( 0 )
+        , iHeight( 0 )
+        , fScale( 1.0 )
         {
     gigaApp = GigaApp::create();
     SkGraphics::Init();
@@ -69,6 +72,8 @@ void GigaMainApp::updateTitle() {
 void GigaMainApp::onBackendCreated() {
     this->updateTitle();
 
+    SkDebugf( "GigaMainApp::onBackendCreated\n" );
+    onResize( fWindow->width(), fWindow->height() );
     gigaApp->setup();
 
     fWindow->show();
@@ -83,7 +88,21 @@ void GigaMainApp::onPaint(SkSurface* surface) {
 
 void GigaMainApp::onIdle() {
     // Just re-paint continuously
+    if( fScale != fWindow->scaleFactor() || iWidth != fWindow->width() || iHeight != fWindow->height() ) {
+        fWindow->detach();
+        fWindow->attach(fBackendType);
+        onResize( fWindow->width(), fWindow->height() );
+    }     
     fWindow->inval();
+}
+
+void GigaMainApp::onResize(int width, int height) {
+    iWidth = width;
+    iHeight = height;
+    fScale = fWindow->scaleFactor();
+    SkDebugf( "GigaMainApp::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
+
+    gigaApp->onResize( width, height, fScale );
 }
 
 bool GigaMainApp::onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) {
