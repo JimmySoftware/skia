@@ -6,8 +6,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 
-
-char message1[128] = "";
+extern char message1[128];
 
 using namespace sk_app;
 
