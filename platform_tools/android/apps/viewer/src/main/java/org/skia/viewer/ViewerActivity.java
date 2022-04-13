@@ -39,6 +39,7 @@ public class ViewerActivity
     private native void onSurfaceDestroyed(long handle);
     private native void onKeyPressed(long handle, int keycode);
     private native void onTouched(long handle, int owner, int state, float x, float y);
+    private native void onFlinged(long handle, int state);
     private native void onUIStateChanged(long handle, String stateName, String stateValue);
 
     @Override

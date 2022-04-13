@@ -28,7 +28,9 @@ import android.util.Log;
 
 public class ViewerActivity
         extends Activity implements SurfaceHolder.Callback, View.OnTouchListener, GestureDetector.OnGestureListener {
-    private static final float FLING_VELOCITY_THRESHOLD = 1000;
+    //private static final float FLING_VELOCITY_THRESHOLD = 1000;
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -43,6 +45,7 @@ public class ViewerActivity
     private native void onSurfaceDestroyed(long handle);
     private native void onKeyPressed(long handle, int keycode);
     private native void onTouched(long handle, int owner, int state, float x, float y);
+    private native void onFlinged(long handle, int state);
     private native void onUIStateChanged(long handle, String stateName, String stateValue);
 
     @Override
@@ -68,12 +71,25 @@ public class ViewerActivity
     }
     
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-            float velocityY) {
-        // TODO Auto-generated method stub
-        Toast.makeText(this,"onFling",Toast.LENGTH_SHORT).show();
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            //Toast.makeText(this,"onFling Left",Toast.LENGTH_SHORT).show();
+            onFlinged(mApplication.getNativeHandle(), 4);
+            return false; // Right to left
+        }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            //Toast.makeText(this,"onFling Right",Toast.LENGTH_SHORT).show();
+            onFlinged(mApplication.getNativeHandle(), 3);
+            return false; // Left to right
+        }
+        /*
+        if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+            return false; // Bottom to top
+        }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+            return false; // Top to bottom
+        }
+        */
         return false;
-    }
+    }    
     
     @Override
     public void onLongPress(MotionEvent e) {
@@ -98,7 +114,7 @@ public class ViewerActivity
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         // TODO Auto-generated method stub`enter code here`
-        Toast.makeText(this,"onSingleTapUp",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this,"onSingleTapUp",Toast.LENGTH_SHORT).show();
         return false;
     }
     

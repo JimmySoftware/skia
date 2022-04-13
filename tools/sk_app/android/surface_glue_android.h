@@ -29,6 +29,7 @@ enum MessageType {
     kKeyPressed,
     kTouched,
     kUIStateChanged,
+    kFlinged,
 };
 
 struct Message {

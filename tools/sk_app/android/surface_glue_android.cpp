@@ -180,6 +180,19 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             }
             break;
         }
+        case kFlinged: {
+            int it = (int)message.fTouchState;
+            SkDebugf( "**************** kFlinged - onFlinged %i\n", it );
+            if (it == 3) {
+                skiaAndroidApp->fWindow->onFling(skui::InputState::kRight);
+            }
+            if (it == 4) {
+                skiaAndroidApp->fWindow->onFling(skui::InputState::kLeft);
+            } else {
+                SkDebugf("Unknown Fling State: %d\n", it);
+            }
+            break;
+        }        
         case kUIStateChanged: {
             skiaAndroidApp->fWindow->onUIStateChanged(*message.stateName, *message.stateValue);
             delete message.stateName;
@@ -287,6 +300,15 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
     message.fTouchState = state;
     message.fTouchX = x;
     message.fTouchY = y;
+    skiaAndroidApp->postMessage(message);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onFlinged(
+    JNIEnv* env, jobject activity, jlong handle, jint state ) {
+    SkDebugf( "**************** Java_org_skia_viewer_ViewerActivity_onFlinged\n" );
+    auto skiaAndroidApp = (SkiaAndroidApp*)handle;
+    Message message(kFlinged);
+    message.fTouchState = state;
     skiaAndroidApp->postMessage(message);
 }
 
