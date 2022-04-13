@@ -13,7 +13,7 @@ import android.content.res.AssetManager;
 public class ViewerApplication extends Application {
     private long mNativeHandle = 0;
     private ViewerActivity mViewerActivity;
-    private String mStateJsonStr, mTitle;
+    private String mStateJsonStr; //, mTitle;
 
     static {
         System.loadLibrary("DemoApp");
@@ -46,16 +46,20 @@ public class ViewerApplication extends Application {
         // Note that viewerActivity might be null (called by onDestroy)
         if (mViewerActivity != null) {
             // A new ViewerActivity is created; initialize its state and title
+            /*
             if (mStateJsonStr != null) {
                 mViewerActivity.setState(mStateJsonStr);
             }
+            
             if (mTitle != null) {
                 mViewerActivity.setTitle(mTitle);
             }
+            */
         }
     }
 
     public void setTitle(String title) {
+        /*
         mTitle = title; // Similar to mStateJsonStr, we have to store this.
         if (mTitle.startsWith("Viewer: ")) { // Quick hack to shorten the title
             mTitle = mTitle.replaceFirst("Viewer: ", "");
@@ -68,6 +72,7 @@ public class ViewerApplication extends Application {
                 }
             });
         }
+        */
     }
 
     public void setState(String stateJsonStr) {
@@ -78,7 +83,7 @@ public class ViewerApplication extends Application {
             mViewerActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mViewerActivity.setState(mStateJsonStr);
+                    //mViewerActivity.setState(mStateJsonStr);
                 }
             });
         }

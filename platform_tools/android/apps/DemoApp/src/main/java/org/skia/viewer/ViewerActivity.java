@@ -26,6 +26,8 @@ import android.widget.Toast;
 import android.view.GestureDetector;
 import android.util.Log;
 import android.util.DisplayMetrics;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class ViewerActivity
         extends Activity implements SurfaceHolder.Callback, View.OnTouchListener, GestureDetector.OnGestureListener {
@@ -33,10 +35,10 @@ public class ViewerActivity
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
-    private StateAdapter mStateAdapter;
+    //private DrawerLayout mDrawerLayout;
+    //private ActionBarDrawerToggle mDrawerToggle;
+    //private ListView mDrawerList;
+    //private StateAdapter mStateAdapter;
 
     private ViewerApplication mApplication;
     private GestureDetector gDetector;
@@ -49,6 +51,7 @@ public class ViewerActivity
     private native void onFlinged(long handle, int state);
     private native void onUIStateChanged(long handle, String stateName, String stateValue);
 
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -56,7 +59,7 @@ public class ViewerActivity
         return true;
     }
     
-    /*
+    
     @Override
     public boolean onTouchEvent(MotionEvent me) {
         Log.d("JIMMY","onTouchEvent: ");
@@ -126,6 +129,7 @@ public class ViewerActivity
         return gDetector.onTouchEvent(e);
     }
 
+    /*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
@@ -145,18 +149,41 @@ public class ViewerActivity
                 return super.onOptionsItemSelected(item);
         }
     }
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        View decorView = getWindow().getDecorView();
+        // Hide both the navigation bar and the status bar.
+        // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+        // a general rule, you should design your app to hide the status bar whenever you
+        // hide the navigation bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION; //View.SYSTEM_UI_FLAG_FULLSCREEN; // | 
+        decorView.setSystemUiVisibility(uiOptions);    
+        
+        
+        
+        //Remove title bar
+        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //Remove notification bar
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         gDetector = new GestureDetector(this, this);
 
+        
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.getHolder().addCallback(this);
         surfaceView.setOnTouchListener(this);
+        
 
+        /*
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         if (mDrawerLayout != null) { // xlarge-land has no drawer layout (drawer is always open)
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -169,25 +196,57 @@ public class ViewerActivity
         mDrawerList = (ListView) findViewById(R.id.leftDrawer);
         mStateAdapter = new StateAdapter(this);
         mDrawerList.setAdapter(mStateAdapter);
+        */
 
         mApplication = (ViewerApplication) getApplication();
         mApplication.setViewerActivity(this);
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+
+        View decorView = getWindow().getDecorView();
+        // Hide both the navigation bar and the status bar.
+        // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+        // a general rule, you should design your app to hide the status bar whenever you
+        // hide the navigation bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION; //View.SYSTEM_UI_FLAG_FULLSCREEN; // | 
+        decorView.setSystemUiVisibility(uiOptions); 
+    }    
+    
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {         
+        super.onWindowFocusChanged(hasFocus);
+
+        View decorView = getWindow().getDecorView();
+        // Hide both the navigation bar and the status bar.
+        // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+        // a general rule, you should design your app to hide the status bar whenever you
+        // hide the navigation bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION; //View.SYSTEM_UI_FLAG_FULLSCREEN; // | 
+        decorView.setSystemUiVisibility(uiOptions);   
+
+    }    
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        /*
         if (mDrawerToggle != null) {
             mDrawerToggle.syncState();
         }
+        */
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        /*
         if (mDrawerToggle != null) {
             mDrawerToggle.onConfigurationChanged(newConfig);
         }
+        */
     }
 
     @Override
@@ -234,6 +293,7 @@ public class ViewerActivity
         //return true;
     }
 
+    /*
     public void setState(String stateJson) {
         mStateAdapter.setState(stateJson);
     }
@@ -241,4 +301,5 @@ public class ViewerActivity
     public void onStateChanged(String stateName, String stateValue) {
         onUIStateChanged(mApplication.getNativeHandle(), stateName, stateValue);
     }
+    */
 }
