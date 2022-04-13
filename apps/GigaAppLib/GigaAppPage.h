@@ -7,10 +7,13 @@
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "src/utils/SkUTF.h"
+#include "GigaUI.h"
 
 class GigaAppPage {
 public:
-    GigaAppPage() : fActive(false), fVisible(false) {}
+    GigaAppPage() : fActive(false), fVisible(false) {
+        ui = NULL;
+    }
     virtual ~GigaAppPage() = default;
 
     bool getActive() { return fActive; }
@@ -40,6 +43,12 @@ public:
     virtual bool onPinch(skui::InputState state, float scale, float x, float y) { return false; }
     virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
 
+    void drawUI(SkCanvas &canvas) {
+        if( ui ) {
+            ui->draw(canvas);
+        }
+    }
+    GigaUI *ui;
 protected:
     bool fActive;
     bool fVisible;

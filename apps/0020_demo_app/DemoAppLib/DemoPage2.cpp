@@ -1,6 +1,11 @@
 #include "DemoPage2.h"
+#include "GigaUI.h"
 
-DemoPage2::DemoPage2() {}
+DemoPage2::DemoPage2() {
+    ui = UI( 
+        Widget().bounds( 100, 100, 640, 480 )
+    );
+}
 
 DemoPage2::~DemoPage2() {}
 

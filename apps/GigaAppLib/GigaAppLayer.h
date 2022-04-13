@@ -139,13 +139,13 @@ public:
     }    
 
     void drawPages( SkCanvas &canvas ) {
-
         for (int i = 0; i < fPages.count(); ++i ) {
             if( fPages[i]->getActive() ) {
                 fPages[i]->onUpdate();
             }
             if( fPages[i]->getVisible() ) {
                 fPages[i]->onPaint(canvas);
+                fPages[i]->drawUI(canvas);
             }
         }
     }    

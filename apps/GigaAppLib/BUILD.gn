@@ -37,6 +37,8 @@ static_library("GigaAppLib") {
     sources = [
       "FPSLayer.cpp",
       "TemplateLayer.cpp",
+      "GigaUI.cpp",
+      "GigaWidget.cpp",
     ]
   }
 }
