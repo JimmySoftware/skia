@@ -9,8 +9,6 @@
 #include "DemoApp.h"
 #include "DemoLayer.h"
 
-char message1[128] = "";
-
 DemoApp *DemoApp::createApp() {
     DemoApp *app = new DemoApp();
     

@@ -1,19 +1,19 @@
 #include "DemoPage3.h"
 
-extern char message1[128];
-
 DemoPage3::DemoPage3() {}
 
 DemoPage3::~DemoPage3() {}
 
 void DemoPage3::onPaint( SkCanvas& canvas ) {
+    canvas.clear(SK_ColorWHITE);
+        
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     SkFont font;
     font.setSize(SkIntToScalar(40));
 
     char message[128] = "";
-    sprintf(message, "3 %s", message1);
+    sprintf(message, "Page 3");
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 200, 200, font, paint);
 }

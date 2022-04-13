@@ -12,18 +12,3 @@ DemoLayer::DemoLayer() {
 }
 
 DemoLayer::~DemoLayer() {}
-
-void DemoLayer::onPaint( SkCanvas& canvas ) {
-    // Clear background
-    canvas.clear(SK_ColorWHITE);
-
-    SkPaint paint;
-    paint.setColor(SK_ColorBLUE);
-    SkFont font;
-    font.setSize(SkIntToScalar(40));
-
-    char message[128] = "";
-    sprintf(message, "DemoLayer");
-    canvas.drawSimpleText(
-            message, strlen(message), SkTextEncoding::kUTF8, 100, 100, font, paint);
-}

@@ -1,19 +1,24 @@
 #include "DemoPage2.h"
 
-extern char message1[128];
-
 DemoPage2::DemoPage2() {}
 
 DemoPage2::~DemoPage2() {}
 
 void DemoPage2::onPaint( SkCanvas& canvas ) {
+    canvas.clear(SK_ColorWHITE);
+
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
+    paint.setStyle( SkPaint::Style::kStroke_Style );
+
+    canvas.drawRect( SkRect::MakeXYWH( 20, 20, iWidth-40, iHeight-40 ), paint) ;
+
     SkFont font;
     font.setSize(SkIntToScalar(40));
 
     char message[128] = "";
-    sprintf(message, "2 %s", message1);
+    sprintf(message, "Page 2");
+    paint.setStyle( SkPaint::Style::kFill_Style );
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 200, 200, font, paint);
 }

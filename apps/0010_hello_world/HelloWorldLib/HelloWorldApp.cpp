@@ -7,8 +7,6 @@
 #include "../../GigaAppLib/FPSLayer.h"
 #include "HelloWorldApp.h"
 
-char message1[128] = "";
-
 HelloWorldApp::HelloWorldApp( ) 
     : fRotationAngle(0) {
 

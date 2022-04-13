@@ -6,8 +6,6 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 
-extern char message1[128];
-
 using namespace sk_app;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {

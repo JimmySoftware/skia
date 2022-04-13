@@ -9,8 +9,6 @@ class DemoLayer : public GigaAppLayer {
 public:
     DemoLayer( );
     virtual ~DemoLayer() override;
-
-    void onPaint( SkCanvas& canvas ) override;
 private:
 };
 

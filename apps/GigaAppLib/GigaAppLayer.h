@@ -10,8 +10,6 @@
 #include "include/private/SkTDArray.h"
 #include "GigaAppPage.h"
 
-extern char message1[128];
-
 class GigaAppLayer {
 public:
     GigaAppLayer() : fActive(true), fVisible(true), fCurrentPage(-1) {}
@@ -81,26 +79,12 @@ public:
 
     // Platform-detected gesture events
     virtual bool onFling(skui::InputState state) { 
-        int pg = getCurrentPageIndex();
-        
-        sprintf(message1, "Fling  %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
-        if( (int)state == 4 ) {
+        if( state == skui::InputState::kLeft ) {
             nextPage();
-            //sprintf(message1, "Fling Left1 %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
-            //return true;
         }
-        else if( (int)state == 3 ) {
+        else if( state == skui::InputState::kRight ) {
             previousPage();
-            //sprintf(message1, "Fling Right1 %i %i %i %i", pg, (int)fCurrentPage, fPages.count(), state);
-            //return true;
         }
-        /*        
-        if( pg >= 0 && pg <fPages.count() ) {
-            if( fPages[pg]->onFling( state ) ) {
-                return true;
-            }
-        }      
-        */  
         return false; 
     }
     virtual bool onPinch(skui::InputState state, float scale, float x, float y) { 
@@ -131,7 +115,7 @@ public:
             //sprintf(message1, "Current Page %i %i %i", pg, (int)fCurrentPage, fPages.count());
         }
         else {
-            sprintf(message1, "PG Page %i %i %i", pg, (int)fCurrentPage, fPages.count());
+            //sprintf(message1, "PG Page %i %i %i", pg, (int)fCurrentPage, fPages.count());
         }
         return fCurrentPage;
     }
@@ -142,7 +126,7 @@ public:
             n = fPages.count() - 1;
         }
         setCurrentPageIndex( n );
-        sprintf(message1, "Prev1 Page %i %i %i", n, (int)fCurrentPage, fPages.count());
+        //sprintf(message1, "Prev1 Page %i %i %i", n, (int)fCurrentPage, fPages.count());
     }
 
     void nextPage() {
@@ -151,7 +135,7 @@ public:
             n = 0;
         }
         setCurrentPageIndex( n );
-        sprintf(message1, "Next Page %i %i %i", n, (int)fCurrentPage, fPages.count());
+        //sprintf(message1, "Next Page %i %i %i", n, (int)fCurrentPage, fPages.count());
     }    
 
     void drawPages( SkCanvas &canvas ) {
