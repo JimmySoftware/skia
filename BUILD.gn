@@ -711,6 +711,7 @@ if (skia_compile_sksl_tests) {
   # Build skslc.
   skia_executable("skslc") {
     defines = [
+      "SKSL_ENABLE_TRACING",
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
       "SK_ENABLE_SPIRV_CROSS",
@@ -727,6 +728,7 @@ if (skia_compile_sksl_tests) {
     }
     sources += skia_sksl_sources
     sources += skia_sksl_gpu_sources
+    sources += skia_sksl_tracing_sources
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
@@ -830,6 +832,12 @@ if (skia_compile_sksl_tests) {
     lang = "--spirv"
     settings = "--settings"
   }
+  compile_sksl("wgsl_tests") {
+    sources = sksl_wgsl_tests_sources
+    outExtensions = [ ".wgsl" ]
+    lang = "--wgsl"
+    settings = "--settings"
+  }
 } else {
   group("compile_sksl_glsl_tests") {
   }
@@ -840,6 +848,8 @@ if (skia_compile_sksl_tests) {
   group("compile_sksl_skvm_tests") {
   }
   group("compile_sksl_spirv_tests") {
+  }
+  group("compile_sksl_wgsl_tests") {
   }
 }
 
@@ -1373,6 +1383,11 @@ skia_component("skia") {
   if (skia_enable_sksl) {
     deps += [ ":dehydrate_sksl" ]
     sources += skia_sksl_sources
+
+    if (skia_enable_sksl_tracing) {
+      defines += [ "SKSL_ENABLE_TRACING" ]
+      sources += skia_sksl_tracing_sources
+    }
   }
 
   if (skia_build_for_debugger) {

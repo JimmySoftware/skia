@@ -8,7 +8,7 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
-#include "include/private/GrTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -129,7 +129,8 @@ protected:
                         SkBudgeted,
                         GrProtected,
                         GrInternalSurfaceFlags,
-                        UseAllocator);
+                        UseAllocator,
+                        std::string_view label);
 
     enum class WrapsVkSecondaryCB : bool { kNo = false, kYes = true };
 
@@ -152,7 +153,8 @@ protected:
                         GrProtected,
                         GrInternalSurfaceFlags,
                         UseAllocator,
-                        WrapsVkSecondaryCB);
+                        WrapsVkSecondaryCB,
+                        std::string_view label);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>,

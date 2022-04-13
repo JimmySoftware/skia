@@ -15,8 +15,7 @@ filegroup(
 )
 
 cc_library(
-    name = "srcs",
-    visibility = ["//:__subpackages__"],
+    name = "core_srcs",
     deps = [
         ":SkSLAnalysis_src",
         ":SkSLBuiltinMap_src",
@@ -54,6 +53,7 @@ cc_library(
         "//src/sksl/codegen:SkSLSPIRVCodeGenerator_src",
         "//src/sksl/codegen:SkSLSPIRVtoHLSL_src",
         "//src/sksl/codegen:SkSLVMCodeGenerator_src",
+        "//src/sksl/codegen:SkSLWGSLCodeGenerator_src",
         "//src/sksl/dsl:DSLBlock_src",
         "//src/sksl/dsl:DSLCase_src",
         "//src/sksl/dsl:DSLCore_src",
@@ -146,6 +146,23 @@ cc_library(
         "//src/utils:SkUTF_src",
         "//src/utils:SkVMVisualizer_src",
     ],
+)
+
+cc_library(
+    name = "tracing_srcs",
+    deps = [
+        "//src/sksl/tracing:SkVMDebugTracePlayer_src",
+        "//src/utils:json_srcs",
+    ],
+)
+
+cc_library(
+    name = "srcs",
+    visibility = ["//:__subpackages__"],
+    deps = [":core_srcs"] + select({
+        "//bazel/common_config_settings:enable_sksl_tracing_true": [":tracing_srcs"],
+        "//bazel/common_config_settings:enable_sksl_tracing_false": [],
+    }),
 )
 
 generated_cc_atom(
@@ -284,6 +301,7 @@ generated_cc_atom(
         "//src/sksl/codegen:SkSLMetalCodeGenerator_hdr",
         "//src/sksl/codegen:SkSLSPIRVCodeGenerator_hdr",
         "//src/sksl/codegen:SkSLSPIRVtoHLSL_hdr",
+        "//src/sksl/codegen:SkSLWGSLCodeGenerator_hdr",
         "//src/sksl/ir:SkSLExpression_hdr",
         "//src/sksl/ir:SkSLExternalFunctionReference_hdr",
         "//src/sksl/ir:SkSLExternalFunction_hdr",

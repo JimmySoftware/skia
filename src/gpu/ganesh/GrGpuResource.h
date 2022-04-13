@@ -8,8 +8,8 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
-#include "include/private/GrTypesPriv.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 
 class GrGpu;
@@ -173,6 +173,8 @@ public:
     /** Returns the current unique key for the resource. It will be invalid if the resource has no
         associated unique key. */
     const skgpu::UniqueKey& getUniqueKey() const { return fUniqueKey; }
+
+    std::string_view getLabel() const { return fLabel; }
 
     /**
      * Internal-only helper class used for manipulations of the resource by the cache.
