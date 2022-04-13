@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import android.view.GestureDetector;
 import android.util.Log;
+import android.util.DisplayMetrics;
 
 public class ViewerActivity
         extends Activity implements SurfaceHolder.Callback, View.OnTouchListener, GestureDetector.OnGestureListener {
@@ -40,8 +41,8 @@ public class ViewerActivity
     private ViewerApplication mApplication;
     private GestureDetector gDetector;
 
-    private native void onSurfaceCreated(long handle, Surface surface);
-    private native void onSurfaceChanged(long handle, Surface surface);
+    private native void onSurfaceCreated(long handle, Surface surface, int dpi);
+    private native void onSurfaceChanged(long handle, Surface surface, int dpi);
     private native void onSurfaceDestroyed(long handle);
     private native void onKeyPressed(long handle, int keycode);
     private native void onTouched(long handle, int owner, int state, float x, float y);
@@ -198,14 +199,16 @@ public class ViewerActivity
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (mApplication.getNativeHandle() != 0) {
-            onSurfaceCreated(mApplication.getNativeHandle(), holder.getSurface());
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            onSurfaceCreated(mApplication.getNativeHandle(), holder.getSurface(), metrics.densityDpi/160);
         }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         if (mApplication.getNativeHandle() != 0) {
-            onSurfaceChanged(mApplication.getNativeHandle(), holder.getSurface());
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            onSurfaceChanged(mApplication.getNativeHandle(), holder.getSurface(), metrics.densityDpi/160);
         }
     }
 

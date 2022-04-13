@@ -24,7 +24,12 @@ bool Window_android::init(SkiaAndroidApp* skiaAndroidApp) {
     SkASSERT(skiaAndroidApp);
     fSkiaAndroidApp = skiaAndroidApp;
     fSkiaAndroidApp->fWindow = this;
+    fDPI = 1.0;
     return true;
+}
+
+float Window_android::scaleFactor() const {
+    return fDPI;
 }
 
 void Window_android::setTitle(const char* title) {

@@ -38,6 +38,7 @@ struct Message {
     int fKeycode = 0;
     int fTouchOwner, fTouchState;
     float fTouchX, fTouchY;
+    int fDPI;
 
     SkString* stateName;
     SkString* stateValue;

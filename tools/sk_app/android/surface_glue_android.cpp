@@ -135,6 +135,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             skiaAndroidApp->fNativeWindow = message.fNativeWindow;
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
             window_android->initDisplay(skiaAndroidApp->fNativeWindow);
+            window_android->fDPI = message.fDPI;
             ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
             break;
         }
@@ -143,6 +144,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
             int width = ANativeWindow_getWidth(skiaAndroidApp->fNativeWindow);
             int height = ANativeWindow_getHeight(skiaAndroidApp->fNativeWindow);
             auto window_android = (Window_android*)skiaAndroidApp->fWindow;
+            window_android->fDPI = message.fDPI;
             if (message.fNativeWindow != skiaAndroidApp->fNativeWindow) {
                 window_android->onDisplayDestroyed();
                 ANativeWindow_release(skiaAndroidApp->fNativeWindow);
@@ -261,18 +263,20 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerApplication_destroy
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onSurfaceCreated(
-    JNIEnv* env, jobject activity, jlong handle, jobject surface) {
+    JNIEnv* env, jobject activity, jlong handle, jobject surface, jint dpi) {
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     Message message(kSurfaceCreated);
     message.fNativeWindow = ANativeWindow_fromSurface(env, surface);
+    message.fDPI = dpi;
     skiaAndroidApp->postMessage(message);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onSurfaceChanged(
-    JNIEnv* env, jobject activity, jlong handle, jobject surface) {
+    JNIEnv* env, jobject activity, jlong handle, jobject surface, jint dpi) {
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     Message message(kSurfaceChanged);
     message.fNativeWindow = ANativeWindow_fromSurface(env, surface);
+    message.fDPI = dpi;
     skiaAndroidApp->postMessage(message);
 }
 

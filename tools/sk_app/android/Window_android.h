@@ -33,6 +33,9 @@ public:
 
     bool scaleContentToFit() const override { return true; }
 
+    float scaleFactor() const override;
+
+    float fDPI;
 private:
     SkiaAndroidApp* fSkiaAndroidApp = nullptr;
     BackendType fBackendType;
