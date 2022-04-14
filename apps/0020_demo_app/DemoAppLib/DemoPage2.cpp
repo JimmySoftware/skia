@@ -3,7 +3,7 @@
 
 DemoPage2::DemoPage2() {
     ui = UI( 
-        Widget().bounds( 100, 100, 640, 480 ).bg_color( 0xFF6495ED )
+        Widget().bounds( 50, 100, 640, 480 ).bg_color( 0xFF6495ED )
             .child( Widget().bounds( 10, 10, 200, 100 )
                 .child( Widget().bounds( 10, 10, 100, 80 ) )
              )
