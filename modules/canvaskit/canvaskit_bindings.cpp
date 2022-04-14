@@ -2064,7 +2064,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return *DemoApp::createApp();
         }))
         .function("setup", &DemoApp::setup)
-        .function("draw", &DemoApp::draw);        
+        .function("draw", &DemoApp::draw)
+        .function("drawLayers", &DemoApp::drawLayers)
+        .function("onResize", &DemoApp::onResize)     
+        .function("onKey", &DemoApp::onKey);        
 
     /*
     class_<SkottieViewerApp>("SkottieViewerApp")
@@ -2075,6 +2078,66 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setup", &SkottieViewerApp::setup)
         .function("draw", &SkottieViewerApp::draw);      
         */  
+
+    enum_<skui::ModifierKey>("ModifierKey")
+        .value("None", skui::ModifierKey::kNone)
+        .value("Shift", skui::ModifierKey::kShift)
+        .value("Control", skui::ModifierKey::kControl)
+        .value("Option", skui::ModifierKey::kOption)
+        .value("Command", skui::ModifierKey::kCommand)
+        .value("FirstPress", skui::ModifierKey::kFirstPress);   
+
+    enum_<skui::InputState>("InputState")
+        .value("Down", skui::InputState::kDown)
+        .value("Up", skui::InputState::kUp)
+        .value("Move", skui::InputState::kMove)
+        .value("Right", skui::InputState::kRight)
+        .value("Left", skui::InputState::kLeft);           
+
+    enum_<skui::Key>("Key")
+        .value("None", skui::Key::kNONE)    //corresponds to android's UNKNOWN
+        .value("LeftSoftKey", skui::Key::kLeftSoftKey)
+        .value("RightSoftKey", skui::Key::kRightSoftKey)
+        .value("Home", skui::Key::kHome)    //!< the home key - added to match android
+        .value("Back", skui::Key::kBack)    //!< (CLR)
+        .value("Send", skui::Key::kSend)    //!< the green (talk) key
+        .value("End", skui::Key::kEnd)     //!< the red key
+        .value("key0", skui::Key::k0)
+        .value("key1", skui::Key::k1)
+        .value("key2", skui::Key::k2)
+        .value("key3", skui::Key::k3)
+        .value("key4", skui::Key::k4)
+        .value("key5", skui::Key::k5)
+        .value("key6", skui::Key::k6)
+        .value("key7", skui::Key::k7)
+        .value("key8", skui::Key::k8)
+        .value("key9", skui::Key::k9)
+        .value("Star", skui::Key::kStar)    //!< the * key
+        .value("Hash", skui::Key::kHash)    //!< the # key
+        .value("Up", skui::Key::kUp)
+        .value("Down", skui::Key::kDown)
+        .value("Left", skui::Key::kLeft)
+        .value("Right", skui::Key::kRight)
+        .value("Tab", skui::Key::kTab)
+        .value("PageUp", skui::Key::kPageUp)
+        .value("PageDown", skui::Key::kPageDown)
+        .value("Delete", skui::Key::kDelete)
+        .value("Escape", skui::Key::kEscape)
+        .value("Shift", skui::Key::kShift)
+        .value("Ctrl", skui::Key::kCtrl)
+        .value("Option", skui::Key::kOption) // AKA Alt
+        .value("Super", skui::Key::kSuper)  // AKA Command
+        .value("keyA", skui::Key::kA)
+        .value("keyC", skui::Key::kC)
+        .value("keyV", skui::Key::kV)
+        .value("keyX", skui::Key::kX)
+        .value("keyY", skui::Key::kY)
+        .value("keyZ", skui::Key::kZ)
+        .value("OK", skui::Key::kOK)      //!< the center key
+        .value("VolUp", skui::Key::kVolUp)   //!< volume up    - match android
+        .value("VolDown", skui::Key::kVolDown) //!< volume down  - same
+        .value("Power", skui::Key::kPower)   //!< power button - same
+        .value("Camera", skui::Key::kCamera);  //!< camera       - same
 
     enum_<SkAlphaType>("AlphaType")
         .value("Opaque",   SkAlphaType::kOpaque_SkAlphaType)

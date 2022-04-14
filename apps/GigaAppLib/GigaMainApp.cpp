@@ -129,7 +129,6 @@ bool GigaMainApp::onChar(SkUnichar c, skui::ModifierKey modifiers) {
 }
 
 bool GigaMainApp::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
-    SkDebugf( "GigaMainApp::onMouse\n");
     return gigaApp->onMouse( x, y, state, modifiers );
 }
 

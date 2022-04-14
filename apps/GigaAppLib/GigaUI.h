@@ -11,6 +11,7 @@ public:
     virtual ~GigaUI();
 
     virtual void draw(SkCanvas &canvas);
+    virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey);
 
     GigaWidget *rootWidget;
 };

@@ -17,9 +17,6 @@ public:
     virtual ~DemoPage2() override;
 
     void onPaint( SkCanvas& canvas ) override;
-    bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) override;
-    bool onMouseWheel(float delta, skui::ModifierKey) override;
-    bool onTouch(intptr_t owner, skui::InputState, float x, float y) override;
 
 private:
 };

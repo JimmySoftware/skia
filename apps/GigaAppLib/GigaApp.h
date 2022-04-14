@@ -108,7 +108,7 @@ public:
         return false;  
     }     
 
-    void drawLayers( SkCanvas &canvas ) {
+    virtual void drawLayers( SkCanvas &canvas ) {
         for (int i = 0; i < fLayers.count(); ++i) {
             if( fLayers[i]->getActive() ) {
                 fLayers[i]->onUpdate();

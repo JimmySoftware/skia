@@ -36,6 +36,7 @@ public:
     virtual void onPaint(SkCanvas &canvas) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey modifiers) {
         int pg = getCurrentPageIndex();
+        /*
         if( c == 63234 ) {
             previousPage();
             return true;
@@ -44,6 +45,10 @@ public:
             nextPage();
             return true;
         }
+        else {
+            SkDebugf( "onChar: %i %X", (int)c, (int)c );
+        }
+        */
         if( pg >= 0 && pg <fPages.count() ) {
             if( fPages[pg]->onChar( c, modifiers) ) {
                 return true;
@@ -52,6 +57,21 @@ public:
         return false;
     }
     virtual bool onKey(skui::Key k, skui::InputState state, skui::ModifierKey modifiers) {
+        if( state == skui::InputState::kDown ) {
+            if( k == skui::Key::kLeft ) {
+                previousPage();
+                return true;
+            }
+            else if( k == skui::Key::kRight ) {
+                nextPage();
+                return true;
+            }            
+        }
+        else if( state == skui::InputState::kUp ) {
+        }
+        else {
+            SkDebugf( "onKey: unknwon %i, %i\n", (int)k, (int)state );
+        }
         int pg = getCurrentPageIndex();
         if( pg >= 0 && pg <fPages.count() ) {
             if( fPages[pg]->onKey( k, state, modifiers) ) {
@@ -61,10 +81,12 @@ public:
         return false;
     } 
     virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) { 
-        SkDebugf( "Touch %i %i \n", x, y );
-        if( state == skui::InputState::kDown ) {
-            nextPage();
-        }
+        int pg = getCurrentPageIndex();
+        if( pg >= 0 && pg <fPages.count() ) {
+            if( fPages[pg]->onMouse( x, y, state, modifiers ) ) {
+                return true;
+            }
+        }         
         return false; 
     }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }

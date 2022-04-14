@@ -1,3 +1,5 @@
+#include "tools/skui/ModifierKey.h"
+#include "tools/skui/InputState.h"
 #include "GigaUI.h"
 
 GigaUI::GigaUI( GigaWidget *_root ) {
@@ -18,4 +20,11 @@ void GigaUI::draw(SkCanvas &canvas) {
         rootWidget->draw( canvas );
         rootWidget->post_draw( canvas );
     }    
+}
+
+bool GigaUI::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
+    if( rootWidget ) {
+        rootWidget->onMouse( x, y, state, modifiers );
+    }
+    return false;
 }

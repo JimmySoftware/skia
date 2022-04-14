@@ -33,7 +33,14 @@ public:
     virtual void onPaint(SkCanvas &canvas) {}
     virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
     virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
-    virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey) { return false; }
+    virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) { 
+        if( ui ) {
+            if( ui->onMouse( x, y, state, modifiers ) ) {
+                return true;
+            }
+        }
+        return false; 
+    }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
     virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { return false; }
     virtual void onFontChange() {}

@@ -1,3 +1,5 @@
+#include "tools/skui/ModifierKey.h"
+#include "tools/skui/InputState.h"
 #include "GigaWidget.h"
 
 std::vector<GigaWidget *>widgets_storage;
@@ -19,6 +21,10 @@ GigaWidget &Widget() {
     GigaWidget *w = new GigaWidget();
     widgets_storage.push_back( w );
     return *w;
+}
+
+bool GigaWidget::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
+    return false;
 }
 
 void GigaWidget::pre_draw(SkCanvas &canvas) {
@@ -45,6 +51,7 @@ void GigaWidget::_draw_content(SkCanvas &canvas) {
 
     paint.setColor( _border_color );
     paint.setStyle( SkPaint::Style::kStroke_Style );
+    paint.setAntiAlias( true );
 
     canvas.drawLine( SkPoint::Make(0, 0), SkPoint::Make(_width, _height), paint );
     canvas.drawLine( SkPoint::Make(_width, 0), SkPoint::Make(0, _height), paint );    

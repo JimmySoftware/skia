@@ -12,6 +12,7 @@ public:
     virtual void pre_draw(SkCanvas &canvas);
     virtual void draw(SkCanvas &canvas);
     virtual void post_draw(SkCanvas &canvas);
+    virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey);
 
     int x() { return _x; }
     int y() { return _y; }

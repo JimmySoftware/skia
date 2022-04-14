@@ -43,6 +43,7 @@
             if (isDrawEnable && app) {
                 //app.onAppPrePaint();
                 app.draw(canvas);
+                app.drawLayers( canvas );
             }
             if (surface) surface.requestAnimationFrame(drawFrame);
         }
@@ -76,7 +77,7 @@
                 }
             }
             if (app) {
-                //app.onAppResize(windowWidth, windowHeight, 1.0);
+                app.onResize(windowWidth, windowHeight, 1.0);
             }
         }
 
@@ -242,23 +243,27 @@
 
             document.addEventListener("keypress", (event) => {
                 let mod = getModifiers(event);
+                let key = getKey(event);
+                console.log( "keypress: ", key );
                 if (app) {
-                    app.onAppChar(event.key.charCodeAt(0), mod);
+                    app.onChar(event.key.charCodeAt(0), mod);
                 }
             });
 
             document.addEventListener("keydown", (event) => {
                 let mod = getModifiers(event);
                 let key = getKey(event);
+                console.log( "keyDown: ", key );
                 if (app) {
-                    app.onAppKey(key, CanvasKit.InputState.Down, mod);
+                    app.onKey(key, CanvasKit.InputState.Down, mod);
                 }
             });
             document.addEventListener("keyup", (event) => {
                 let mod = getModifiers(event);
                 let key = getKey(event);
+                console.log( "keyup: ", key );
                 if (app) {
-                    app.onAppKey(key, CanvasKit.InputState.Up, mod);
+                    app.onKey(key, CanvasKit.InputState.Up, mod);
                 }
             });
         });

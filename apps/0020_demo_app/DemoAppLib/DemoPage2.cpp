@@ -32,15 +32,3 @@ void DemoPage2::onPaint( SkCanvas& canvas ) {
     canvas.drawSimpleText(
             message, strlen(message), SkTextEncoding::kUTF8, 120, 120, font, paint);
 }
-
-bool DemoPage2::onMouse(int x, int y, skui::InputState, skui::ModifierKey) {
-    return false;    
-}
-
-bool DemoPage2::onMouseWheel(float delta, skui::ModifierKey) {
-    return false;
-}
-
-bool DemoPage2::onTouch(intptr_t owner, skui::InputState, float x, float y) {
-    return false;
-}
