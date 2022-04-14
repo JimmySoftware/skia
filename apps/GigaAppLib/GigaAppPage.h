@@ -45,7 +45,10 @@ public:
 
     void drawUI(SkCanvas &canvas) {
         if( ui ) {
+            canvas.save();
+            canvas.scale( fScale, fScale );
             ui->draw(canvas);
+            canvas.restore();
         }
     }
     GigaUI *ui;
