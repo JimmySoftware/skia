@@ -4,9 +4,9 @@
 DemoPage2::DemoPage2() {
     ui = UI( 
         Widget().bounds( 50, 100, 640, 480 ).bg_color( 0xFF6495ED )
-            .child( Widget().bounds( 10, 10, 200, 100 )
-                .child( Widget().bounds( 10, 10, 100, 80 ) )
-             )
+            .child( Widget().bounds( 10, 10, 200, 100 ).movable( true )
+                .child( Widget().bounds( 10, 10, 100, 80 ).movable( true ) )
+            )
             .child( Widget().bounds(220, 10, 200, 100 ) )
             .child( Widget().bounds(430, 10, 200, 200 ) )
     );

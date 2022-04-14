@@ -35,7 +35,7 @@ public:
     virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
     virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) { 
         if( ui ) {
-            if( ui->onMouse( x, y, state, modifiers ) ) {
+            if( ui->onMouse( x / fScale, y / fScale, state, modifiers ) ) {
                 return true;
             }
         }

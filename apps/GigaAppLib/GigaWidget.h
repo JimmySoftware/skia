@@ -20,6 +20,7 @@ public:
     int height() { return _height; }
     uint32_t bg_color() { return _bg_color; }
     uint32_t border_color() { return _border_color; }
+    bool movable() { return _movable; }
 
     inline GigaWidget &x( int x ) { _x = x; return *this; }
     inline GigaWidget &y( int y ) { _y = y; return *this; }
@@ -29,6 +30,9 @@ public:
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
     GigaWidget &child( GigaWidget &c );
+    inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
+
+    bool hitTest( int x, int y );
 
 protected:
     int _x;
@@ -37,6 +41,10 @@ protected:
     int _height;
     uint32_t _bg_color;
     uint32_t _border_color;
+    bool _movable;
+    bool _moving;
+    int _lastX;
+    int _lastY;
 
     std::vector<GigaWidget *>_children;
 

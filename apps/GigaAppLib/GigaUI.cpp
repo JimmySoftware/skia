@@ -23,8 +23,8 @@ void GigaUI::draw(SkCanvas &canvas) {
 }
 
 bool GigaUI::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
-    if( rootWidget ) {
-        rootWidget->onMouse( x, y, state, modifiers );
+    if( rootWidget && rootWidget->hitTest( x, y ) ) {
+        rootWidget->onMouse( x - rootWidget->x(), y - rootWidget->y(), state, modifiers );
     }
     return false;
 }
