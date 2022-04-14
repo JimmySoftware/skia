@@ -23,7 +23,7 @@ GigaWidget &Widget() {
 
 void GigaWidget::pre_draw(SkCanvas &canvas) {
     canvas.save();
-    canvas.clipRect( SkRect::MakeXYWH( _x, _y, _width, _height ) );
+    canvas.clipRect( SkRect::MakeXYWH( _x, _y, _width+1, _height+1 ) );
     canvas.translate( _x, _y );
 }
 
