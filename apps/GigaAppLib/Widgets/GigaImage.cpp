@@ -1,5 +1,9 @@
 #include "tools/Resources.h"
 #include "GigaImage.h"
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#include "emscripten/fetch.h"
+#endif
 
 GigaImage::GigaImage() {
 
@@ -9,7 +13,7 @@ GigaImage::~GigaImage() {
 
 }
 
-void GigaImage::setImage( sk_sp<SkImage> img ) {
+bool GigaImage::setImage( sk_sp<SkImage> img ) {
     image = img;
 
     if (this->image) {
@@ -18,16 +22,56 @@ void GigaImage::setImage( sk_sp<SkImage> img ) {
         _ow = _width;
         _oh = _height;
         SkDebugf( "Loaded image %i %i\n", _ow, _oh );
+        return true;
     }
+    return false;
 }
 
-bool GigaImage::load( const char *filename ) {
-    sk_sp<SkImage> img = SkImage::MakeFromEncoded(GetResourceAsData(filename), std::nullopt);
+bool GigaImage::setData( sk_sp<SkData> data ) {
+    sk_sp<SkImage> img = SkImage::MakeFromEncoded( data, std::nullopt );
     if( !img ) {
         return false;
     }
-    setImage(img);
+    return setImage(img);
+}
+
+#ifdef __EMSCRIPTEN__
+void emscriptenDownloadAsset( GigaImage *widget, 
+    std::string url, 
+    void (*onsuccess)(struct emscripten_fetch_t *fetch),
+    void (*onerror)(struct emscripten_fetch_t *fetch) ) {
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+
+    strcpy(attr.requestMethod, "GET");
+
+    std::string full_url = std::string( "/resources/") + url;
+    
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.userData = (void *)widget;
+    attr.onsuccess = onsuccess;
+    attr.onerror = onerror;
+    emscripten_fetch(&attr, full_url.c_str());
+}
+#endif
+
+bool GigaImage::load( const char *filename ) {
+#ifdef __EMSCRIPTEN__
+    emscriptenDownloadAsset( this, filename, 
+        [](struct emscripten_fetch_t *fetch) {
+            sk_sp<SkData> data = SkData::MakeWithCopy( fetch->data, fetch->numBytes );
+            GigaImage *widget = (GigaImage *)fetch->userData;
+            widget->setData( data );
+        },
+        [](struct emscripten_fetch_t *fetch) {
+            SkDebugf( "Download failed\n" );
+        } 
+    );
     return true;
+#else    
+    sk_sp<SkData> data = GetResourceAsData(filename);
+    return setData( data );
+#endif
 }
 
 GigaImage &Image( const char *filename ) {

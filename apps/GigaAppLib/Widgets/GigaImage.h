@@ -4,6 +4,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkData.h"
 #include "../GigaWidget.h"
 
 class GigaImage : public GigaWidget {
@@ -12,7 +13,8 @@ public:
     virtual ~GigaImage() override;
 
     bool load( const char *filename );
-    void setImage( sk_sp<SkImage> img );
+    bool setImage( sk_sp<SkImage> img );
+    bool setData( sk_sp<SkData> data );
 
 protected:
     sk_sp<SkImage> image;

@@ -325,13 +325,16 @@ skia_wasm_lib("canvaskit") {
     "-sDYNAMIC_EXECUTION=0",
     "-sEXPORT_NAME=CanvasKitInit",
     "-sEXPORTED_FUNCTIONS=[_malloc,_free]",
-    "-sFORCE_FILESYSTEM=0",
-    "-sFILESYSTEM=0",
+    "-sFORCE_FILESYSTEM=1",
+    "-sFILESYSTEM=1",
     "-sMODULARIZE",
     "-sNO_EXIT_RUNTIME=1",
     "-sINITIAL_MEMORY=128MB",
     "-sWASM",
     "-sSTRICT=1",
+    "-sFETCH=1",
+    "-sASSERTIONS=1",
+    "--preload-file resources"    
   ]
 
   defines = []
