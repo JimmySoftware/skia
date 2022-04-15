@@ -286,11 +286,11 @@ public class ViewerActivity
             final float y = event.getY(i);
             final int owner = event.getPointerId(i);
             int action = event.getAction() & MotionEvent.ACTION_MASK;
-            //Toast.makeText(this,"onTouch",Toast.LENGTH_SHORT).show();
-            //onTouched(mApplication.getNativeHandle(), owner, action, x, y);
+            //Toast.makeText(this,"onTouch " + action,Toast.LENGTH_SHORT).show();
+            onTouched(mApplication.getNativeHandle(), owner, action, x, y);
         }
-        return gDetector.onTouchEvent(event);
-        //return true;
+        //return gDetector.onTouchEvent(event);
+        return true;
     }
 
     /*

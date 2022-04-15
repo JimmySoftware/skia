@@ -39,6 +39,7 @@ static_library("GigaAppLib") {
       "TemplateLayer.cpp",
       "GigaUI.cpp",
       "GigaWidget.cpp",
+      "Widgets/GigaImage.cpp"
     ]
   }
 }

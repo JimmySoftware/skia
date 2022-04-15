@@ -11,6 +11,8 @@
 #include "include/core/SkSurface.h"
 #include "tools/sk_app/WindowContext.h"
 
+extern std::string strDebug;
+
 namespace sk_app {
 
 Window::Window() {}

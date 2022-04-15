@@ -4,6 +4,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "GigaWidget.h"
+#include "Widgets/GigaImage.h"
 
 class GigaUI {
 public:
@@ -12,6 +13,7 @@ public:
 
     virtual void draw(SkCanvas &canvas);
     virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey);
+    virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y);
 
     GigaWidget *rootWidget;
 };

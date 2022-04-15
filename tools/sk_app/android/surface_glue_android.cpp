@@ -27,6 +27,7 @@
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/android/Window_android.h"
 
+extern std::string strDebug;
 
 namespace sk_app {
 
@@ -174,6 +175,7 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
         }
         case kTouched: {
             auto it = ANDROID_TO_WINDOW_STATEMAP.find(message.fTouchState);
+
             if (it != ANDROID_TO_WINDOW_STATEMAP.end()) {
                 skiaAndroidApp->fWindow->onTouch(message.fTouchOwner, it->second, message.fTouchX,
                                                  message.fTouchY);
@@ -298,6 +300,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onKeyPress
 
 extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
     JNIEnv* env, jobject activity, jlong handle, jint owner, jint state, jfloat x, jfloat y) {
+    SkDebugf( "**************** Java_org_skia_viewer_ViewerActivity_onTouched\n" );
+
+
     auto skiaAndroidApp = (SkiaAndroidApp*)handle;
     Message message(kTouched);
     message.fTouchOwner = owner;
@@ -305,6 +310,7 @@ extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onTouched(
     message.fTouchX = x;
     message.fTouchY = y;
     skiaAndroidApp->postMessage(message);
+    
 }
 
 extern "C" JNIEXPORT void JNICALL Java_org_skia_viewer_ViewerActivity_onFlinged(

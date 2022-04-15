@@ -6,6 +6,8 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 
+extern std::string strDebug;
+
 using namespace sk_app;
 
 Application* Application::Create(int argc, char** argv, void* platformData) {
@@ -69,7 +71,6 @@ void GigaMainApp::updateTitle() {
 void GigaMainApp::onBackendCreated() {
     this->updateTitle();
 
-    SkDebugf( "GigaMainApp::onBackendCreated\n" );
     onResize( fWindow->width(), fWindow->height() );
     gigaApp->setup();
 
@@ -97,8 +98,6 @@ void GigaMainApp::onResize(int width, int height) {
     iWidth = width;
     iHeight = height;
     fScale = fWindow->scaleFactor();
-    SkDebugf( "GigaMainApp::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
-
     gigaApp->onResize( width, height, fScale );
 }
 
@@ -137,7 +136,6 @@ bool GigaMainApp::onMouseWheel(float delta, skui::ModifierKey modifiers) {
 }
 
 bool GigaMainApp::onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
-    SkDebugf( "GigaMainApp::onTouch\n");
     return gigaApp->onTouch( owner, state, x, y ); 
 }
 

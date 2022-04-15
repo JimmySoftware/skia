@@ -26,9 +26,7 @@ public:
         iWidth = width;
         iHeight = height;
         fScale = scale;
-        SkDebugf( "GigaAppLayer::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
         for (int i = 0; i < fPages.count(); ++i ) {
-            SkDebugf( "Call %i\n", i );
             fPages[i]->onResize( width, height, scale );
         }        
     }
@@ -91,10 +89,12 @@ public:
     }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
     virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
-        SkDebugf( "Touch %0.2f %0.2f\n", x, y );
-        if( state == skui::InputState::kDown ) {
-            nextPage();
-        }
+        int pg = getCurrentPageIndex();
+        if( pg >= 0 && pg <fPages.count() ) {
+            if( fPages[pg]->onTouch( owner, state, x, y ) ) {
+                return true;
+            }
+        }    
         return false; 
     }
     virtual void onFontChange() {}

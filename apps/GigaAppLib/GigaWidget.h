@@ -3,6 +3,8 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "tools/skui/ModifierKey.h"
+#include "tools/skui/InputState.h"
 
 class GigaWidget {
 public:    
@@ -13,6 +15,7 @@ public:
     virtual void draw(SkCanvas &canvas);
     virtual void post_draw(SkCanvas &canvas);
     virtual bool onMouse(int x, int y, skui::InputState, skui::ModifierKey);
+    virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y);
 
     int x() { return _x; }
     int y() { return _y; }
@@ -24,9 +27,9 @@ public:
 
     inline GigaWidget &x( int x ) { _x = x; return *this; }
     inline GigaWidget &y( int y ) { _y = y; return *this; }
-    inline GigaWidget &width( int w ) { _width = w; return *this; }
-    inline GigaWidget &height( int h ) { _height = h; return *this; }
-    inline GigaWidget &bounds( int x, int y, int w, int h ) { _x=x; _y=y; _width=w; _height=h; return *this; }
+    GigaWidget &width( int w );
+    GigaWidget &height( int h );
+    GigaWidget &bounds( int x, int y, int w, int h );
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
     GigaWidget &child( GigaWidget &c );
@@ -39,6 +42,10 @@ protected:
     int _y;
     int _width;
     int _height;
+
+    int _ow;
+    int _oh;
+
     uint32_t _bg_color;
     uint32_t _border_color;
     bool _movable;
@@ -54,6 +61,7 @@ protected:
     virtual void _draw_border(SkCanvas &canvas);    
 };
 
+extern std::vector<GigaWidget *>widgets_storage;
 GigaWidget &Widget();
 
 #endif //__GIGA_WIDGET_H__

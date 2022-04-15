@@ -23,7 +23,6 @@ public:
         iWidth = width;
         iHeight = height;
         fScale = scale;
-        SkDebugf( "GigaApp::onResize %i %i %0.2f (%i)\n", iWidth, iHeight, fScale, fLayers.count() );
         for (int i = 0; i < fLayers.count(); ++i) {
             fLayers[i]->onResize( width, height, scale );
         }        

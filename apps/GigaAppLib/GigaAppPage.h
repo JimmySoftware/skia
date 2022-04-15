@@ -9,6 +9,8 @@
 #include "src/utils/SkUTF.h"
 #include "GigaUI.h"
 
+extern std::string strDebug;
+
 class GigaAppPage {
 public:
     GigaAppPage() : fActive(false), fVisible(false) {
@@ -27,7 +29,6 @@ public:
         iWidth = width;
         iHeight = height;
         fScale = scale;
-        SkDebugf( "GigaAppPage::onResize %i %i %0.2f\n", iWidth, iHeight, fScale );
     }
     virtual void onUpdate() {}
     virtual void onPaint(SkCanvas &canvas) {}
@@ -42,7 +43,14 @@ public:
         return false; 
     }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
-    virtual bool onTouch(intptr_t owner, skui::InputState, float x, float y) { return false; }
+    virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
+        if( ui ) {
+            if( ui->onTouch( owner, state, x / fScale, y / fScale ) ) {
+                return true;
+            }
+        }        
+        return false; 
+    }
     virtual void onFontChange() {}
 
     // Platform-detected gesture events

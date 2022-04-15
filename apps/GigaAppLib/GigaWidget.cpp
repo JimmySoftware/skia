@@ -9,6 +9,9 @@ GigaWidget::GigaWidget() {
     _y = 0;
     _width = 0;
     _height = 0;
+
+    _ow = 0;
+    _oh = 0;
     
     _bg_color = 0xFFFFFFFF;
     _border_color = 0xFF000000;
@@ -25,6 +28,38 @@ GigaWidget &Widget() {
     GigaWidget *w = new GigaWidget();
     widgets_storage.push_back( w );
     return *w;
+}
+
+GigaWidget &GigaWidget::width( int w ) { 
+    if( w == 0 ) {
+        _width = _ow;
+    }
+    else {
+        _width = w; 
+    }
+    return *this; 
+}
+
+GigaWidget &GigaWidget::height( int h ) { 
+    if( h == 0 ) {
+        _height = _oh;
+    }
+    else {
+        _height = h; 
+    }
+    return *this; 
+}
+
+GigaWidget &GigaWidget::bounds( int x, int y, int w, int h ) { 
+    _x=x; 
+    _y=y; 
+    width( w );
+    height( h );
+    return *this; 
+}
+
+bool GigaWidget::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
+    return onMouse( x, y, state, skui::ModifierKey::kNone );
 }
 
 bool GigaWidget::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
@@ -61,9 +96,6 @@ bool GigaWidget::onMouse(int x, int y, skui::InputState state, skui::ModifierKey
             return true;
         }
     }
-
-  
-
     return false;
 }
 

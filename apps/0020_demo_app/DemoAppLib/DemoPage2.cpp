@@ -9,6 +9,7 @@ DemoPage2::DemoPage2() {
             )
             .child( Widget().bounds(220, 10, 200, 100 ) )
             .child( Widget().bounds(430, 10, 200, 200 ) )
+            .child( Image( "images/ElonMusk.png" ).bounds( 10, 120, 0, 0 ) )
     );
 }
 
