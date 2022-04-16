@@ -91,9 +91,11 @@ void FPSLayer::onPaint(SkCanvas& canvas) {
             message, strlen(message), SkTextEncoding::kUTF8, 2, 2 + 2 * fontSize * scale, font, paint);
 #endif   
 
-    sprintf(message, "Debug: %s", strDebug.c_str());
-    canvas.drawSimpleText(
-            message, strlen(message), SkTextEncoding::kUTF8, 2, 2 + 3 * fontSize * scale, font, paint);
+    if( strDebug.length() ) {
+        sprintf(message, "Debug: %s", strDebug.c_str());
+        canvas.drawSimpleText(
+                message, strlen(message), SkTextEncoding::kUTF8, 2, 2 + 3 * fontSize * scale, font, paint);
+    }
 }
 
 bool FPSLayer::onChar(SkUnichar c, skui::ModifierKey) {

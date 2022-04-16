@@ -5,6 +5,7 @@
 extern std::string strDebug;
 
 GigaUI::GigaUI( GigaWidget *_root ) {
+    captureMouseWidget = NULL;
     rootWidget = _root;
     _root->ui(this);
 }

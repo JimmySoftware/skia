@@ -2067,7 +2067,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("draw", &DemoApp::draw)
         .function("drawLayers", &DemoApp::drawLayers)
         .function("onResize", &DemoApp::onResize)     
-        .function("onKey", &DemoApp::onKey);        
+        .function("onKey", &DemoApp::onKey)      
+        .function("onMouse", &DemoApp::onMouse);        
 
     /*
     class_<SkottieViewerApp>("SkottieViewerApp")
