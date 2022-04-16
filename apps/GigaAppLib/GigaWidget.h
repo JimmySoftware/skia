@@ -6,6 +6,8 @@
 #include "tools/skui/ModifierKey.h"
 #include "tools/skui/InputState.h"
 
+class GigaUI;
+
 class GigaWidget {
 public:    
     GigaWidget();
@@ -19,29 +21,40 @@ public:
 
     int x() { return _x; }
     int y() { return _y; }
+    int ax() { return _ax; }
+    int ay() { return _ay; }
     int width() { return _width; }
     int height() { return _height; }
     uint32_t bg_color() { return _bg_color; }
     uint32_t border_color() { return _border_color; }
     bool movable() { return _movable; }
+    GigaUI *ui() { return _ui; }
 
-    inline GigaWidget &x( int x ) { _x = x; return *this; }
-    inline GigaWidget &y( int y ) { _y = y; return *this; }
+    GigaWidget &x( int ix );
+    GigaWidget &y( int iy );
     GigaWidget &width( int w );
     GigaWidget &height( int h );
-    GigaWidget &bounds( int x, int y, int w, int h );
+    GigaWidget &bounds( int ix, int iy, int w, int h );
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
     GigaWidget &child( GigaWidget &c );
     inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
 
+    void setParent( GigaWidget *p );
     bool hitTest( int x, int y );
 
+    void ui( GigaUI *iui );
+
 protected:
+    GigaUI *_ui;
+
     int _x;
     int _y;
     int _width;
     int _height;
+
+    int _ax;
+    int _ay;
 
     int _ow;
     int _oh;
@@ -54,6 +67,7 @@ protected:
     int _lastY;
 
     std::vector<GigaWidget *>_children;
+    GigaWidget *_parent;
 
     virtual void _draw_bg(SkCanvas &canvas);
     virtual void _draw_content(SkCanvas &canvas);

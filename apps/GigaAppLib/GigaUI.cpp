@@ -6,6 +6,7 @@ extern std::string strDebug;
 
 GigaUI::GigaUI( GigaWidget *_root ) {
     rootWidget = _root;
+    _root->ui(this);
 }
 
 GigaUI::~GigaUI() {
@@ -25,18 +26,20 @@ void GigaUI::draw(SkCanvas &canvas) {
 }
 
 bool GigaUI::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
-    if( rootWidget && rootWidget->hitTest( x, y ) ) {
+    if( captureMouseWidget ) {
+        captureMouseWidget->onMouse( x - captureMouseWidget->ax(), y - captureMouseWidget->ay(), state, modifiers );
+    }
+    else if( rootWidget && rootWidget->hitTest( x, y ) ) {
         rootWidget->onMouse( x - rootWidget->x(), y - rootWidget->y(), state, modifiers );
     }
     return false;
 }
 
 bool GigaUI::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
-    char sz[128];
-    sprintf( sz, "GigaUI::onTouch %0.2f %0.2f", x, y );
-    strDebug = std::string( sz );
-
-    if( rootWidget && rootWidget->hitTest( x, y ) ) {
+    if( captureMouseWidget ) {
+        captureMouseWidget->onTouch( owner, state, x - captureMouseWidget->ax(), y - captureMouseWidget->ay() );
+    }
+    else if( rootWidget && rootWidget->hitTest( x, y ) ) {
         rootWidget->onTouch( owner, state, x - rootWidget->x(), y - rootWidget->y() );
     }
     return false;

@@ -7,6 +7,8 @@
 #include "include/core/SkData.h"
 #include "../GigaWidget.h"
 
+class GigaWidget;
+
 class GigaImage : public GigaWidget {
 public:    
     GigaImage();
