@@ -7,6 +7,7 @@
 #include "tools/skui/InputState.h"
 
 class GigaUI;
+class GigaFont;
 
 class GigaWidget {
 public:    
@@ -38,7 +39,11 @@ public:
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
     GigaWidget &child( GigaWidget &c );
+    GigaWidget &_( GigaWidget &c ) { return child(c); }
     inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
+    GigaWidget &font( GigaFont &_font ) {
+        return *this;
+    }
 
     void setParent( GigaWidget *p );
     bool hitTest( int x, int y );
@@ -73,6 +78,13 @@ protected:
     virtual void _draw_content(SkCanvas &canvas);
     virtual void _draw_children(SkCanvas &canvas);
     virtual void _draw_border(SkCanvas &canvas);    
+
+#ifdef __EMSCRIPTEN__
+    void emscriptenDownloadAsset( GigaImage *widget, 
+        std::string url, 
+        void (*onsuccess)(struct emscripten_fetch_t *fetch),
+        void (*onerror)(struct emscripten_fetch_t *fetch) ) 
+#endif     
 };
 
 extern std::vector<GigaWidget *>widgets_storage;

@@ -3,20 +3,27 @@
 #include "GigaUI.h"
 
 extern std::string strDebug;
+std::vector<GigaUI *>ui_storage;
 
-GigaUI::GigaUI( GigaWidget *_root ) {
+GigaUI::GigaUI() {
     captureMouseWidget = NULL;
-    rootWidget = _root;
-    _root->ui(this);
+    rootWidget = NULL;
+}
+
+GigaUI::GigaUI( GigaWidget &_root ) {
+    captureMouseWidget = NULL;
+    root( _root );
 }
 
 GigaUI::~GigaUI() {
 
 }
 
-GigaUI *UI( GigaWidget &root ) {
-    return new GigaUI( &root );
-}
+GigaUI &createUI() {
+    GigaUI *_ui = new GigaUI();
+    ui_storage.push_back( _ui );
+    return *_ui; 
+} 
 
 void GigaUI::draw(SkCanvas &canvas) {
     if( rootWidget ) {

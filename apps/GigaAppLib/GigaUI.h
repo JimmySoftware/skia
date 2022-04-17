@@ -4,13 +4,15 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "GigaWidget.h"
+#include "GigaFont.h"
 #include "Widgets/GigaImage.h"
 
 class GigaWidget;
 
 class GigaUI {
 public:
-    GigaUI( GigaWidget *root );
+    GigaUI();
+    GigaUI(GigaWidget &root);
     virtual ~GigaUI();
 
     virtual void draw(SkCanvas &canvas);
@@ -20,11 +22,20 @@ public:
     void captureMouse( GigaWidget *widget ) { captureMouseWidget = widget; }
     void releaseMouse() { captureMouseWidget = NULL; }
 
+    GigaUI &root( GigaWidget &root ) {
+        rootWidget = &root;
+        root.ui(this);
+        return *this;
+    }
+    GigaUI &font( GigaFont &_font ) {
+        return *this;
+    }
+
     GigaWidget *rootWidget;
 
     GigaWidget *captureMouseWidget;
 };
 
-GigaUI *UI( GigaWidget &root );
+GigaUI &createUI();
 
 #endif //__GIGA_UI_H__

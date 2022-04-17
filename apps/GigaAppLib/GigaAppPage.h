@@ -14,7 +14,7 @@ extern std::string strDebug;
 class GigaAppPage {
 public:
     GigaAppPage() : fActive(false), fVisible(false) {
-        ui = NULL;
+        _ui = NULL;
     }
     virtual ~GigaAppPage() = default;
 
@@ -35,8 +35,8 @@ public:
     virtual bool onChar(SkUnichar c, skui::ModifierKey) { return false; }
     virtual bool onKey(skui::Key, skui::InputState, skui::ModifierKey) { return false; }
     virtual bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) { 
-        if( ui ) {
-            if( ui->onMouse( x / fScale, y / fScale, state, modifiers ) ) {
+        if( _ui ) {
+            if( _ui->onMouse( x / fScale, y / fScale, state, modifiers ) ) {
                 return true;
             }
         }
@@ -44,8 +44,8 @@ public:
     }
     virtual bool onMouseWheel(float delta, skui::ModifierKey) { return false; }
     virtual bool onTouch(intptr_t owner, skui::InputState state, float x, float y) { 
-        if( ui ) {
-            if( ui->onTouch( owner, state, x / fScale, y / fScale ) ) {
+        if( _ui ) {
+            if( _ui->onTouch( owner, state, x / fScale, y / fScale ) ) {
                 return true;
             }
         }        
@@ -59,15 +59,20 @@ public:
     virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
 
     void drawUI(SkCanvas &canvas) {
-        if( ui ) {
+        if( _ui ) {
             canvas.save();
             canvas.scale( fScale, fScale );
-            ui->draw(canvas);
+            _ui->draw(canvas);
             canvas.restore();
         }
     }
-    GigaUI *ui;
+    GigaUI &UI( GigaWidget &w ) {
+        _ui = &createUI( );
+        _ui->root(w);
+        return *_ui;
+    }
 protected:
+    GigaUI *_ui;
     bool fActive;
     bool fVisible;
 

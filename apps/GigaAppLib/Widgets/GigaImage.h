@@ -21,7 +21,8 @@ public:
 protected:
     sk_sp<SkImage> image;
 
-    virtual void _draw_content(SkCanvas &canvas) override;    
+    virtual void _draw_content(SkCanvas &canvas) override;   
+    
 };
 
 GigaImage &Image( const char *filename );
