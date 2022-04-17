@@ -1,5 +1,6 @@
 #include "tools/Resources.h"
 #include "GigaImage.h"
+#include "../GigaUtils.h"
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
 #include "emscripten/fetch.h"

@@ -77,14 +77,7 @@ protected:
     virtual void _draw_bg(SkCanvas &canvas);
     virtual void _draw_content(SkCanvas &canvas);
     virtual void _draw_children(SkCanvas &canvas);
-    virtual void _draw_border(SkCanvas &canvas);    
-
-#ifdef __EMSCRIPTEN__
-    void emscriptenDownloadAsset( GigaImage *widget, 
-        std::string url, 
-        void (*onsuccess)(struct emscripten_fetch_t *fetch),
-        void (*onerror)(struct emscripten_fetch_t *fetch) ) 
-#endif     
+    virtual void _draw_border(SkCanvas &canvas);       
 };
 
 extern std::vector<GigaWidget *>widgets_storage;
