@@ -33,6 +33,12 @@ void GigaUI::draw(SkCanvas &canvas) {
     }    
 }
 
+GigaUI &GigaUI::root( GigaWidget &root ) {
+    rootWidget = &root;
+    root.ui(this);
+    return *this;
+}
+
 bool GigaUI::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers ) {
     if( captureMouseWidget ) {
         captureMouseWidget->onMouse( x - captureMouseWidget->ax(), y - captureMouseWidget->ay(), state, modifiers );

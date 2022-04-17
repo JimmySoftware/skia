@@ -6,6 +6,7 @@
 #include "GigaWidget.h"
 #include "GigaFont.h"
 #include "Widgets/GigaImage.h"
+#include "Widgets/GigaText.h"
 
 class GigaWidget;
 
@@ -22,14 +23,7 @@ public:
     void captureMouse( GigaWidget *widget ) { captureMouseWidget = widget; }
     void releaseMouse() { captureMouseWidget = NULL; }
 
-    GigaUI &root( GigaWidget &root ) {
-        rootWidget = &root;
-        root.ui(this);
-        return *this;
-    }
-    GigaUI &font( GigaFont &_font ) {
-        return *this;
-    }
+    GigaUI &root( GigaWidget &root );
 
     GigaWidget *rootWidget;
 

@@ -18,6 +18,7 @@ public:
 
 protected:
     std::string _text;
+    int _size;
 
     virtual void _draw_content(SkCanvas &canvas) override;    
 };

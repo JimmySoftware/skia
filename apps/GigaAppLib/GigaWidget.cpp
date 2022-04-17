@@ -24,6 +24,9 @@ GigaWidget::GigaWidget() {
 
     _movable = false;
     _moving = false;
+
+    _font = NULL;
+    _ofont = NULL;
 }
 
 GigaWidget::~GigaWidget() {
@@ -42,6 +45,27 @@ void GigaWidget::ui( GigaUI *iui ) {
         GigaWidget *w = _children[i];
         w->ui( iui );
     }    
+}
+
+void GigaWidget::setFont( GigaFont *f ) {
+    if( _ofont ) {
+        return;
+    }
+    _font = f;
+    for( int i=0; i<_children.size(); i++ ) {
+        GigaWidget *w = _children[i];
+        w->setFont( _font );
+    }
+}
+
+GigaWidget &GigaWidget::font( GigaFont &font ) {
+    _font = &font;
+    _ofont = &font;
+    for( int i=0; i<_children.size(); i++ ) {
+        GigaWidget *w = _children[i];
+        w->setFont( _font );
+    }
+    return *this;
 }
 
 GigaWidget &GigaWidget::x( int ix ) { 
@@ -92,6 +116,12 @@ GigaWidget &GigaWidget::bounds( int ix, int iy, int w, int h ) {
     width( w );
     height( h );
     return *this; 
+}
+
+GigaWidget &GigaWidget::posn( int ix, int iy ) {
+    x(ix); 
+    y(iy); 
+    return *this;     
 }
 
 bool GigaWidget::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
@@ -210,6 +240,7 @@ void GigaWidget::setParent( GigaWidget *c ) {
     
     if( _parent ) {
         ui( _parent->ui() );
+        setFont( _parent->font() );
         _ax = _parent->_ax + _x;
         _ay = _parent->_ay + _y;
     }

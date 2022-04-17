@@ -30,28 +30,31 @@ public:
     uint32_t border_color() { return _border_color; }
     bool movable() { return _movable; }
     GigaUI *ui() { return _ui; }
+    GigaFont *font() { return _font; }
 
     GigaWidget &x( int ix );
     GigaWidget &y( int iy );
     GigaWidget &width( int w );
     GigaWidget &height( int h );
     GigaWidget &bounds( int ix, int iy, int w, int h );
+    GigaWidget &posn( int ix, int iy );
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
     GigaWidget &child( GigaWidget &c );
     GigaWidget &_( GigaWidget &c ) { return child(c); }
     inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
-    GigaWidget &font( GigaFont &_font ) {
-        return *this;
-    }
+    GigaWidget &font( GigaFont &font );
 
     void setParent( GigaWidget *p );
+    void setFont( GigaFont *f );
     bool hitTest( int x, int y );
 
     void ui( GigaUI *iui );
 
 protected:
     GigaUI *_ui;
+    GigaFont *_font;
+    GigaFont *_ofont;
 
     int _x;
     int _y;
