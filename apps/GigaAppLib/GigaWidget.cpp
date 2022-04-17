@@ -92,21 +92,23 @@ GigaWidget &GigaWidget::y( int iy ) {
 
 GigaWidget &GigaWidget::width( int w ) { 
     if( w == 0 ) {
-        _width = _ow;
+        _width = _contentWidth();
     }
     else {
-        _width = w; 
+        _width = w;
     }
+     _ow = w;
     return *this; 
 }
 
 GigaWidget &GigaWidget::height( int h ) { 
     if( h == 0 ) {
-        _height = _oh;
+        _height = _contentHeight();
     }
     else {
-        _height = h; 
-    }
+        _height = h;
+    }    
+    _oh = h;
     return *this; 
 }
 

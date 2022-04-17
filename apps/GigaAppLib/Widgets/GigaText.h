@@ -16,9 +16,21 @@ public:
     const char *text() { return _text.c_str(); }
     GigaText &text( const char *text );
 
+    GigaText &Regular();
+    GigaText &Bold();
+    GigaText &Italic();
+    GigaText &BoldItalic();
+    GigaText &Icon();
+
+    GigaText &size( const int s );
+
+    virtual int _contentWidth() override;
+    virtual int _contentHeight() override;     
+
 protected:
     std::string _text;
     int _size;
+    int _tfIndex;
 
     virtual void _draw_content(SkCanvas &canvas) override;    
 };

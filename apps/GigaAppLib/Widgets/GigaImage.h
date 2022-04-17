@@ -18,6 +18,9 @@ public:
     bool setImage( sk_sp<SkImage> img );
     bool setData( sk_sp<SkData> data );
 
+    virtual int _contentWidth() override;
+    virtual int _contentHeight() override;   
+
 protected:
     sk_sp<SkImage> image;
 

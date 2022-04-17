@@ -13,10 +13,14 @@ DemoPage2::DemoPage2() {
                           .movable(true)
                           ._(Widget().bounds(10, 10, 100, 80).movable(true))
                           ._(Widget().bounds(120, 10, 100, 80).movable(true)))
-               ._(Image("images/ElonMusk.png").bounds(10, 120, 0, 0).movable(true))
+               ._(Image("images/ElonMusk.png").posn(10, 120).movable(true))
                ._(Widget().bounds(220, 10, 200, 100))
                ._(Widget().bounds(430, 10, 200, 200))
-               ._(Text("Hello world...สวัสดีชาวโลก!").bounds(430, 220, 200, 50).movable(true)));
+               ._(Text("Hello world...สวัสดีชาวโลกนี้")
+                          .BoldItalic()
+                          .size(16)
+                          .posn(430, 220)
+                          .movable(true)));
 }
 
 DemoPage2::~DemoPage2() {}

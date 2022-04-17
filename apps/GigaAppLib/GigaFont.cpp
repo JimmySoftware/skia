@@ -12,11 +12,9 @@ GigaFont &Font() {
 }
 
 GigaFont::GigaFont() {
-    _tfRegular = nullptr;
-    _tfBold = nullptr;
-    _tfBoldItalic = nullptr;
-    _tfItalic = nullptr;
-    _tfIcon= nullptr;
+    for( int i=0; i<FONT_MAX; i++ ) {
+        _typeface[i] = nullptr;
+    }
 }
 
 GigaFont::~GigaFont() {
@@ -24,7 +22,23 @@ GigaFont::~GigaFont() {
 }
 
 void GigaFont::_Regular( sk_sp<SkData> data ) {
-    _tfRegular = SkTypeface::MakeFromData( data );
+    _typeface[FONT_REGULAR] = SkTypeface::MakeFromData( data );
+}
+
+void GigaFont::_Bold( sk_sp<SkData> data ) {
+    _typeface[FONT_BOLD] = SkTypeface::MakeFromData( data );
+}
+
+void GigaFont::_Italic( sk_sp<SkData> data ) {
+    _typeface[FONT_ITALIC] = SkTypeface::MakeFromData( data );
+}
+
+void GigaFont::_BoldItalic( sk_sp<SkData> data ) {
+    _typeface[FONT_BOLDITALIC] = SkTypeface::MakeFromData( data );
+}
+
+void GigaFont::_Icon( sk_sp<SkData> data ) {
+    _typeface[FONT_ICON] = SkTypeface::MakeFromData( data );
 }
 
 GigaFont &GigaFont::Regular( std::string filename ) {  
@@ -47,19 +61,83 @@ GigaFont &GigaFont::Regular( std::string filename ) {
     return *this;
 }
 
-GigaFont &GigaFont::Bold( std::string fn ) {
+GigaFont &GigaFont::Bold( std::string filename ) {
+#ifdef __EMSCRIPTEN__
+    emscriptenDownloadAsset( this, filename, 
+        [](struct emscripten_fetch_t *fetch) {
+            sk_sp<SkData> data = SkData::MakeWithCopy( fetch->data, fetch->numBytes );
+            GigaFont *font = (GigaFont *)fetch->userData;
+            font->_Bold( data );
+        },
+        [](struct emscripten_fetch_t *fetch) {
+            SkDebugf( "Download failed\n" );
+        } 
+    );
+    return true;
+#else    
+    sk_sp<SkData> data = GetResourceAsData(filename.c_str());
+    _Bold( data );
+#endif    
     return *this;
 }
 
-GigaFont &GigaFont::Italic( std::string fn ) {
+GigaFont &GigaFont::Italic( std::string filename ) {
+#ifdef __EMSCRIPTEN__
+    emscriptenDownloadAsset( this, filename, 
+        [](struct emscripten_fetch_t *fetch) {
+            sk_sp<SkData> data = SkData::MakeWithCopy( fetch->data, fetch->numBytes );
+            GigaFont *font = (GigaFont *)fetch->userData;
+            font->_Italic( data );
+        },
+        [](struct emscripten_fetch_t *fetch) {
+            SkDebugf( "Download failed\n" );
+        } 
+    );
+    return true;
+#else    
+    sk_sp<SkData> data = GetResourceAsData(filename.c_str());
+    _Italic( data );
+#endif    
     return *this;
 }
 
-GigaFont &GigaFont::BoldItalic( std::string fn ) {
+GigaFont &GigaFont::BoldItalic( std::string filename ) {
+#ifdef __EMSCRIPTEN__
+    emscriptenDownloadAsset( this, filename, 
+        [](struct emscripten_fetch_t *fetch) {
+            sk_sp<SkData> data = SkData::MakeWithCopy( fetch->data, fetch->numBytes );
+            GigaFont *font = (GigaFont *)fetch->userData;
+            font->_BoldItalic( data );
+        },
+        [](struct emscripten_fetch_t *fetch) {
+            SkDebugf( "Download failed\n" );
+        } 
+    );
+    return true;
+#else    
+    sk_sp<SkData> data = GetResourceAsData(filename.c_str());
+    _BoldItalic( data );
+#endif    
     return *this;
 }
 
-GigaFont &GigaFont::Icon( std::string fn ) {
+GigaFont &GigaFont::Icon( std::string filename ) {
+#ifdef __EMSCRIPTEN__
+    emscriptenDownloadAsset( this, filename, 
+        [](struct emscripten_fetch_t *fetch) {
+            sk_sp<SkData> data = SkData::MakeWithCopy( fetch->data, fetch->numBytes );
+            GigaFont *font = (GigaFont *)fetch->userData;
+            font->_Icon( data );
+        },
+        [](struct emscripten_fetch_t *fetch) {
+            SkDebugf( "Download failed\n" );
+        } 
+    );
+    return true;
+#else    
+    sk_sp<SkData> data = GetResourceAsData(filename.c_str());
+    _Icon( data );
+#endif    
     return *this;
 }
 

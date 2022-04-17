@@ -18,14 +18,23 @@ bool GigaImage::setImage( sk_sp<SkImage> img ) {
     image = img;
 
     if (this->image) {
-        _width = this->image->width();
-        _height = this->image->height();
-        _ow = _width;
-        _oh = _height;
-        SkDebugf( "Loaded image %i %i\n", _ow, _oh );
+        if( _ow == 0 ) {
+            _width = _contentWidth();
+        }
+        if( _oh == 0 ) {
+            _height = _contentHeight();
+        }
         return true;
     }
     return false;
+}
+
+int GigaImage::_contentWidth() {
+    return this->image->width();
+}
+
+int GigaImage::_contentHeight() {
+    return this->image->height();
 }
 
 bool GigaImage::setData( sk_sp<SkData> data ) {
@@ -68,7 +77,6 @@ void GigaImage::_draw_content(SkCanvas &canvas) {
         paint.setAntiAlias(true);
         //if( filterColor || changeColorByValue )
         //    paint.setColorFilter(SkColorFilters::Blend(color, SkBlendMode::kSrcATop));
-
         canvas.drawImage(image, (_width - image->width()) / 2, (_height - image->height()) / 2, 
             SkSamplingOptions(), &paint);
     }

@@ -51,6 +51,9 @@ public:
 
     void ui( GigaUI *iui );
 
+    virtual int _contentWidth() { return 0; }
+    virtual int _contentHeight() { return 0; }
+
 protected:
     GigaUI *_ui;
     GigaFont *_font;

@@ -11,6 +11,7 @@ const int FONT_BOLD = 1;
 const int FONT_ITALIC = 2;
 const int FONT_BOLDITALIC = 3;
 const int FONT_ICON = 4;
+const int FONT_MAX = 5;
 
 class GigaFont {
 public:
@@ -23,26 +24,16 @@ public:
     GigaFont &BoldItalic( std::string fn );
     GigaFont &Icon( std::string fn );
 
-    sk_sp<SkTypeface>Regular() { return _tfRegular; }
-    sk_sp<SkTypeface>Bold() { return _tfBold; }
-    sk_sp<SkTypeface>Italic() { return _tfItalic; }
-    sk_sp<SkTypeface>BoldItalic() { return _tfBoldItalic; }
-    sk_sp<SkTypeface>Icon() { return _tfIcon; }
-
     void _Regular( sk_sp<SkData> data );
     void _Bold( sk_sp<SkData> data );
     void _Italic( sk_sp<SkData> data );
     void _BoldItalic( sk_sp<SkData> data );
     void _Icon( sk_sp<SkData> data );
 
-    SkFont *make( const int t, int size );
+    sk_sp<SkTypeface> typeface( int n ) { return _typeface[n]; }
 
 protected:
-    sk_sp<SkTypeface> _tfRegular;
-    sk_sp<SkTypeface> _tfBold;
-    sk_sp<SkTypeface> _tfItalic;
-    sk_sp<SkTypeface> _tfBoldItalic;
-    sk_sp<SkTypeface> _tfIcon;
+    sk_sp<SkTypeface> _typeface[5];
 };
 
 GigaFont &Font();
