@@ -6,6 +6,7 @@
 #include "GigaWidget.h"
 #include "GigaFont.h"
 #include "Containers/GigaColumn.h"
+#include "Containers/GigaRow.h"
 #include "Widgets/GigaImage.h"
 #include "Widgets/GigaText.h"
 #include "Widgets/GigaIcon.h"

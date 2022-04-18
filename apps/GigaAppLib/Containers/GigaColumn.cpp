@@ -20,10 +20,6 @@ void GigaColumn::updateUI() {
     }
 }
 
-GigaWidget &GigaColumn::child( GigaWidget &c ) {
-    return GigaWidget::child( c );
-}
-
 GigaColumn &Column() {
     GigaColumn *w = new GigaColumn();
     widgets_storage.push_back( w );

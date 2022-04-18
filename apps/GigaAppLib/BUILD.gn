@@ -42,6 +42,7 @@ static_library("GigaAppLib") {
       "GigaWidget.cpp",
       "GigaFont.cpp",
       "Containers/GigaColumn.cpp",
+      "Containers/GigaRow.cpp",
       "Widgets/GigaImage.cpp",
       "Widgets/GigaText.cpp",
       "Widgets/GigaIcon.cpp",

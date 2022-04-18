@@ -1,14 +1,14 @@
-#ifndef __GIGA_COLUMN_H__
-#define __GIGA_COLUMN_H__
+#ifndef __GIGA_ROW_H__
+#define __GIGA_ROW_H__
 
 #include "../GigaWidget.h"
 #include "../Widgets/GigaIcon.h"
 #include "../Widgets/GigaText.h"
 
-class GigaColumn : public GigaWidget {
+class GigaRow : public GigaWidget {
 public:
-    GigaColumn();
-    virtual ~GigaColumn() override;
+    GigaRow();
+    virtual ~GigaRow() override;
 
     virtual int _contentWidth() override;
     virtual int _contentHeight() override;  
@@ -21,6 +21,6 @@ protected:
     virtual void _draw_content(SkCanvas &canvas) override {}
 };
 
-GigaColumn &Column();
+GigaRow &Row();
 
-#endif //__GIGA_COLUMN_H__
+#endif //__GIGA_ROW_H__
