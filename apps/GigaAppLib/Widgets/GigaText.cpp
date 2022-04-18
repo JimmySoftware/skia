@@ -5,8 +5,13 @@
 #include "GigaText.h"
 
 GigaText::GigaText() {
-    _size = 14;
+    _size = 12;
     _tfIndex = FONT_REGULAR;
+
+    _background = false;
+    _border = false;
+    SkDebugf( "Text Border %i", _border );
+
 }
 
 GigaText::~GigaText() {
@@ -108,9 +113,13 @@ void GigaText::_draw_content(SkCanvas &canvas) {
     font.setSubpixel(true);
     font.setSize(_size);
 
+    SkFontMetrics metrics;
+    font.getMetrics(&metrics);
+
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLACK);
 
-    canvas.drawSimpleText(_text.c_str(), _text.length(), SkTextEncoding::kUTF8, 0, 20, font, paint);
+    canvas.drawSimpleText(_text.c_str(), _text.length(), SkTextEncoding::kUTF8, 
+        0, 0-metrics.fAscent, font, paint);
 }    

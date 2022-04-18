@@ -31,6 +31,8 @@ public:
     bool movable() { return _movable; }
     GigaUI *ui() { return _ui; }
     GigaFont *font() { return _font; }
+    bool background() { return _background; }
+    bool border() { return _border; }
 
     GigaWidget &x( int ix );
     GigaWidget &y( int iy );
@@ -44,6 +46,13 @@ public:
     GigaWidget &_( GigaWidget &c ) { return child(c); }
     inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
     GigaWidget &font( GigaFont &font );
+    GigaWidget &background( bool b ) { _background = b; return *this; }
+    GigaWidget &border (bool b ) { 
+        _border = b; 
+        SkDebugf( "Set Border %i", _border );
+        return *this; 
+    }
+    //virtual GigaWidget &size( const int s ) { return *this; }
 
     void setParent( GigaWidget *p );
     void setFont( GigaFont *f );
@@ -76,6 +85,9 @@ protected:
     bool _moving;
     int _lastX;
     int _lastY;
+
+    bool _background;
+    bool _border;
 
     std::vector<GigaWidget *>_children;
     GigaWidget *_parent;

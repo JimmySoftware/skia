@@ -27,6 +27,10 @@ GigaWidget::GigaWidget() {
 
     _font = NULL;
     _ofont = NULL;
+
+    _background = true;
+    _border = true;
+    SkDebugf( "Widget Border %i", _border );
 }
 
 GigaWidget::~GigaWidget() {
@@ -187,6 +191,9 @@ void GigaWidget::post_draw(SkCanvas &canvas) {
 }
 
 void GigaWidget::_draw_bg(SkCanvas &canvas) {
+    if( !_background ) {
+        return;
+    }
     SkPaint paint;
 
     paint.setColor( _bg_color );
@@ -216,6 +223,9 @@ void GigaWidget::_draw_children(SkCanvas &canvas) {
 }
 
 void GigaWidget::_draw_border(SkCanvas &canvas) {
+    if( !_border ) {
+        return;
+    }
     SkPaint paint;
 
     paint.setColor( _border_color );

@@ -7,6 +7,7 @@
 #include "GigaFont.h"
 #include "Widgets/GigaImage.h"
 #include "Widgets/GigaText.h"
+#include "Widgets/GigaIcon.h"
 
 class GigaWidget;
 

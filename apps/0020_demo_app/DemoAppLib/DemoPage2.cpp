@@ -14,11 +14,14 @@ DemoPage2::DemoPage2() {
                           ._(Widget().bounds(10, 10, 100, 80).movable(true))
                           ._(Widget().bounds(120, 10, 100, 80).movable(true)))
                ._(Image("images/ElonMusk.png").posn(10, 120).movable(true))
+               ._(Icon(0xf015).size(32).posn(260, 120).border(true))
+               ._(Text("สวัสดีชาวโลก เป็ดที่เป่าปี่นี้ดีที่สุด").size(40).posn(10, 274).border(true))
                ._(Widget().bounds(220, 10, 200, 100))
                ._(Widget().bounds(430, 10, 200, 200))
                ._(Text("Hello world...สวัสดีชาวโลกนี้")
                           .BoldItalic()
                           .size(16)
+                          .border(true)
                           .posn(430, 220)
                           .movable(true)));
 }
