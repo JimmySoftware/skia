@@ -30,10 +30,16 @@ bool GigaImage::setImage( sk_sp<SkImage> img ) {
 }
 
 int GigaImage::_contentWidth() {
+    if( !this->image ) {
+        return 0;
+    }
     return this->image->width();
 }
 
 int GigaImage::_contentHeight() {
+    if( !this->image ) {
+        return 0;
+    }    
     return this->image->height();
 }
 

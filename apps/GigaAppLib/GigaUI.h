@@ -5,6 +5,7 @@
 #include "include/core/SkColor.h"
 #include "GigaWidget.h"
 #include "GigaFont.h"
+#include "Containers/GigaColumn.h"
 #include "Widgets/GigaImage.h"
 #include "Widgets/GigaText.h"
 #include "Widgets/GigaIcon.h"

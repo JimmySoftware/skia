@@ -10,8 +10,6 @@ GigaText::GigaText() {
 
     _background = false;
     _border = false;
-    SkDebugf( "Text Border %i", _border );
-
 }
 
 GigaText::~GigaText() {
@@ -74,7 +72,6 @@ int GigaText::_contentWidth() {
     font.setSize(_size);
     SkRect rect;
     int ww = font.measureText( _text.c_str(), _text.length(), SkTextEncoding::kUTF8, &rect );   
-    SkDebugf( "Text width %i %0.2f\n", ww, rect.fRight-rect.fLeft );
 
     return rect.fRight - rect.fLeft;
 }
@@ -91,13 +88,10 @@ int GigaText::_contentHeight() {
     
     SkFontMetrics metrics;
     font.getMetrics(&metrics);
-    SkDebugf( "Font: %i %i (%i %i)\n", (int)metrics.fAscent, (int)metrics.fDescent,
-        (int)metrics.fTop, (int)metrics.fBottom );
     float fontHeight = -metrics.fAscent + metrics.fDescent;
 
     SkRect rect;
     int ww = font.measureText( _text.c_str(), _text.length(), SkTextEncoding::kUTF8, &rect );   
-    SkDebugf( "Text height %0.2f %0.2f\n", rect.fBottom, rect.fTop );
     return fontHeight;
 }
 

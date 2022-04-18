@@ -42,23 +42,24 @@ public:
     GigaWidget &posn( int ix, int iy );
     inline GigaWidget &bg_color( uint32_t c ) { _bg_color = c; return *this; }
     inline GigaWidget &border_color( uint32_t c ) { _border_color = c; return *this; }
-    GigaWidget &child( GigaWidget &c );
+    virtual GigaWidget &child( GigaWidget &c );
     GigaWidget &_( GigaWidget &c ) { return child(c); }
     inline GigaWidget &movable( bool b ) { _movable = b; return *this; }
     GigaWidget &font( GigaFont &font );
     GigaWidget &background( bool b ) { _background = b; return *this; }
     GigaWidget &border (bool b ) { 
         _border = b; 
-        SkDebugf( "Set Border %i", _border );
         return *this; 
     }
     //virtual GigaWidget &size( const int s ) { return *this; }
 
+    void ui( GigaUI *iui );
     void setParent( GigaWidget *p );
-    void setFont( GigaFont *f );
     bool hitTest( int x, int y );
 
-    void ui( GigaUI *iui );
+    virtual void setFont( GigaFont *f );
+    virtual void updateUI();
+
 
     virtual int _contentWidth() { return 0; }
     virtual int _contentHeight() { return 0; }

@@ -16,6 +16,9 @@ GigaIcon::GigaIcon( const uint16_t code ) {
         std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
         _text = convert.to_bytes(code);
     }
+
+    _width = _contentWidth();
+    _height = _contentHeight();
 }
 
 GigaIcon::~GigaIcon() {

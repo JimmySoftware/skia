@@ -27,6 +27,8 @@ GigaUI &createUI() {
 
 void GigaUI::draw(SkCanvas &canvas) {
     if( rootWidget ) {
+        rootWidget->updateUI();
+        
         rootWidget->pre_draw( canvas );
         rootWidget->draw( canvas );
         rootWidget->post_draw( canvas );

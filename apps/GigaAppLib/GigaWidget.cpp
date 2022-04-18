@@ -30,7 +30,6 @@ GigaWidget::GigaWidget() {
 
     _background = true;
     _border = true;
-    SkDebugf( "Widget Border %i", _border );
 }
 
 GigaWidget::~GigaWidget() {
@@ -114,6 +113,25 @@ GigaWidget &GigaWidget::height( int h ) {
     }    
     _oh = h;
     return *this; 
+}
+
+void GigaWidget::updateUI() {
+    if( _ow != 0 ) {
+        _width = _ow;
+    }
+    if( _oh != 0 ) {
+        _height = _oh;
+    }    
+    for( int i=0; i<_children.size(); i++ ) {
+        GigaWidget *w = _children[i];
+        w->updateUI();
+    }
+    if( _ow == 0 ) {
+        _width = _contentWidth();
+    }
+    if( _oh == 0 ) {
+        _height = _contentHeight();
+    }
 }
 
 GigaWidget &GigaWidget::bounds( int ix, int iy, int w, int h ) { 
