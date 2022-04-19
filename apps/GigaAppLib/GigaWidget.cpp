@@ -5,7 +5,11 @@
 
 std::vector<GigaWidget *>widgets_storage;
 
-GigaWidget::GigaWidget() {
+GigaWidget::GigaWidget( const char *_name ) {
+    if( _name ) {
+        name = _name;
+    }
+
     _parent = NULL;
 
     _x = 0; 
@@ -36,8 +40,8 @@ GigaWidget::~GigaWidget() {
 
 }
 
-GigaWidget &Widget() {
-    GigaWidget *w = new GigaWidget();
+GigaWidget &Widget( const char *_name ) {
+    GigaWidget *w = new GigaWidget(_name);
     widgets_storage.push_back( w );
     return *w;
 }

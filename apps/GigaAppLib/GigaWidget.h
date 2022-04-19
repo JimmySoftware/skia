@@ -11,8 +11,11 @@ class GigaFont;
 
 class GigaWidget {
 public:    
-    GigaWidget();
+    GigaWidget( const char *_name=NULL );
     virtual ~GigaWidget();
+
+    uint32_t id;
+    std::string name;
 
     virtual void pre_draw(SkCanvas &canvas);
     virtual void draw(SkCanvas &canvas);
@@ -100,6 +103,6 @@ protected:
 };
 
 extern std::vector<GigaWidget *>widgets_storage;
-GigaWidget &Widget();
+GigaWidget &Widget( const char *_name=NULL );
 
 #endif //__GIGA_WIDGET_H__
